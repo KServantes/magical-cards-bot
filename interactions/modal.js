@@ -9,16 +9,18 @@ const interactionModalSubmit = async (interaction) => {
 
 		const cardName = interaction.fields.getTextInputValue('nameInput');
 		const cardDesc = interaction.fields.getTextInputValue('effectInput');
+		const cardCode = interaction.fields.getTextInputValue('idInput');
 
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Thank You')
 			.setDescription(`
 				Card Recorded as: ${cardName}\n
-				${cardDesc}`);
+				${cardDesc}\n
+				${cardCode}`);
 
 		await interaction.update({ embeds: [embed] });
-		const cards = [{ cardName, cardDesc }];
+		const cards = [{ cardName, cardDesc, cardCode }];
 		console.log(cards);
 	}
 

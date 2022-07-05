@@ -13,10 +13,15 @@ const modalForm = async interaction => {
 		.setCustomId('effectInput')
 		.setLabel('What is this card\'s effect text?')
 		.setStyle('PARAGRAPH');
+	const idInput = new TextInputComponent()
+		.setCustomId('idInput')
+		.setLabel('What is this card\'s unique card code?')
+		.setStyle('SHORT');
 	const nameActionRow = new MessageActionRow().addComponents(nameInput);
 	const effectActionRow = new MessageActionRow().addComponents(effectInput);
+	const idActionRow = new MessageActionRow().addComponents(idInput);
 
-	modal.addComponents(nameActionRow, effectActionRow);
+	modal.addComponents(nameActionRow, effectActionRow, idActionRow);
 
 	interaction.showModal(modal);
 };
