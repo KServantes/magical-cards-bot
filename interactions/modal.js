@@ -30,4 +30,4 @@ module.exports = {
 	name: 'modal',
 	type: isModalSubmit,
 	interact: interactionModalSubmit,
-}
+};
