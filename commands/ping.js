@@ -16,14 +16,14 @@ module.exports = {
 	async execute(interaction) {
 		if (interaction.options.getSubcommand('heartbeat') === 'heartbeat') {
 			const { ws } = interaction.client;
-			interaction.reply(`Websocket heartbeat: ${ws.ping}`);
+			return interaction.reply(`Websocket heartbeat: ${ws.ping}`);
 		}
 		else if (interaction.options.getSubcommand('roundtrip') === 'roundtrip') {
 			const sent = await interaction.reply({ content: 'Pinging...', fetchReply: true });
-			interaction.editReply(`Roundtrip latency: ${sent.createdTimestamp - interaction.createdTimestamp}ms`);
+			return interaction.editReply(`Roundtrip latency: ${sent.createdTimestamp - interaction.createdTimestamp}ms`);
 		}
 		else {
-			await interaction.reply('Pong!');
+			return interaction.reply('Pong!');
 		}
 	},
 };
