@@ -2,7 +2,6 @@ require('dotenv').config();
 
 const { Client, Intents } = require('discord.js');
 const { addCollections } = require('./utility');
-// const db = require('./data/dbConfig');
 
 const client = new Client({
 	intents:  [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
@@ -12,7 +11,7 @@ const client = new Client({
 addCollections(client);
 
 client.on('ready', () => {
-	// if (!db) console.log('no db!');
+	client.user.setActivity('Out for floodgates!', { type: 'WATCHING' });
 	console.log('Magical Cards');
 });
 
