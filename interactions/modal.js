@@ -1,4 +1,7 @@
 const { MessageEmbed } = require('discord.js');
+const { addCardToBase } = require('../data/models');
+const wait = require('node:timers/promises').setTimeout;
+
 
 const isModalSubmit = interaction => {
 	return interaction.isModalSubmit();
@@ -19,9 +22,23 @@ const interactionModalSubmit = async (interaction) => {
 				${cardDesc}\n
 				${cardCode}`);
 
-		await interaction.update({ embeds: [embed] });
-		const cards = [{ cardName, cardDesc, cardCode }];
-		console.log(cards);
+		const { member } = interaction;
+		const params = { cardName, cardDesc, cardCode };
+		const card = await addCardToBase(member, params);
+		console.log(card);
+		if (card.error === undefined) {
+			await interaction.update({ embeds: [embed] });
+			await wait(4000);
+			return await interaction.message.delete();
+		}
+
+		const failEmbed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Whoa')
+			.setDescription(`There was a problem!\n
+			${card.error}`);
+
+		return interaction.update({ embeds: [failEmbed] });
 	}
 
 };
