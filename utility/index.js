@@ -1,6 +1,7 @@
 // Deploying cards here for some reason
 require('./deploy-commands');
 
+
 // The actual utility
 const fs = require('node:fs');
 const path = require('node:path');
@@ -28,4 +29,6 @@ const addCollections = client => {
 	}
 };
 
-module.exports = { addCollections };
+module.exports = {
+	addCollections,
+};

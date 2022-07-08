@@ -30,6 +30,12 @@ const addMemCard = memCard => {
 	return db('member_cards').insert(memCard);
 };
 
+const getMemCards = () => {
+	return db('member_cards as mc')
+		.select('mc.*', 'c.*')
+		.leftJoin('cards as c', 'mc.card_id', 'c.id');
+};
+
 const addCardToBase = async (member, { cardName, cardDesc, cardCode }) => {
 	const card = { name: cardName, desc: cardDesc, id: cardCode };
 	try {
@@ -57,4 +63,5 @@ const addCardToBase = async (member, { cardName, cardDesc, cardCode }) => {
 
 module.exports = {
 	addCardToBase,
+	getMemCards,
 };

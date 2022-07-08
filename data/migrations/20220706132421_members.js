@@ -17,18 +17,18 @@ exports.up = async knex => {
 				.references('id')
 				.inTable('members')
 				.onUpdate('CASCADE')
-				.onDelete('RESTRICT');
+				.onDelete('CASCADE');
 			memcards.integer('card_id')
 				.references('id')
 				.inTable('cards')
 				.onUpdate('CASCADE')
-				.onDelete('RESTRICT');
+				.onDelete('CASCADE');
 		});
 };
 
 exports.down = async knex => {
 	await knex.schema
-		.dropTableIfExists('members')
+		.dropTableIfExists('member_cards')
 		.dropTableIfExists('cards')
-		.dropTableIfExists('member_cards');
+		.dropTableIfExists('members');
 };
