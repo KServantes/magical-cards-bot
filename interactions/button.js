@@ -1,6 +1,7 @@
 const { MessageEmbed } = require('discord.js');
 const { modalForm } = require('../forms/modal');
 const { getMemCards } = require('../data/models');
+const { getCardExtra, addCardExtra } = require('../data/cards/extraModels');
 
 const fs = require('node:fs/promises');
 const { access, constants } = require('node:fs');
@@ -113,14 +114,9 @@ const interactionButton = async (interaction) => {
 			// console.log(cards);
 			cards.forEach(async card => {
 				const newCard = { id: card.id, name: card.name, desc: card.desc };
-				const oldCard = await dbNew('texts')
-					.where('id', card.id)
-					.first();
+				const oldCard = await getCardExtra(dbNew, card.id);
 				if (!oldCard) {
-					await dbNew('texts')
-						.insert(newCard);
-					await dbNew('datas')
-						.insert({ id: card.id });
+					await addCardExtra(dbNew, newCard);
 				}
 			});
 			const dbFile = path.join(dirPath, 'cards.cdb');
