@@ -110,7 +110,7 @@ const interactionButton = async (interaction) => {
 			const dbNew = require(`../data/cards/${member}/cdbConfig`);
 			await dbNew.migrate.latest();
 			const cards = await getMemCards();
-			console.log(cards);
+			// console.log(cards);
 			cards.forEach(async card => {
 				const newCard = { id: card.id, name: card.name, desc: card.desc };
 				const oldCard = await dbNew('texts')

@@ -14,6 +14,19 @@ const interactionModalSubmit = async (interaction) => {
 		const cardDesc = interaction.fields.getTextInputValue('effectInput');
 		const cardCode = interaction.fields.getTextInputValue('idInput');
 
+		// some type of validation
+		const verCode = parseInt(cardCode);
+		if (typeof verCode != 'number') {
+			const embed = new MessageEmbed()
+				.setColor('#0099ff')
+				.setTitle('Whoa')
+				.setDescription(`I'm afraid I can't take that submission!
+			${cardCode} isn't a number!`);
+			await interaction.update({ embeds: [embed] });
+			await wait(4000);
+			return await interaction.message.delete();
+		}
+
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Thank You')

@@ -15,8 +15,9 @@ const modalForm = async interaction => {
 		.setStyle('PARAGRAPH');
 	const idInput = new TextInputComponent()
 		.setCustomId('idInput')
-		.setLabel('What is this card\'s unique card code?')
-		.setStyle('SHORT');
+		.setLabel('What is this card\'s password? (Number only).')
+		.setStyle('SHORT')
+		.setMaxLength(10);
 	const nameActionRow = new MessageActionRow().addComponents(nameInput);
 	const effectActionRow = new MessageActionRow().addComponents(effectInput);
 	const idActionRow = new MessageActionRow().addComponents(idInput);
