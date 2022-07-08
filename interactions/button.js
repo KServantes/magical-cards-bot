@@ -5,6 +5,7 @@ const { getCardExtra, addCardExtra } = require('../data/cards/extraModels');
 
 const fs = require('node:fs/promises');
 const { access, constants } = require('node:fs');
+const wait = require('node:timers/promises').setTimeout;
 const path = require('node:path');
 
 const isButton = interaction => {
@@ -108,7 +109,8 @@ const interactionButton = async (interaction) => {
 			});
 
 			// connect and migrate new db
-			const dbNew = require(`../data/cards/${member}/cdbConfig`);
+			await wait(2000);
+			const dbNew = await require(`../data/cards/${member}/cdbConfig`);
 			await dbNew.migrate.latest();
 			const cards = await getMemCards();
 			// console.log(cards);
