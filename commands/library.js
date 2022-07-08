@@ -25,7 +25,7 @@ module.exports = {
 			);
 
 		if (cards.length >= 1) {
-			const msg = `You have a ${cards.length} card${cards.length ? '' : 's'} in the library.`;
+			const msg = `You have ${cards.length} card${cards.length < 2 ? '' : 's'} in the library.`;
 			const embed = new MessageEmbed()
 				.setColor('#0099ff')
 				.setTitle('Library')

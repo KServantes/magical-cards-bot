@@ -109,6 +109,20 @@ const interactionButton = async (interaction) => {
 			// connect and migrate new db
 			const dbNew = require(`../data/cards/${member}/cdbConfig`);
 			await dbNew.migrate.latest();
+			const cards = await getMemCards();
+			console.log(cards);
+			cards.forEach(async card => {
+				const newCard = { id: card.id, name: card.name, desc: card.desc };
+				const oldCard = await dbNew('texts')
+					.where('id', card.id)
+					.first();
+				if (!oldCard) {
+					await dbNew('texts')
+						.insert(newCard);
+					await dbNew('datas')
+						.insert({ id: card.id });
+				}
+			});
 			const dbFile = path.join(dirPath, 'cards.cdb');
 			await interaction.update({
 				components: [],
