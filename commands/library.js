@@ -26,8 +26,8 @@ module.exports = {
 				.setDescription(msg);
 
 			await interaction.reply({ components: [row], embeds: [embed] });
-			await wait(4000);
-			return await interaction.deleteReply();
+			// await wait(4000);
+			// return await interaction.deleteReply();
 		}
 		else {
 			const msg = 'I\'m  afraid I don\'t have any cards ';

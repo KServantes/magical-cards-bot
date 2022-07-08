@@ -1,11 +1,12 @@
 const { MessageEmbed } = require('discord.js');
 const { modalForm } = require('../forms/modal');
+const { getMemCards } = require('../data/models');
 
 const isButton = interaction => {
 	return interaction.isButton();
 };
 
-const interactionButton = async (interaction) => {
+const cardInfoModal = async interaction => {
 
 	// bring up the app for info
 	if (interaction.customId === 'yes') {
@@ -15,21 +16,45 @@ const interactionButton = async (interaction) => {
 				.setTitle('Creating')
 				.setDescription('Please wait...');
 			await modalForm(interaction);
-			await interaction.message.edit({ embeds: [embed], components: [] });
+			return await interaction.message.edit({ embeds: [embed], components: [] });
 		}
 		catch (error) {
-			await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+			return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
 		}
 	}
+
 	// remove any buttons with reply
 	if (interaction.customId === 'no') {
 		try {
-			await interaction.update({ content: 'Okay. See you!', components: [] });
+			return await interaction.update({ content: 'Okay. See you!', components: [] });
 		}
 		catch (error) {
-			await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+			return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
 		}
 	}
+	return ;
+};
+
+const interactionButton = async (interaction) => {
+
+	// card info modal
+	cardInfoModal(interaction);
+	// library message
+	if (interaction.customId === 'show_cards') {
+		const cards = await getMemCards();
+
+		const msg = cards.reduce((acc, c, i) => {
+			let str = `[${i + 1}] [${c.id}] - ${c.name}`;
+			if (i + 1) { str = str.concat(' \n');}
+
+			return acc.concat(`${str}`);
+		}, '');
+
+		const msgFormat = ` \`\`\`${msg}\`\`\` `;
+
+		await interaction.update({ content: msgFormat, components: [], embeds: [] });
+	}
+
 };
 
 module.exports = {
