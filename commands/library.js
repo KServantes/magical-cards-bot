@@ -8,7 +8,7 @@ module.exports = {
 		.setName('library')
 		.setDescription('Review the cards in your library.'),
 	async execute(interaction) {
-		const cards = await getMemCards();
+		const cards = await getMemCards(interaction.member.id);
 
 		const row = new MessageActionRow()
 			.addComponents(

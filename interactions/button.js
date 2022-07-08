@@ -61,7 +61,8 @@ const interactionButton = async (interaction) => {
 	cardInfoModal(interaction);
 	// library message
 	if (interaction.customId === 'show_cards') {
-		const cards = await getMemCards();
+		const cards = await getMemCards(interaction.member.id);
+		console.log(cards);
 
 		const msg = cards.reduce((acc, c, i) => {
 			let str = `[${i + 1}] [${c.id}] - ${c.name}`;

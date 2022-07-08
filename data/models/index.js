@@ -30,8 +30,9 @@ const addMemCard = memCard => {
 	return db('member_cards').insert(memCard);
 };
 
-const getMemCards = () => {
+const getMemCards = memID => {
 	return db('member_cards as mc')
+		.where('mc.member_id', memID)
 		.select('mc.*', 'c.*')
 		.leftJoin('cards as c', 'mc.card_id', 'c.id');
 };
