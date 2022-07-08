@@ -16,6 +16,12 @@ module.exports = {
 					.setCustomId('show_cards')
 					.setLabel('Show')
 					.setStyle('SUCCESS'),
+			)
+			.addComponents(
+				new MessageButton()
+					.setCustomId('export_cards')
+					.setLabel('Export')
+					.setStyle('PRIMARY'),
 			);
 
 		if (cards.length >= 1) {
