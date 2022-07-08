@@ -43,7 +43,7 @@ const cardInfoModal = async interaction => {
 
 const defaultConfig = member => {
 	const str = `const knex = require('knex');
-	
+
 module.exports = knex({
 	client: 'better-sqlite3',
 	useNullAsDefault: true,
