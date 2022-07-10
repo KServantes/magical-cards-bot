@@ -6,9 +6,13 @@ const wait = require('node:timers/promises').setTimeout;
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('library')
-		.setDescription('Review the cards in your library.'),
+		.setDescription('Review the cards in your library.')
+		.addUserOption(option => option.setName('duelist').setDescription('The member\'s library to show.')),
 	async execute(interaction) {
-		const cards = await getMemCards(interaction.member.id);
+		const userOp = interaction.options.getUser('duelist');
+		if (userOp) interaction.client.cache.set('libUser', userOp);
+		const { id: memberID } = userOp ? userOp : interaction.member;
+		const cards = await getMemCards(memberID);
 
 		const row = new MessageActionRow()
 			.addComponents(

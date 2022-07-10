@@ -61,7 +61,9 @@ const interactionButton = async (interaction) => {
 	cardInfoModal(interaction);
 	// library message
 	if (interaction.customId === 'show_cards') {
-		const cards = await getMemCards(interaction.member.id);
+		const userOp = interaction.client.cache.get('libUser');
+		const { id: memberID } = userOp ? userOp : interaction.member;
+		const cards = await getMemCards(memberID);
 		console.log(cards);
 
 		const msg = cards.reduce((acc, c, i) => {
@@ -113,7 +115,7 @@ const interactionButton = async (interaction) => {
 			await wait(2000);
 			const dbNew = await require(`../data/cards/${member}/cdbConfig`);
 			await dbNew.migrate.latest();
-			const cards = await getMemCards();
+			const cards = await getMemCards(interaction.member.id);
 			// console.log(cards);
 			cards.forEach(async card => {
 				const newCard = { id: card.id, name: card.name, desc: card.desc };
