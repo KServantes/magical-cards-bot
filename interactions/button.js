@@ -1,5 +1,4 @@
-const { MessageEmbed } = require('discord.js');
-const { modalForm } = require('../forms/modal');
+const Create = require('../commands/create/index');
 const { getMemCards } = require('../data/models');
 const { getCardExtra, addCardExtra } = require('../data/cards/extraModels');
 
@@ -10,37 +9,6 @@ const path = require('node:path');
 
 const isButton = interaction => {
 	return interaction.isButton();
-};
-
-const cardInfoModal = async interaction => {
-
-	// bring up the app for info
-	if (interaction.customId === 'yes') {
-		try {
-			const embed = new MessageEmbed()
-				.setColor('#0099ff')
-				.setTitle('Creating')
-				.setDescription('Please wait...');
-			await modalForm(interaction);
-			return await interaction.message.edit({ embeds: [embed], components: [] });
-		}
-		catch (error) {
-			return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
-		}
-	}
-
-	// remove any buttons with reply
-	if (interaction.customId === 'no') {
-		try {
-			await interaction.update({ content: 'Okay. See you!', components: [], embeds: [] });
-			await wait(4000);
-			return await interaction.message.delete();
-		}
-		catch (error) {
-			return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
-		}
-	}
-	return ;
 };
 
 const defaultConfig = member => {
@@ -58,9 +26,11 @@ module.exports = knex({
 };
 
 const interactionButton = async (interaction) => {
-
-	// card info modal
-	cardInfoModal(interaction);
+	Create.button.forEach((fun, key) => {
+		if (interaction.customId === key) {
+			fun(interaction);
+		}
+	});
 	// library message
 	if (interaction.customId === 'show_cards') {
 		const userOp = interaction.client.cache.get('libUser');
