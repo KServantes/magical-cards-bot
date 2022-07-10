@@ -32,7 +32,9 @@ const cardInfoModal = async interaction => {
 	// remove any buttons with reply
 	if (interaction.customId === 'no') {
 		try {
-			return await interaction.update({ content: 'Okay. See you!', components: [] });
+			await interaction.update({ content: 'Okay. See you!', components: [], embeds: [] });
+			await wait(4000);
+			return await interaction.message.delete();
 		}
 		catch (error) {
 			return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
