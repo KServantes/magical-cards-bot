@@ -38,9 +38,10 @@ const bcShowCards = async interaction => {
 		const msgFormat = ` \`\`\`${msg}\`\`\` `;
 
 		await interaction.update({ content: msgFormat, components: [], embeds: [] });
-
+		interaction.client.cache.delete('libUser');
 	}
 	catch (err) {
+		if (interaction.client.cache.has('libUser')) interaction.client.cache.delete('libUser');
 		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
 	}
 };
@@ -106,8 +107,10 @@ const bcExportCards = async interaction => {
 				description: `${member}'s card database.`,
 			}],
 		});
+		if (interaction.client.cache.has('libUser')) interaction.client.cache.delete('libUser');
 	}
 	catch (err) {
+		if (interaction.client.cache.has('libUser')) interaction.client.cache.delete('libUser');
 		return console.log({ err });
 	}
 };
