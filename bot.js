@@ -2,9 +2,10 @@ require('dotenv').config();
 
 const { Client, Intents } = require('discord.js');
 const { addCollections } = require('./utility');
+const { GUILDS, GUILD_MESSAGES, GUILD_MESSAGE_REACTIONS } = Intents.FLAGS;
 
 const client = new Client({
-	intents:  [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+	intents:  [GUILDS, GUILD_MESSAGES, GUILD_MESSAGE_REACTIONS],
 	partials: ['MESSAGE'],
 });
 
