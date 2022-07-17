@@ -1,11 +1,12 @@
 const { MessageEmbed } = require('discord.js');
 const { modalForm } = require('../../forms/modal');
-const { addCardToBase } = require('../../data/models');
+const db = require('../../data/models');
 const wait = require('node:timers/promises').setTimeout;
 
+const { BOT_DEFAULT_PASS } = db;
 
 // button interactions
-const bcYes = async interaction => {
+const bcStart = async interaction => {
 	try {
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
@@ -19,7 +20,7 @@ const bcYes = async interaction => {
 	}
 };
 
-const bcNo = async interaction => {
+const bcHalt = async interaction => {
 	try {
 		await interaction.update({ content: 'Okay. See you!', components: [], embeds: [] });
 		await wait(4000);
@@ -36,19 +37,18 @@ const cardInfoSubmit = async interaction => {
 	try {
 		const cardName = interaction.fields.getTextInputValue('nameInput');
 		const cardDesc = interaction.fields.getTextInputValue('effectInput');
-		const cardCode = interaction.fields.getTextInputValue('idInput');
+		let cardCode = interaction.fields.getTextInputValue('idInput');
 
 		// some type of validation
-		const verCode = parseInt(cardCode);
-		if (typeof verCode != 'number') {
-			const embed = new MessageEmbed()
-				.setColor('#0099ff')
-				.setTitle('Whoa')
-				.setDescription(`I'm afraid I can't take that submission!
-			${cardCode} isn't a number!`);
-			await interaction.update({ embeds: [embed] });
-			await wait(4000);
-			return await interaction.message.delete();
+		// defaults to next in range
+		cardCode = parseInt(cardCode);
+		if (isNaN(cardCode)) {
+			const botCards = await db.checkCard(BOT_DEFAULT_PASS);
+			const botCardCt = botCards.length;
+			const nextId = botCardCt + BOT_DEFAULT_PASS;
+			botCardCt < 1 ?
+				cardCode = BOT_DEFAULT_PASS :
+				cardCode = nextId;
 		}
 
 		const embed = new MessageEmbed()
@@ -61,8 +61,7 @@ const cardInfoSubmit = async interaction => {
 
 		const { member } = interaction;
 		const params = { cardName, cardDesc, cardCode };
-		const card = await addCardToBase(member, params);
-		console.log(card);
+		const card = await db.addCardToBase(member, params);
 		if (card.error === undefined) {
 			await interaction.update({ embeds: [embed] });
 			await wait(4000);
@@ -83,8 +82,8 @@ const cardInfoSubmit = async interaction => {
 };
 
 const interactButton = new Map([
-	['yes', bcYes],
-	['no', bcNo],
+	['start', bcStart],
+	['halt', bcHalt],
 ]);
 
 const interactModalSubmit = new Map([

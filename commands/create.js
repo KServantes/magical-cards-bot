@@ -10,18 +10,18 @@ module.exports = {
 		const row = new MessageActionRow()
 			.addComponents(
 				new MessageButton()
-					.setCustomId('yes')
+					.setCustomId('start')
 					.setLabel('Ready')
 					.setStyle('SUCCESS'),
 			)
 			.addComponents(
 				new MessageButton()
-					.setCustomId('no')
+					.setCustomId('halt')
 					.setLabel('Not yet')
 					.setStyle('DANGER'),
 			);
 
-		const greeting = 'Hello! I\'m Magical Card\'s Bot! I\'ll take you through the steps to make a card. Are you ready?';
+		const greeting = 'Hello! I\'m Magical Card\'s Bot!\nI\'ll take you through the steps to make a card.\n    Are you ready?';
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Welcome')

@@ -1,5 +1,8 @@
 const db = require('../dbConfig');
 
+const BOT_DEFAULT_PASS = 807945500;
+const BOT_DEFAULT_RNG = BOT_DEFAULT_PASS + 500;
+
 const addCard = card => {
 	return db('cards').insert(card)
 		.then(([id]) => {
@@ -11,6 +14,13 @@ const getCard = card_id => {
 	return db('cards')
 		.where('id', card_id)
 		.first();
+};
+
+const checkCard = () => {
+	return db('cards')
+		.whereBetween('id',
+			[BOT_DEFAULT_PASS, BOT_DEFAULT_RNG],
+		);
 };
 
 const addMember = member => {
@@ -58,11 +68,13 @@ const addCardToBase = async (member, { cardName, cardDesc, cardCode }) => {
 	}
 	catch (err) {
 		console.log(err);
-		return { ...err, error: 'Welp it broke' };
+		return { ...err, error: 'Database error.' };
 	}
 };
 
 module.exports = {
 	addCardToBase,
 	getMemCards,
+	checkCard,
+	BOT_DEFAULT_PASS,
 };
