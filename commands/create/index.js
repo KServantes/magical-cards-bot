@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 const { modalForm } = require('../../forms/modal');
 const db = require('../../data/models');
 const wait = require('node:timers/promises').setTimeout;
@@ -31,11 +31,30 @@ const bcHalt = async interaction => {
 	}
 };
 
+const bcEdit = async interaction => {
+	try {
+		const prevCard = interaction.client.cache.get('curr card');
+		if (prevCard === 'undefined') return await interaction.update({ content: 'there was an error.', components: [] });
+		await modalForm(interaction);
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Editing Card')
+			.setDescription('Please wait...');
+		return await interaction.message.edit({ embeds: [embed], components: [] });
+	}
+	catch (error) {
+		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+	}
+};
+
 
 // modal submit interactions
 const cardInfoSubmit = async interaction => {
 	try {
+		// const checkCard = interaction.client.cache.get('curr card');
+
 		const cardName = interaction.fields.getTextInputValue('nameInput');
+		const cardPEff = interaction.fields.getTextInputValue('pendInput');
 		const cardDesc = interaction.fields.getTextInputValue('effectInput');
 		let cardCode = interaction.fields.getTextInputValue('idInput');
 
@@ -51,30 +70,42 @@ const cardInfoSubmit = async interaction => {
 				cardCode = nextId;
 		}
 
+		const formatText = `[Pendulum Effect]
+${cardPEff}
+----------------------------------------
+[Card Text]
+${cardDesc}`;
+
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Thank You')
 			.setDescription(`
-				Card Recorded as: ${cardName}\n
-				${cardDesc}\n
+				*Card Recorded as:*
+				
+				**${cardName}**
+				${!cardPEff ? cardDesc : formatText}
 				${cardCode}`);
 
-		const { member } = interaction;
-		const params = { cardName, cardDesc, cardCode };
-		const card = await db.addCardToBase(member, params);
-		if (card.error === undefined) {
-			await interaction.update({ embeds: [embed] });
-			await wait(4000);
-			return await interaction.message.delete();
-		}
+		const row = new MessageActionRow()
+			.addComponents(
+				new MessageButton()
+					.setCustomId('edit1')
+					.setLabel('Edit')
+					.setStyle('SECONDARY'),
+			)
+			.addComponents(
+				new MessageButton()
+					.setCustomId('step2')
+					.setLabel('Next')
+					.setStyle('PRIMARY'),
+			);
 
-		const failEmbed = new MessageEmbed()
-			.setColor('#0099ff')
-			.setTitle('Whoa')
-			.setDescription(`There was a problem!\n
-			${card.error}`);
-
-		return interaction.update({ embeds: [failEmbed] });
+		// const { member } = interaction;
+		// const params = { cardName, cardDesc, cardCode };
+		// const card = await db.addCardToBase(member, params);
+		const currentCard = { cardName, cardPEff, cardDesc, cardCode };
+		interaction.client.cache.set('curr card', currentCard);
+		await interaction.update({ embeds: [embed], components: [row] });
 	}
 	catch (error) {
 		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
@@ -84,6 +115,7 @@ const cardInfoSubmit = async interaction => {
 const interactButton = new Map([
 	['start', bcStart],
 	['halt', bcHalt],
+	['edit1', bcEdit],
 ]);
 
 const interactModalSubmit = new Map([
