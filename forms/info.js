@@ -1,7 +1,7 @@
 const { Modal, TextInputComponent, MessageActionRow } = require('discord.js');
 const { BOT_DEFAULT_PASS } = require('../data/models');
 
-const modalForm = async (interaction) => {
+const infoForm = async (interaction) => {
 	const prev = interaction.client.cache.get('curr card');
 
 	const modal = new Modal()
@@ -48,5 +48,5 @@ const modalForm = async (interaction) => {
 };
 
 module.exports = {
-	modalForm,
+	infoForm,
 };

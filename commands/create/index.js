@@ -1,5 +1,5 @@
 const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
-const { modalForm } = require('../../forms/modal');
+const { infoForm } = require('../../forms/info');
 const db = require('../../data/models');
 const wait = require('node:timers/promises').setTimeout;
 
@@ -12,7 +12,7 @@ const bcStart = async interaction => {
 			.setColor('#0099ff')
 			.setTitle('Creating')
 			.setDescription('Please wait...');
-		await modalForm(interaction);
+		await infoForm(interaction);
 		return await interaction.message.edit({ embeds: [embed], components: [] });
 	}
 	catch (error) {
@@ -35,7 +35,7 @@ const bcEdit = async interaction => {
 	try {
 		const prevCard = interaction.client.cache.get('curr card');
 		if (prevCard === 'undefined') return await interaction.update({ content: 'there was an error.', components: [] });
-		await modalForm(interaction);
+		await infoForm(interaction);
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Editing Card')
@@ -43,6 +43,15 @@ const bcEdit = async interaction => {
 		return await interaction.message.edit({ embeds: [embed], components: [] });
 	}
 	catch (error) {
+		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+	}
+};
+
+const bcNext = async interaction => {
+	try {
+		
+	}
+	catch (err) {
 		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
 	}
 };
@@ -81,7 +90,7 @@ ${cardDesc}`;
 			.setTitle('Thank You')
 			.setDescription(`
 				*Card Recorded as:*
-				
+
 				**${cardName}**
 				${!cardPEff ? cardDesc : formatText}
 				${cardCode}`);
