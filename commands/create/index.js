@@ -69,15 +69,60 @@ ${cardDesc}`;
 };
 
 const selectionType = async interaction => {
-	const selection = interaction.values;
+	const types = interaction.values;
+	const { components } = interaction.message;
+	console.log('components', components);
+	// message components = [ MessageActionRow{type, comp}, MessageActionRow{type, comp} ]
+	// components MessageActionRow = [ SelectMenuBuilder {...} ]
+	console.log(components.length);
+	if (components.length === 1) {
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Selections')
+			.setDescription('Final Selections')
+			.addFields([
+				{
+					name: 'Types',
+					value: 'Types\nList\nHere',
+					inline: true,
+				},
+				{
+					name: 'Race',
+					value: 'Zombie',
+					inline: true,
+				},
+				{
+					name: 'Attribute',
+					value: 'DARK',
+					inline: true,
+				},
+			]);
+		return await interaction.update({ embeds: [embed], components: [] });
+	}
+	const rest = components.filter(actionRow => {
+		// ass of v13 actionRow can only have 1 SelectMenuBuilder
+		const selectMenu = actionRow.components[0];
+		return selectMenu.customId != 'card type';
+	});
 
-	console.log(interaction.message.components[0].components[0].customId);
+	const str = types.reduce((acc, t) => {
+		return acc.concat(t + '\n');
+	}, '');
+
+
 	const embed = new MessageEmbed()
 		.setColor('#0099ff')
-		.setTitle('Thank You')
-		.setDescription('Something was selected');
+		.setTitle('Selections')
+		.setDescription('Current Selection')
+		.addFields([
+			{
+				name: 'Types',
+				value: str,
+				inline: true,
+			},
+		]);
 
-	return await interaction.update({ embeds: [embed], components: [] });
+	return await interaction.update({ embeds: [embed], components: rest });
 };
 
 const interactButton = new Map([
