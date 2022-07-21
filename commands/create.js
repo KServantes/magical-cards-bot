@@ -22,10 +22,12 @@ module.exports = {
 			);
 
 		const greeting = 'Hello! I\'m Magical Card\'s Bot!\nI\'ll take you through the steps to make a card.\n    Are you ready?';
+
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Welcome')
-			.setDescription(greeting);
+			.setDescription(greeting)
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
 		return interaction.reply({ content: null, components: [row], embeds: [embed] });
 	},

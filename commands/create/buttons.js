@@ -2,12 +2,17 @@ const { MessageActionRow, MessageSelectMenu, MessageEmbed } = require('discord.j
 const wait = require('node:timers/promises').setTimeout;
 const { infoForm } = require('../../forms/info');
 
+const UID_CARD_TYPE = 'card type';
+const UID_CARD_RACE = 'card race';
+const UID_CARD_ATT = 'card att';
+
 const bcStart = async interaction => {
 	try {
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Creating')
-			.setDescription('Please wait...');
+			.setDescription('Please wait...')
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 		await infoForm(interaction);
 		return await interaction.message.edit({ embeds: [embed], components: [] });
 	}
@@ -32,7 +37,7 @@ const bcNext = async interaction => {
 	const raceRow = new MessageActionRow()
 		.addComponents(
 			new MessageSelectMenu()
-				.setCustomId('card race')
+				.setCustomId(UID_CARD_RACE)
 				.setPlaceholder('Zombie')
 				.addOptions([
 					{
@@ -49,7 +54,7 @@ const bcNext = async interaction => {
 	const typeRow = new MessageActionRow()
 		.addComponents(
 			new MessageSelectMenu()
-				.setCustomId('card type')
+				.setCustomId(UID_CARD_TYPE)
 				.setPlaceholder('Monster')
 				.setMinValues(2)
 				// .setMaxValues(6)
@@ -76,7 +81,7 @@ const bcNext = async interaction => {
 	const attributeRow = new MessageActionRow()
 		.addComponents(
 			new MessageSelectMenu()
-				.setCustomId('card att')
+				.setCustomId(UID_CARD_ATT)
 				.setPlaceholder('DARK')
 				.setMinValues(1)
 				.addOptions([
@@ -90,7 +95,8 @@ const bcNext = async interaction => {
 	const embed = new MessageEmbed()
 		.setColor('#0099ff')
 		.setTitle('Select this Card\'s Stats')
-		.setDescription('Please select this card\'s Race | Type | Attribute');
+		.setDescription('Please select this card\'s Race | Type | Attribute')
+		.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
 	return await interaction.update({ components: [raceRow, typeRow, attributeRow], embeds: [embed] });
 };
@@ -103,7 +109,8 @@ const bcEdit = async interaction => {
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Editing Card')
-			.setDescription('Please wait...');
+			.setDescription('Please wait...')
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 		return await interaction.message.edit({ embeds: [embed], components: [] });
 	}
 	catch (error) {
@@ -116,4 +123,7 @@ module.exports = {
 	bcHalt,
 	bcStart,
 	bcNext,
+	UID_CARD_ATT,
+	UID_CARD_RACE,
+	UID_CARD_TYPE,
 };

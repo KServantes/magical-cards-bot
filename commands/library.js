@@ -38,7 +38,8 @@ module.exports = {
 			const embed = new MessageEmbed()
 				.setColor('#0099ff')
 				.setTitle('Library')
-				.setDescription(msg);
+				.setDescription(msg)
+				.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
 			await interaction.reply({ embeds: [embed] });
 			await wait(4000);

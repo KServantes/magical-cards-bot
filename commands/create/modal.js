@@ -33,6 +33,7 @@ ${cardDesc}`;
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Thank You')
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
 			.setDescription(`
 				*Card Recorded as:*
 
