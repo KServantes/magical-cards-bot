@@ -2,9 +2,17 @@ const { MessageActionRow, MessageSelectMenu, MessageEmbed } = require('discord.j
 const wait = require('node:timers/promises').setTimeout;
 const { infoForm } = require('../../forms/info');
 
+// button ids
+// local
 const UID_CARD_TYPE = 'card type';
 const UID_CARD_RACE = 'card race';
 const UID_CARD_ATT = 'card att';
+// selections
+const UID_EDIT_STEP2 = 'edit2';
+const UID_NEXT_STEP3 = 'step3';
+// modal
+const UID_EDIT_STEP1 = 'edit1';
+const UID_NEXT_STEP2 = 'step2';
 
 const bcStart = async interaction => {
 	try {
@@ -126,4 +134,8 @@ module.exports = {
 	UID_CARD_ATT,
 	UID_CARD_RACE,
 	UID_CARD_TYPE,
+	UID_EDIT_STEP2,
+	UID_NEXT_STEP3,
+	UID_EDIT_STEP1,
+	UID_NEXT_STEP2,
 };

@@ -1,6 +1,13 @@
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 
-const { UID_CARD_TYPE, UID_CARD_RACE, UID_CARD_ATT } = require('./buttons');
+const {
+	UID_CARD_TYPE,
+	UID_CARD_RACE,
+	UID_CARD_ATT,
+	UID_EDIT_STEP2,
+	UID_NEXT_STEP3,
+
+} = require('./buttons');
 
 const getRestArray = (components, uid) => {
 	// refers to what left
@@ -21,13 +28,13 @@ const addButtonRow = rest => {
 	const row = new MessageActionRow()
 		.addComponents(
 			new MessageButton()
-				.setCustomId('edit2')
+				.setCustomId(UID_EDIT_STEP2)
 				.setLabel('Edit')
 				.setStyle('SECONDARY'),
 		)
 		.addComponents(
 			new MessageButton()
-				.setCustomId('step3')
+				.setCustomId(UID_NEXT_STEP3)
 				.setLabel('Next')
 				.setStyle('PRIMARY'),
 		);

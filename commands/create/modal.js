@@ -2,6 +2,7 @@ const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 const db = require('../../data/models');
 
 const { BOT_DEFAULT_PASS } = db;
+const { UID_EDIT_STEP1, UID_NEXT_STEP2 } = require('./buttons');
 
 const cardInfoSubmit = async interaction => {
 	try {
@@ -44,13 +45,13 @@ ${cardDesc}`;
 		const row = new MessageActionRow()
 			.addComponents(
 				new MessageButton()
-					.setCustomId('edit1')
+					.setCustomId(UID_EDIT_STEP1)
 					.setLabel('Edit')
 					.setStyle('SECONDARY'),
 			)
 			.addComponents(
 				new MessageButton()
-					.setCustomId('step2')
+					.setCustomId(UID_NEXT_STEP2)
 					.setLabel('Next')
 					.setStyle('PRIMARY'),
 			);
