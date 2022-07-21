@@ -126,11 +126,21 @@ const bcEdit = async interaction => {
 	}
 };
 
+const bcEdit2 = async interaction => {
+	try {
+		return await bcNext(interaction);
+	}
+	catch (error) {
+		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+	}
+};
+
 module.exports = {
 	bcEdit,
 	bcHalt,
 	bcStart,
 	bcNext,
+	bcEdit2,
 	UID_CARD_ATT,
 	UID_CARD_RACE,
 	UID_CARD_TYPE,
