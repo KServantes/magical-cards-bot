@@ -1,5 +1,5 @@
 const { Modal, TextInputComponent, MessageActionRow } = require('discord.js');
-const { BOT_DEFAULT_PASS } = require('../data/models');
+const { BOT_DEFAULT_PASS } = require('../../../data/models');
 
 const infoForm = async (interaction) => {
 	const prev = interaction.client.cache.get('curr card');

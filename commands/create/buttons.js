@@ -1,6 +1,6 @@
 const { MessageActionRow, MessageSelectMenu, MessageEmbed } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
-const { infoForm } = require('../../forms/info');
+const { infoForm } = require('./forms/info');
 
 // button ids
 // local

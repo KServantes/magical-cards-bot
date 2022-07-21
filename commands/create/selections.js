@@ -54,12 +54,19 @@ const getEmbed = (fields, finish) => {
 		.addFields(fields);
 
 	if (finish) {
+		// if bad types
+		// changes color
+		// add footer 'error'
 		embed = new MessageEmbed()
-			.setColor('#0099ff')
+			.setColor('#dd0f0f')
 			.setTitle('Selections Complete')
 			.setDescription('Final Selection')
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
-			.addFields(fields);
+			.addFields(fields)
+			.setFooter({
+				'text': 'Cannot process the types you entered.\nPlease edit them.',
+				'iconURL': 'https://i.imgur.com/ebtLbkK.png',
+			});
 	}
 
 	return embed;
