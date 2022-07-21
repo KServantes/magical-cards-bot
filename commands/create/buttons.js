@@ -37,11 +37,11 @@ const bcNext = async interaction => {
 				.addOptions([
 					{
 						label: 'Zombie',
-						value: 'race_zombie',
+						value: 'Zombie',
 					},
 					{
 						label: 'Warrior',
-						value: 'race_warrior',
+						value: 'Warrior',
 					},
 				]),
 		);
@@ -56,19 +56,19 @@ const bcNext = async interaction => {
 				.addOptions([
 					{
 						label: 'Monster',
-						description: 'Card Type',
-						value: 'monster',
+						description: 'Monster Card',
+						value: 'Monster',
 						emoji: '337135382833659906',
 					},
 					{
 						label: 'Effect',
 						description: 'Effect Monster',
-						value: 'effect',
+						value: 'Effect',
 					},
 					{
 						label: 'Normal',
-						description: 'Normal Monster/Spell/Trap',
-						value: 'normal',
+						description: 'Normal (Monster/Spell/Trap)',
+						value: 'Normal',
 					},
 				]),
 		);
@@ -89,8 +89,8 @@ const bcNext = async interaction => {
 
 	const embed = new MessageEmbed()
 		.setColor('#0099ff')
-		.setTitle('Enter the Card\'s type')
-		.setDescription('What\'s this card\'s type?');
+		.setTitle('Select this Card\'s Stats')
+		.setDescription('Please select this card\'s Race | Type | Attribute');
 
 	return await interaction.update({ components: [raceRow, typeRow, attributeRow], embeds: [embed] });
 };
