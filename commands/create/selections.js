@@ -65,25 +65,20 @@ const getEmbed = (fields, finish) => {
 	return embed;
 };
 
-const selectionType = async interaction => {
-	const types = interaction.values;
+const selection = async (interaction, type, value, uid) => {
 	const { components } = interaction.message;
-
-	const str = types.reduce((acc, t) => {
-		return acc.concat(t + '\n');
-	}, '');
 
 	const { embeds: msgEmbed } = interaction.message;
 	const msgEmbFields = msgEmbed[0].fields;
 	const newField = {
-		name: 'Types',
-		value: str,
+		name: type,
+		value: value,
 		inline: true,
 	};
 
 	// last selection to make
 	// add buttons for next step
-	const rest = getRestArray(components, UID_CARD_TYPE);
+	const rest = getRestArray(components, uid);
 	const isEmptyRest = rest.length === 0;
 	if (isEmptyRest) {
 		addButtonRow(rest);
@@ -95,47 +90,22 @@ const selectionType = async interaction => {
 
 const selectionRace = async interaction => {
 	const [race] = interaction.values;
-	const { components } = interaction.message;
+	return await selection(interaction, 'Race', race, UID_CARD_RACE);
+};
 
-	const { embeds: msgEmbed } = interaction.message;
-	const msgEmbFields = msgEmbed[0].fields;
-	const newField = {
-		name: 'Race',
-		value: race,
-		inline: true,
-	};
+const selectionType = async interaction => {
+	const types = interaction.values;
 
-	const rest = getRestArray(components, UID_CARD_RACE);
-	const isEmptyRest = rest.length === 0;
-	if (isEmptyRest) {
-		addButtonRow(rest);
-	}
+	const str = types.reduce((acc, t) => {
+		return acc.concat(t + '\n');
+	}, '');
 
-
-	const embed = getEmbed([...msgEmbFields, newField], isEmptyRest);
-	return await interaction.update({ embeds: [embed], components: rest });
+	return await selection(interaction, 'Types', str, UID_CARD_TYPE);
 };
 
 const selectionAtt = async interaction => {
 	const [att] = interaction.values;
-	const { components } = interaction.message;
-
-	const { embeds: msgEmbed } = interaction.message;
-	const msgEmbFields = msgEmbed[0].fields;
-	const newField = {
-		name: 'Attribute',
-		value: att,
-		inline: true,
-	};
-
-	const rest = getRestArray(components, UID_CARD_ATT);
-	const isEmptyRest = rest.length === 0;
-	if (isEmptyRest) {
-		addButtonRow(rest);
-	}
-
-	const embed = getEmbed([...msgEmbFields, newField], isEmptyRest);
-	return await interaction.update({ embeds: [embed], components: rest });
+	return await selection(interaction, 'Attribute', att, UID_CARD_ATT);
 };
 
 module.exports = {
