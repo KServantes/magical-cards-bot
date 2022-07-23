@@ -3,10 +3,12 @@
         "datas",
         "discordjs",
         "knexfile",
+        "lscale",
         "magicbot",
         "memcards",
         "Pendy",
         "reactables",
+        "rscale",
         "setcode"
     ]
 }

@@ -3,21 +3,9 @@ const wait = require('node:timers/promises').setTimeout;
 const { infoForm } = require('./forms/info');
 const { statsForm } = require('./forms/stats');
 
-// button ids
-// local
-const UID_CARD_TYPE = 'card type';
-const UID_CARD_RACE = 'card race';
-const UID_CARD_ATT = 'card att';
-// modal
-const UID_EDIT_STEP3 = 'edit3';
-const UID_NEXT_STEP4 = 'step4';
-// selections
-const UID_EDIT_STEP2 = 'edit2';
-const UID_NEXT_STEP3 = 'step3';
-// modal
-const UID_EDIT_STEP1 = 'edit1';
-const UID_NEXT_STEP2 = 'step2';
+const { UID_CARD_ATT, UID_CARD_RACE, UID_CARD_TYPE } = require('./constants');
 
+// start
 const bcStart = async interaction => {
 	try {
 		const embed = new MessageEmbed()
@@ -44,6 +32,8 @@ const bcHalt = async interaction => {
 	}
 };
 
+
+// step 1 => step 2
 const bcNext = async interaction => {
 
 	const raceRow = new MessageActionRow()
@@ -130,6 +120,8 @@ const bcEdit = async interaction => {
 	}
 };
 
+
+// step 2 => step 3
 const bcEdit2 = async interaction => {
 	try {
 		return await bcNext(interaction);
@@ -154,6 +146,8 @@ const bcNextSp3 = async interaction => {
 	}
 };
 
+
+// step 3 => step 4
 const bcEdit3 = async interaction => {
 	try {
 		const embed = new MessageEmbed()
@@ -177,13 +171,4 @@ module.exports = {
 	bcEdit2,
 	bcEdit3,
 	bcNextSp3,
-	UID_CARD_ATT,
-	UID_CARD_RACE,
-	UID_CARD_TYPE,
-	UID_EDIT_STEP1,
-	UID_EDIT_STEP2,
-	UID_EDIT_STEP3,
-	UID_NEXT_STEP2,
-	UID_NEXT_STEP3,
-	UID_NEXT_STEP4,
 };

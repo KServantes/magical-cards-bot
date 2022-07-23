@@ -7,7 +7,7 @@ const {
 	UID_EDIT_STEP2,
 	UID_NEXT_STEP3,
 
-} = require('./buttons');
+} = require('./constants');
 
 const getRestArray = (components, uid) => {
 	// refers to what left

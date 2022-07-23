@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
+const { UID_START, UID_HALT } = require('./create/constants');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -10,13 +11,13 @@ module.exports = {
 		const row = new MessageActionRow()
 			.addComponents(
 				new MessageButton()
-					.setCustomId('start')
+					.setCustomId(UID_START)
 					.setLabel('Ready')
 					.setStyle('SUCCESS'),
 			)
 			.addComponents(
 				new MessageButton()
-					.setCustomId('halt')
+					.setCustomId(UID_HALT)
 					.setLabel('Not yet')
 					.setStyle('DANGER'),
 			);

@@ -1,9 +1,10 @@
 const { Modal, TextInputComponent, MessageActionRow } = require('discord.js');
+const { UID_CARD_STATS } = require('../constants');
 
 const statsForm = async (interaction) => {
 
 	const modal = new Modal()
-		.setCustomId('card stats')
+		.setCustomId(UID_CARD_STATS)
 		.setTitle('Card Stats');
 	const atkInput = new TextInputComponent()
 		.setCustomId('atkInput')

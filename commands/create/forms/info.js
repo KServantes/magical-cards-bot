@@ -1,11 +1,12 @@
 const { Modal, TextInputComponent, MessageActionRow } = require('discord.js');
 const { BOT_DEFAULT_PASS } = require('../../../data/models');
+const { UID_CARD_INFO } = require('../constants');
 
 const infoForm = async (interaction) => {
 	const prev = interaction.client.cache.get('curr card');
 
 	const modal = new Modal()
-		.setCustomId('card info')
+		.setCustomId(UID_CARD_INFO)
 		.setTitle('Card Info');
 	let nameInput = new TextInputComponent()
 		.setCustomId('nameInput')

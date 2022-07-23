@@ -7,7 +7,7 @@ const {
 	UID_NEXT_STEP2,
 	UID_EDIT_STEP3,
 	UID_NEXT_STEP4,
-} = require('./buttons');
+} = require('./constants');
 
 const cardInfoSubmit = async interaction => {
 	try {
