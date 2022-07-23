@@ -1,12 +1,16 @@
 const { MessageActionRow, MessageSelectMenu, MessageEmbed } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
 const { infoForm } = require('./forms/info');
+const { statsForm } = require('./forms/stats');
 
 // button ids
 // local
 const UID_CARD_TYPE = 'card type';
 const UID_CARD_RACE = 'card race';
 const UID_CARD_ATT = 'card att';
+// modal
+const UID_EDIT_STEP3 = 'edit3';
+const UID_NEXT_STEP4 = 'step4';
 // selections
 const UID_EDIT_STEP2 = 'edit2';
 const UID_NEXT_STEP3 = 'step3';
@@ -135,17 +139,51 @@ const bcEdit2 = async interaction => {
 	}
 };
 
+const bcNextSp3 = async interaction => {
+	try {
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Creating')
+			.setDescription('Step 3 of 6...')
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+		await statsForm(interaction);
+		return await interaction.message.edit({ embeds: [embed], components: [] });
+	}
+	catch (error) {
+		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+	}
+};
+
+const bcEdit3 = async interaction => {
+	try {
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Editing')
+			.setDescription('Step 3 of 6...')
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+		await statsForm(interaction);
+		return await interaction.message.edit({ embeds: [embed], components: [] });
+	}
+	catch (error) {
+		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+	}
+};
+
 module.exports = {
 	bcEdit,
 	bcHalt,
 	bcStart,
 	bcNext,
 	bcEdit2,
+	bcEdit3,
+	bcNextSp3,
 	UID_CARD_ATT,
 	UID_CARD_RACE,
 	UID_CARD_TYPE,
-	UID_EDIT_STEP2,
-	UID_NEXT_STEP3,
 	UID_EDIT_STEP1,
+	UID_EDIT_STEP2,
+	UID_EDIT_STEP3,
 	UID_NEXT_STEP2,
+	UID_NEXT_STEP3,
+	UID_NEXT_STEP4,
 };
