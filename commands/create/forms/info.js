@@ -1,9 +1,11 @@
 const { Modal, TextInputComponent, MessageActionRow } = require('discord.js');
 const { BOT_DEFAULT_PASS } = require('../../../data/models');
 const { UID_CARD_INFO } = require('../constants');
+const Helper = require('../cacheHelper');
 
 const infoForm = async (interaction) => {
-	const prev = interaction.client.cache.get('curr card');
+	const { cache } = interaction.client;
+	const prev = Helper.getCache(cache, 1);
 
 	const modal = new Modal()
 		.setCustomId(UID_CARD_INFO)
@@ -33,10 +35,10 @@ const infoForm = async (interaction) => {
 		.setRequired(true)
 		.setPlaceholder(`e.g. 36021814 - Limit 10. (Default ${BOT_DEFAULT_PASS})`);
 	if (prev) {
-		nameInput = nameInput.setValue(prev.cardName);
-		pendInput = pendInput.setValue(prev.cardPEff);
-		effectInput = effectInput.setValue(prev.cardDesc);
-		idInput = idInput.setValue(`${prev.cardCode}`);
+		nameInput = nameInput.setValue(prev.name);
+		pendInput = pendInput.setValue(prev.temp.cardPEff);
+		effectInput = effectInput.setValue(prev.temp.cardDesc);
+		idInput = idInput.setValue(`${prev.id}`);
 	}
 	const nameActionRow = new MessageActionRow().addComponents(nameInput);
 	const pendActionRow = new MessageActionRow().addComponents(pendInput);

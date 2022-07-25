@@ -1,5 +1,6 @@
 const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 const db = require('../../data/models');
+const Helper = require('./cacheHelper');
 
 const { BOT_DEFAULT_PASS } = db;
 const {
@@ -8,6 +9,8 @@ const {
 	UID_EDIT_STEP3,
 	UID_NEXT_STEP4,
 } = require('./constants');
+
+const STEP_NO = 1;
 
 const cardInfoSubmit = async interaction => {
 	try {
@@ -65,7 +68,8 @@ ${cardDesc}`;
 		// const params = { cardName, cardDesc, cardCode };
 		// const card = await db.addCardToBase(member, params);
 		const currentCard = { cardName, cardPEff, cardDesc, cardCode };
-		interaction.client.cache.set('curr card', currentCard);
+		const { cache } = interaction.client;
+		Helper.setCache(cache, currentCard, STEP_NO);
 		await interaction.update({ embeds: [embed], components: [row] });
 	}
 	catch (error) {
