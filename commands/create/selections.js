@@ -1,5 +1,5 @@
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
-
+const Helper = require('./cacheHelper');
 const {
 	UID_CARD_TYPE,
 	UID_CARD_RACE,
@@ -91,6 +91,8 @@ const selection = async (interaction, type, value, uid) => {
 		addButtonRow(rest);
 	}
 
+	const { cache } = interaction.client;
+	Helper.setCache(cache, newField, 2);
 	const embed = getEmbed([...msgEmbFields, newField], isEmptyRest);
 	return await interaction.update({ embeds: [embed], components: rest });
 };
@@ -107,7 +109,7 @@ const selectionType = async interaction => {
 		return acc.concat(t + '\n');
 	}, '');
 
-	return await selection(interaction, 'Types', str, UID_CARD_TYPE);
+	return await selection(interaction, 'Type', str, UID_CARD_TYPE);
 };
 
 const selectionAtt = async interaction => {

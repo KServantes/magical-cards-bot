@@ -20,24 +20,105 @@ const stepOneData = (card, step) => {
 	return data;
 };
 
+const raceVal = (field) => {
+	let val = 0;
+
+	const races = new Map([
+		['Warrior', 0x1],
+		['Zombie', 0x10],
+	]);
+
+	races.forEach((v, r) => {
+		if (field.value === r) {
+			return val += v;
+		}
+	});
+
+	if (val === 0) return 777;
+	return val;
+};
+
+const typeVal = (field) => {
+	let val = 0;
+
+	const fields = field.value.split('\n');
+
+	const types = new Map([
+		['Monster', 0x1],
+		['Effect', 0x20],
+		['Normal', 0x10],
+	]);
+
+	fields.forEach(t => {
+		if (types.has(t)) {
+			return val += types.get(t);
+		}
+	});
+
+	if (val === 0) return 777;
+	return val;
+};
+
+const attVal = (field) => {
+	let val = 0;
+
+	const attributes = new Map([
+		['DARK', 0x20],
+	]);
+
+	attributes.forEach((v, a) => {
+		if (field.value === a) {
+			return val += v;
+		}
+	});
+
+	if (val === 0) return 777;
+	return val;
+};
+
+const stepTwoData = (field, cache) => {
+	const fields = new Map([
+		['Race', raceVal],
+		['Type', typeVal],
+		['Attribute', attVal],
+	]);
+
+	const data = {};
+
+	fields.forEach((fun, f) => {
+		if (field.name === f) {
+			const prop = field.name.toLowerCase();
+			data[prop] = fun(field);
+		}
+	});
+
+	return { ...cache, ...data };
+};
+
 const initializeCache = (cache) => {
 	const coll = new Collection();
 	const steps = coll.set(1, {});
 	return cache.set(CACHE_CURR_CARD, steps);
 };
 
-const setCache = (cache, card, step) => {
+const setCache = (cache, args, step) => {
 	if (!cache.has(CACHE_CURR_CARD)) initializeCache(cache);
+	const cacheCan = cache.get(CACHE_CURR_CARD);
 
 	let data = { step: 0 };
 
 	if (step === 1) {
-		data = stepOneData(card, step);
+		data = stepOneData(args, step);
+		cacheCan.set(step, data);
 	}
-	// set cache data [1, card]
-	const cardData = cache.get(CACHE_CURR_CARD).set(step, data);
+	if (step === 2) {
+		const stepCache = cacheCan.get(step);
+		data = stepTwoData(args, stepCache);
+		data.step = 2;
+		cacheCan.set(step, data);
+	}
 
-	return cardData;
+	return getCache(cache, step);
 };
 
 const getCache = (cache, step) => {
