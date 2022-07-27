@@ -83,6 +83,26 @@ const stepTwoData = (field, stepCache) => {
 	return { ...stepCache, ...data };
 };
 
+const stepThreeData = (stats, step) => {
+	const [ atk, def, lvl, lscale, rscale] = stats;
+
+	const calcLvl = [lscale, rscale, lvl].reduce((acc, s, i) => {
+		const { value: v } = s;
+		let hex = parseInt(v).toString(16);
+		if (i === 0 || i === 1) hex += '0';
+		if (i === 2) hex = '00' + hex;
+		return acc + hex;
+	}, '');
+
+	const data = {
+		step,
+		atk: parseInt(atk.value),
+		def: parseInt(def.value),
+		lvl: parseInt(calcLvl, 16),
+	};
+
+	return data;
+};
 
 const initializeCache = (cache) => {
 	const coll = new Collection();
@@ -107,7 +127,8 @@ const setDataCache = (cache, args, step) => {
 		cacheCan.set(step, data);
 	}
 	if (step === 3) {
-		// data = stepThreeData(args)
+		data = stepThreeData(args, step);
+		cacheCan.set(step, data);
 	}
 
 	return getStepCache(cache, step);
@@ -164,17 +185,6 @@ const setCardCache = cache => {
 		cardCache = getCardCache(cache);
 	}
 
-	// data:
-	//  {
-	//      step : 1,
-	//      name: '',
-	//      id: 0,
-	//      temp: {
-	//          cardPEff: '',
-	//          cardDesc: '',
-	//      }
-	//  }
-
 	const coll = cache.get(CACHE_DATA);
 	const data = coll.last();
 
@@ -215,47 +225,22 @@ const setCardCache = cache => {
 
 		cache.set(CACHE_CARD, cardTwo);
 	}
+	if (data.step === 3) {
+		const { step, atk, def, lvl } = data;
 
-	// await cardColl.each(data => {
-	// 	if (data.step === 1) {
-	// 		const { step, name, id, temp } = data;
+		const { temp: rest } = cardCache;
+		const cardThree = { ...cardCache,
+			atk,
+			def,
+			lvl,
+			temp: {
+				...rest,
+				stepNo: step,
+			},
+		};
 
-	// 		const { cardPEff, cardDesc } = temp;
-	// 		const pendy = cardPEff != '' ? true : false;
-
-	// 		const { temp: rest } = cardCache;
-	// 		const cardOne = { ...cardCache,
-	// 			id,
-	// 			name,
-	// 			temp: {
-	// 				...rest,
-	// 				isPendy: pendy,
-	// 				stepNo: step,
-	// 				cardPEff: cardPEff,
-	// 				cardDesc: cardDesc,
-	// 			},
-	// 		};
-
-	// 		cardCache = cardOne;
-	// 	}
-	// 	if (data.step === 2) {
-	// 		const { step, race, type, attribute } = data;
-
-	// 		const { temp: rest } = cardCache;
-	// 		const cardTwo = { ...cardCache,
-	// 			race,
-	// 			type,
-	// 			attribute,
-	// 			temp: {
-	// 				...rest,
-	// 				stepNo: step,
-	// 			},
-	// 		};
-
-	// 		cardCache = cardTwo;
-	// 	}
-	// });
-
+		cache.set(CACHE_CARD, cardThree);
+	}
 	return cache.get(CACHE_CARD);
 };
 

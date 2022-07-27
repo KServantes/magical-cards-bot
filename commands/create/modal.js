@@ -85,7 +85,7 @@ const cardStatsSubmit = async interaction => {
 		const cardLScale = interaction.fields.getTextInputValue('lsInput');
 		const cardRScale = interaction.fields.getTextInputValue('rsInput');
 
-		const vars = {
+		const stats = {
 			'ATK': cardATK,
 			'DEF': cardDEF,
 			'LVL': cardLVL,
@@ -101,7 +101,7 @@ const cardStatsSubmit = async interaction => {
 		const errStr = [];
 		const fields = [];
 		// eslint-disable-next-line prefer-const
-		for (let [stat, val] of Object.entries(vars)) {
+		for (let [stat, val] of Object.entries(stats)) {
 			const notInt = isNaN(parseInt(val));
 			const notPendy = (stat != 'lscale' && stat != 'rscale');
 			if (notInt && notPendy) {
@@ -158,6 +158,11 @@ const cardStatsSubmit = async interaction => {
 			return await interaction.update({ embeds: [reEmbed], components: [row] });
 		}
 
+		// set card data - step 3
+		const { cache } = interaction.client;
+		Helper.setDataCache(cache, fields, 3);
+
+		// message update
 		const row = new MessageActionRow().addComponents(editBtn, nextBtn);
 		return await interaction.update({ embeds: [embed], components: [row] });
 	}
