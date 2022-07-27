@@ -91,8 +91,11 @@ const selection = async (interaction, type, value, uid) => {
 		addButtonRow(rest);
 	}
 
+	// set in cache
 	const { cache } = interaction.client;
-	Helper.setCache(cache, newField, 2);
+	Helper.setDataCache(cache, newField, 2);
+
+	// message update
 	const embed = getEmbed([...msgEmbFields, newField], isEmptyRest);
 	return await interaction.update({ embeds: [embed], components: rest });
 };

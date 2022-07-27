@@ -20,6 +20,7 @@ const stepOneData = (card, step) => {
 	return data;
 };
 
+
 const raceVal = (field) => {
 	let val = 0;
 
@@ -95,13 +96,14 @@ const stepTwoData = (field, cache) => {
 	return { ...cache, ...data };
 };
 
+
 const initializeCache = (cache) => {
 	const coll = new Collection();
 	const steps = coll.set(1, {});
 	return cache.set(CACHE_DATA, steps);
 };
 
-const setCache = (cache, args, step) => {
+const setDataCache = (cache, args, step) => {
 	if (!cache.has(CACHE_DATA)) initializeCache(cache);
 	const cacheCan = cache.get(CACHE_DATA);
 
@@ -118,10 +120,10 @@ const setCache = (cache, args, step) => {
 		cacheCan.set(step, data);
 	}
 
-	return getCache(cache, step);
+	return getStepCache(cache, step);
 };
 
-const getCache = (cache, step) => {
+const getStepCache = (cache, step) => {
 	// return value
 	if (cache.has(CACHE_DATA)) {
 		const cardColl = cache.get(CACHE_DATA);
@@ -183,7 +185,8 @@ const setCardCache = async cache => {
 	//      }
 	//  }
 
-	const data = cache.get(CACHE_DATA);
+	const coll = cache.get(CACHE_DATA);
+	const data = coll.last();
 
 	if (data.step === 1) {
 		const { step, name, id, temp } = data;
@@ -220,7 +223,7 @@ const setCardCache = async cache => {
 			},
 		};
 
-		cardCache = cardTwo;
+		cache.set(CACHE_CARD, cardTwo);
 	}
 
 	// await cardColl.each(data => {
@@ -263,13 +266,12 @@ const setCardCache = async cache => {
 	// 	}
 	// });
 
-	console.log(getCardCache(cache));
 	return cache.get(CACHE_CARD);
 };
 
 module.exports = {
-	setCache,
-	getCache,
+	setDataCache,
+	getStepCache,
 	setCardCache,
 	CACHE_DATA,
 };

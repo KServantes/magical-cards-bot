@@ -111,7 +111,7 @@ const bcNext = async interaction => {
 const bcEdit = async interaction => {
 	try {
 		const { cache } = interaction.client;
-		const prevCard = Helper.getCache(cache, 1);
+		const prevCard = Helper.getStepCache(cache, 1);
 		if (prevCard === 'undefined') return await interaction.update({ content: 'there was an error.', components: [] });
 		await infoForm(interaction);
 		const embed = new MessageEmbed()

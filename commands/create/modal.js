@@ -69,7 +69,7 @@ ${cardDesc}`;
 		// const card = await db.addCardToBase(member, params);
 		const currentCard = { cardName, cardPEff, cardDesc, cardCode };
 		const { cache } = interaction.client;
-		Helper.setCache(cache, currentCard, STEP_NO);
+		Helper.setDataCache(cache, currentCard, STEP_NO);
 		await interaction.update({ embeds: [embed], components: [row] });
 	}
 	catch (error) {

@@ -5,7 +5,7 @@ const Helper = require('../cache');
 
 const infoForm = async (interaction) => {
 	const { cache } = interaction.client;
-	const prev = Helper.getCache(cache, 1);
+	const prev = Helper.getStepCache(cache, 1);
 
 	const modal = new Modal()
 		.setCustomId(UID_CARD_INFO)
