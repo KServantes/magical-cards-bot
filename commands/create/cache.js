@@ -166,7 +166,7 @@ const getCardCache = cache => {
 	return cache.get(CACHE_CARD);
 };
 
-const setCardCache = async cache => {
+const setCardCache = cache => {
 	let cardCache = getCardCache(cache);
 
 	if (!cache.has(CACHE_CARD)) {

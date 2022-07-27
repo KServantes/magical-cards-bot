@@ -1,5 +1,5 @@
 const { cardInfoSubmit, cardStatsSubmit } = require('./modal');
-const { bcStart, bcHalt, bcEdit, bcNext, bcEdit2, bcNextSp3, bcEdit3 } = require('./buttons');
+const { bcStart, bcHalt, bcEdit, bcNext, bcEdit2, bcNext3, bcEdit3 } = require('./buttons');
 const { selectionType, selectionRace, selectionAtt } = require('./selections');
 
 const { UID_START, UID_HALT, UID_CARD_INFO, UID_EDIT_STEP1,
@@ -18,7 +18,7 @@ const interactButton = new Map([
 
 	// step 2
 	[UID_EDIT_STEP2, bcEdit2],
-	[UID_NEXT_STEP3, bcNextSp3],
+	[UID_NEXT_STEP3, bcNext3],
 
 	// step 3
 	[UID_EDIT_STEP3, bcEdit3],

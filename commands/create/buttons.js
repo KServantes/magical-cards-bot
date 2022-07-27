@@ -137,8 +137,13 @@ const bcEdit2 = async interaction => {
 	}
 };
 
-const bcNextSp3 = async interaction => {
+const bcNext3 = async interaction => {
 	try {
+
+		const { cache } = interaction.client;
+		const cardRec = Helper.setCardCache(cache);
+		console.log('Recorded as: ', cardRec);
+
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Creating')
@@ -169,12 +174,25 @@ const bcEdit3 = async interaction => {
 	}
 };
 
+const bcNext4 = async interaction => {
+	try {
+		const { cache } = interaction.client;
+		const cardRec = Helper.setCardCache(cache);
+		console.log('Recorded as: ', cardRec);
+	}
+	catch (error) {
+		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+	}
+};
+
+
 module.exports = {
-	bcEdit,
-	bcHalt,
 	bcStart,
+	bcHalt,
+	bcEdit,
 	bcNext,
 	bcEdit2,
+	bcNext3,
 	bcEdit3,
-	bcNextSp3,
+	bcNext4,
 };
