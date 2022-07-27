@@ -1,5 +1,6 @@
 const { MessageActionRow, MessageSelectMenu, MessageEmbed } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
+const Helper = require('./cache');
 const { infoForm } = require('./forms/info');
 const { statsForm } = require('./forms/stats');
 
@@ -35,6 +36,10 @@ const bcHalt = async interaction => {
 
 // step 1 => step 2
 const bcNext = async interaction => {
+
+	const { cache } = interaction.client;
+	const cardRec = Helper.setCardCache(cache);
+	console.log('Recorded as: ', cardRec);
 
 	const raceRow = new MessageActionRow()
 		.addComponents(
@@ -105,7 +110,8 @@ const bcNext = async interaction => {
 
 const bcEdit = async interaction => {
 	try {
-		const prevCard = interaction.client.cache.get('curr card');
+		const { cache } = interaction.client;
+		const prevCard = Helper.getCache(cache, 1);
 		if (prevCard === 'undefined') return await interaction.update({ content: 'there was an error.', components: [] });
 		await infoForm(interaction);
 		const embed = new MessageEmbed()

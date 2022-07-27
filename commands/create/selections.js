@@ -1,5 +1,5 @@
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
-const Helper = require('./cacheHelper');
+const Helper = require('./cache');
 const {
 	UID_CARD_TYPE,
 	UID_CARD_RACE,

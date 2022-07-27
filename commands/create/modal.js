@@ -1,6 +1,6 @@
 const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 const db = require('../../data/models');
-const Helper = require('./cacheHelper');
+const Helper = require('./cache');
 
 const { BOT_DEFAULT_PASS } = db;
 const {
@@ -96,7 +96,7 @@ const cardStatsSubmit = async interaction => {
 		// form validation
 		// not counting lscale or rscale atm
 		// later refactor to check card
-		// if pend then input recieved
+		// if pend then input received
 		// if not pend then no input in the modal (undefined)
 		const errStr = [];
 		const fields = [];

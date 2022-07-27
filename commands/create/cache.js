@@ -1,7 +1,7 @@
 const { Collection } = require('discord.js');
 
-const CACHE_CURR_CARD = 'card cache';
-const CACHE_CARD = 'card object';
+const CACHE_DATA = 'card data';
+const CACHE_CARD = 'card cache';
 
 // memory cache
 const stepOneData = (card, step) => {
@@ -98,12 +98,12 @@ const stepTwoData = (field, cache) => {
 const initializeCache = (cache) => {
 	const coll = new Collection();
 	const steps = coll.set(1, {});
-	return cache.set(CACHE_CURR_CARD, steps);
+	return cache.set(CACHE_DATA, steps);
 };
 
 const setCache = (cache, args, step) => {
-	if (!cache.has(CACHE_CURR_CARD)) initializeCache(cache);
-	const cacheCan = cache.get(CACHE_CURR_CARD);
+	if (!cache.has(CACHE_DATA)) initializeCache(cache);
+	const cacheCan = cache.get(CACHE_DATA);
 
 	let data = { step: 0 };
 
@@ -123,8 +123,8 @@ const setCache = (cache, args, step) => {
 
 const getCache = (cache, step) => {
 	// return value
-	if (cache.has(CACHE_CURR_CARD)) {
-		const cardColl = cache.get(CACHE_CURR_CARD);
+	if (cache.has(CACHE_DATA)) {
+		const cardColl = cache.get(CACHE_DATA);
 		const isCard = cardColl.has(step);
 		if (isCard) {
 			return cardColl.get(step);
@@ -164,7 +164,7 @@ const getCardCache = cache => {
 	return cache.get(CACHE_CARD);
 };
 
-const setCardCache = cache => {
+const setCardCache = async cache => {
 	let cardCache = getCardCache(cache);
 
 	if (!cache.has(CACHE_CARD)) {
@@ -183,38 +183,93 @@ const setCardCache = cache => {
 	//      }
 	//  }
 
-	const cardColl = cache.get(CACHE_CURR_CARD);
+	const data = cache.get(CACHE_DATA);
 
-	cardColl.each(data => {
-		if (data.step === 1) {
-			const { step, name, id, temp } = data;
+	if (data.step === 1) {
+		const { step, name, id, temp } = data;
 
-			const { cardPEff, cardDesc } = temp;
-			const pendy = cardPEff != '' ? true : false;
+		const { cardPEff, cardDesc } = temp;
+		const pendy = cardPEff != '' ? true : false;
 
-			const { temp: rest } = cardCache;
-			const cardOne = { ...cardCache,
-				id,
-				name,
-				temp: {
-					...rest,
-					isPendy: pendy,
-					stepNo: step,
-					cardPEff: cardPEff,
-					cardDesc: cardDesc,
-				},
-			};
+		const { temp: rest } = cardCache;
+		const cardOne = { ...cardCache,
+			id,
+			name,
+			temp: {
+				...rest,
+				isPendy: pendy,
+				stepNo: step,
+				cardPEff: cardPEff,
+				cardDesc: cardDesc,
+			},
+		};
 
-			return cache.set(CACHE_CARD, cardOne);
-		}
-	});
+		cache.set(CACHE_CARD, cardOne);
+	}
+	if (data.step === 2) {
+		const { step, race, type, attribute } = data;
 
-	return getCardCache(cache);
+		const { temp: rest } = cardCache;
+		const cardTwo = { ...cardCache,
+			race,
+			type,
+			attribute,
+			temp: {
+				...rest,
+				stepNo: step,
+			},
+		};
+
+		cardCache = cardTwo;
+	}
+
+	// await cardColl.each(data => {
+	// 	if (data.step === 1) {
+	// 		const { step, name, id, temp } = data;
+
+	// 		const { cardPEff, cardDesc } = temp;
+	// 		const pendy = cardPEff != '' ? true : false;
+
+	// 		const { temp: rest } = cardCache;
+	// 		const cardOne = { ...cardCache,
+	// 			id,
+	// 			name,
+	// 			temp: {
+	// 				...rest,
+	// 				isPendy: pendy,
+	// 				stepNo: step,
+	// 				cardPEff: cardPEff,
+	// 				cardDesc: cardDesc,
+	// 			},
+	// 		};
+
+	// 		cardCache = cardOne;
+	// 	}
+	// 	if (data.step === 2) {
+	// 		const { step, race, type, attribute } = data;
+
+	// 		const { temp: rest } = cardCache;
+	// 		const cardTwo = { ...cardCache,
+	// 			race,
+	// 			type,
+	// 			attribute,
+	// 			temp: {
+	// 				...rest,
+	// 				stepNo: step,
+	// 			},
+	// 		};
+
+	// 		cardCache = cardTwo;
+	// 	}
+	// });
+
+	console.log(getCardCache(cache));
+	return cache.get(CACHE_CARD);
 };
 
 module.exports = {
 	setCache,
 	getCache,
 	setCardCache,
-	CACHE_CURR_CARD,
+	CACHE_DATA,
 };

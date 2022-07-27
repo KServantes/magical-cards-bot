@@ -1,7 +1,7 @@
 const { Modal, TextInputComponent, MessageActionRow } = require('discord.js');
 const { BOT_DEFAULT_PASS } = require('../../../data/models');
 const { UID_CARD_INFO } = require('../constants');
-const Helper = require('../cacheHelper');
+const Helper = require('../cache');
 
 const infoForm = async (interaction) => {
 	const { cache } = interaction.client;
