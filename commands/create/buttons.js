@@ -3,6 +3,7 @@ const wait = require('node:timers/promises').setTimeout;
 const Helper = require('./cache');
 const { infoForm } = require('./forms/info');
 const { statsForm } = require('./forms/stats');
+const { Races, Types, Attributes } = require('./constants');
 
 const { UID_CARD_ATT, UID_CARD_RACE, UID_CARD_TYPE } = require('./constants');
 
@@ -41,23 +42,30 @@ const bcNext = async interaction => {
 	const cardRec = Helper.setCardCache(cache);
 	console.log('Recorded as: ', cardRec);
 
+	const getOptions = coll => {
+		const options = coll.reduce((acc, _, r) => {
+			const option = {
+				label: r,
+				value: r,
+			};
+
+			return acc.concat(option);
+		}, []);
+
+		return options;
+	};
+
+	const raceOptions = getOptions(Races);
 	const raceRow = new MessageActionRow()
 		.addComponents(
 			new MessageSelectMenu()
 				.setCustomId(UID_CARD_RACE)
 				.setPlaceholder('Zombie')
-				.addOptions([
-					{
-						label: 'Zombie',
-						value: 'Zombie',
-					},
-					{
-						label: 'Warrior',
-						value: 'Warrior',
-					},
-				]),
+				.addOptions(raceOptions),
 		);
 
+
+	const typeOptions = getOptions(Types);
 	const typeRow = new MessageActionRow()
 		.addComponents(
 			new MessageSelectMenu()
@@ -65,38 +73,18 @@ const bcNext = async interaction => {
 				.setPlaceholder('Monster')
 				.setMinValues(2)
 				// .setMaxValues(6)
-				.addOptions([
-					{
-						label: 'Monster',
-						description: 'Monster Card',
-						value: 'Monster',
-						emoji: '337135382833659906',
-					},
-					{
-						label: 'Effect',
-						description: 'Effect Monster',
-						value: 'Effect',
-					},
-					{
-						label: 'Normal',
-						description: 'Normal (Monster/Spell/Trap)',
-						value: 'Normal',
-					},
-				]),
+				.addOptions(typeOptions),
 		);
 
+
+	const attOptions = getOptions(Attributes);
 	const attributeRow = new MessageActionRow()
 		.addComponents(
 			new MessageSelectMenu()
 				.setCustomId(UID_CARD_ATT)
 				.setPlaceholder('DARK')
 				.setMinValues(1)
-				.addOptions([
-					{
-						label: 'DARK',
-						value: 'DARK',
-					},
-				]),
+				.addOptions(attOptions),
 		);
 
 	const embed = new MessageEmbed()

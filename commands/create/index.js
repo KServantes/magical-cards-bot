@@ -1,3 +1,4 @@
+const { Collection } = require('discord.js');
 const { cardInfoSubmit, cardStatsSubmit } = require('./modal');
 const { bcStart, bcHalt, bcEdit, bcNext, bcEdit2, bcNext3, bcEdit3 } = require('./buttons');
 const { selectionType, selectionRace, selectionAtt } = require('./selections');
@@ -7,7 +8,7 @@ const { UID_START, UID_HALT, UID_CARD_INFO, UID_EDIT_STEP1,
 	UID_EDIT_STEP3, UID_CARD_ATT, UID_CARD_RACE, UID_CARD_TYPE,
 } = require('./constants');
 
-const interactButton = new Map([
+const interactButton = new Collection([
 	// start
 	[UID_START, bcStart],
 	[UID_HALT, bcHalt],
@@ -24,7 +25,7 @@ const interactButton = new Map([
 	[UID_EDIT_STEP3, bcEdit3],
 ]);
 
-const interactModalSubmit = new Map([
+const interactModalSubmit = new Collection([
 	// step 1
 	[UID_CARD_INFO, cardInfoSubmit],
 
@@ -32,7 +33,7 @@ const interactModalSubmit = new Map([
 	[UID_CARD_STATS, cardStatsSubmit],
 ]);
 
-const interactSelectMenu = new Map([
+const interactSelectMenu = new Collection([
 	// step 2
 	[UID_CARD_TYPE, selectionType],
 	[UID_CARD_RACE, selectionRace],

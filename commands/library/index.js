@@ -1,3 +1,4 @@
+const { Collection } = require('discord.js');
 const { getMemCards } = require('../../data/models');
 const { getCardExtra, addCardExtra } = require('../../data/cards/extraModels');
 
@@ -115,7 +116,7 @@ const bcExportCards = async interaction => {
 	}
 };
 
-const interactButton = new Map([
+const interactButton = new Collection([
 	['show_cards', bcShowCards],
 	['export_cards', bcExportCards],
 ]);

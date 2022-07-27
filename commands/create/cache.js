@@ -1,7 +1,9 @@
 const { Collection } = require('discord.js');
+const { Races, Types, Attributes } = require('./constants');
 
 const CACHE_DATA = 'card data';
 const CACHE_CARD = 'card cache';
+
 
 // memory cache
 const stepOneData = (card, step) => {
@@ -24,12 +26,7 @@ const stepOneData = (card, step) => {
 const raceVal = (field) => {
 	let val = 0;
 
-	const races = new Map([
-		['Warrior', 0x1],
-		['Zombie', 0x10],
-	]);
-
-	races.forEach((v, r) => {
+	Races.forEach((v, r) => {
 		if (field.value === r) {
 			return val += v;
 		}
@@ -44,15 +41,9 @@ const typeVal = (field) => {
 
 	const fields = field.value.split('\n');
 
-	const types = new Map([
-		['Monster', 0x1],
-		['Effect', 0x20],
-		['Normal', 0x10],
-	]);
-
 	fields.forEach(t => {
-		if (types.has(t)) {
-			return val += types.get(t);
+		if (Types.has(t)) {
+			return val += Types.get(t);
 		}
 	});
 
@@ -63,11 +54,7 @@ const typeVal = (field) => {
 const attVal = (field) => {
 	let val = 0;
 
-	const attributes = new Map([
-		['DARK', 0x20],
-	]);
-
-	attributes.forEach((v, a) => {
+	Attributes.forEach((v, a) => {
 		if (field.value === a) {
 			return val += v;
 		}
@@ -77,8 +64,8 @@ const attVal = (field) => {
 	return val;
 };
 
-const stepTwoData = (field, cache) => {
-	const fields = new Map([
+const stepTwoData = (field, stepCache) => {
+	const fields = new Collection([
 		['Race', raceVal],
 		['Type', typeVal],
 		['Attribute', attVal],
@@ -93,7 +80,7 @@ const stepTwoData = (field, cache) => {
 		}
 	});
 
-	return { ...cache, ...data };
+	return { ...stepCache, ...data };
 };
 
 
@@ -118,6 +105,9 @@ const setDataCache = (cache, args, step) => {
 		data = stepTwoData(args, stepCache);
 		data.step = 2;
 		cacheCan.set(step, data);
+	}
+	if (step === 3) {
+		// data = stepThreeData(args)
 	}
 
 	return getStepCache(cache, step);
