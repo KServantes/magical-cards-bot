@@ -10,14 +10,14 @@ const { Collection } = require('discord.js');
 const UID_START = 'start';
 const UID_HALT = 'halt';
 
-// modal
+// modal / buttons
 // step 1
 const UID_CARD_INFO = 'card info';
 
 const UID_EDIT_STEP1 = 'edit1';
 const UID_NEXT_STEP2 = 'step2';
 
-// selections
+// selections / buttons
 // step 2
 const UID_CARD_TYPE = 'card type';
 const UID_CARD_RACE = 'card race';
@@ -26,7 +26,7 @@ const UID_CARD_ATT = 'card att';
 const UID_EDIT_STEP2 = 'edit2';
 const UID_NEXT_STEP3 = 'step3';
 
-// modal
+// modal / buttons
 // step 3
 const UID_CARD_STATS = 'card stats';
 
