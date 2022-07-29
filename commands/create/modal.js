@@ -78,20 +78,57 @@ ${cardDesc}`;
 };
 
 const cardStatsSubmit = async interaction => {
+
+	// Embeds and Buttons for da msg update
+	const mkEmbed = fields => {
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Card Stats')
+			.setDescription('Card entered as: ')
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
+			.addFields(fields);
+
+		return embed;
+	};
+
+	const editBtn = new MessageButton()
+		.setCustomId(UID_EDIT_STEP3)
+		.setLabel('Edit')
+		.setStyle('SECONDARY');
+
+	const nextBtn = new MessageButton()
+		.setCustomId(UID_NEXT_STEP4)
+		.setLabel('Next')
+		.setStyle('PRIMARY');
+
+
+	// actual interaction
 	try {
-		const cardATK = interaction.fields.getTextInputValue('atkInput');
-		const cardDEF = interaction.fields.getTextInputValue('defInput');
-		const cardLVL = interaction.fields.getTextInputValue('lvlInput');
-		const cardLScale = interaction.fields.getTextInputValue('lsInput');
-		const cardRScale = interaction.fields.getTextInputValue('rsInput');
+		const getInputVal = input => interaction.fields.getTextInputValue(input);
+
+		const cardATK = getInputVal('atkInput');
+		const cardDEF = getInputVal('defInput');
+		const cardLVL = getInputVal('lvlInput');
+		let cardLScale = '';
+		let cardRScale = '';
 
 		const stats = {
 			'ATK': cardATK,
 			'DEF': cardDEF,
 			'LVL': cardLVL,
-			'lscale': cardLScale,
-			'rscale': cardRScale,
 		};
+
+		const { cache } = interaction.client;
+		const card = Helper.getCardCache(cache);
+		if (card.temp.isPendy) {
+			console.log('Pendy?', card.temp);
+			cardLScale = getInputVal('lsInput');
+			cardRScale = getInputVal('rsInput');
+
+			stats['lscale'] = cardLScale;
+			stats['rscale'] = cardRScale;
+		}
+
 
 		// form validation
 		// not counting lscale or rscale atm
@@ -103,8 +140,7 @@ const cardStatsSubmit = async interaction => {
 		// eslint-disable-next-line prefer-const
 		for (let [stat, val] of Object.entries(stats)) {
 			const notInt = isNaN(parseInt(val));
-			const notPendy = (stat != 'lscale' && stat != 'rscale');
-			if (notInt && notPendy) {
+			if (notInt) {
 				errStr.push(stat);
 			}
 
@@ -118,24 +154,6 @@ const cardStatsSubmit = async interaction => {
 			fields.push(field);
 		}
 
-		// components in msg
-		const embed = new MessageEmbed()
-			.setColor('#0099ff')
-			.setTitle('Card Stats')
-			.setDescription('Card entered as: ')
-			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
-			.addFields(fields);
-
-		const editBtn = new MessageButton()
-			.setCustomId(UID_EDIT_STEP3)
-			.setLabel('Edit')
-			.setStyle('SECONDARY');
-
-		const nextBtn = new MessageButton()
-			.setCustomId(UID_NEXT_STEP4)
-			.setLabel('Next')
-			.setStyle('PRIMARY');
-
 		// edit
 		// form errors
 		if (errStr.length >= 1) {
@@ -143,6 +161,7 @@ const cardStatsSubmit = async interaction => {
 				return acc + `${stat} `;
 			}, '');
 
+			const embed = mkEmbed(fields);
 			const reEmbed = embed
 				.setColor('#dd0f0f')
 				.setFields(fields)
@@ -159,15 +178,31 @@ const cardStatsSubmit = async interaction => {
 		}
 
 		// set card data - step 3
-		const { cache } = interaction.client;
 		Helper.setDataCache(cache, fields, 3);
 
 		// message update
+		const embed = mkEmbed(fields);
 		const row = new MessageActionRow().addComponents(editBtn, nextBtn);
 		return await interaction.update({ embeds: [embed], components: [row] });
 	}
 	catch (error) {
 		console.log(error);
+		if (error.name === 'TypeError') {
+			const embed = mkEmbed([]);
+			const reEmbed = embed
+				.setColor('#dd0f0f')
+				.setDescription('Hmm, seems there was an error.')
+				.setFooter({
+					'text': 'Type Error: eg. Cannot enter "1000" as "1,000".\n Please try again.',
+					'iconURL': 'https://i.imgur.com/ebtLbkK.png',
+				});
+
+			const reEdit = editBtn.setStyle('DANGER');
+			const reNext = nextBtn.setDisabled(true);
+			const row = new MessageActionRow().addComponents(reEdit, reNext);
+			return await interaction.reply({ embeds: [reEmbed], components: [row] });
+		}
+
 		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
 	}
 };

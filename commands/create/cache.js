@@ -84,21 +84,30 @@ const stepTwoData = (field, stepCache) => {
 };
 
 const stepThreeData = (stats, step) => {
-	const [ atk, def, lvl, lscale, rscale] = stats;
+	console.log('stats', stats);
+	const [ atk, def, lvl] = stats;
 
-	const calcLvl = [lscale, rscale, lvl].reduce((acc, s, i) => {
-		const { value: v } = s;
-		let hex = parseInt(v).toString(16);
-		if (i === 0 || i === 1) hex += '0';
-		if (i === 2) hex = '00' + hex;
-		return acc + hex;
-	}, '');
+	let actLvl = parseInt(lvl.value);
+
+	if (stats.length > 3) {
+		const [ ,,, lscale, rscale] = stats;
+
+		const calcLvl = [lscale, rscale, lvl].reduce((acc, s, i) => {
+			const { value: v } = s;
+			let hex = parseInt(v).toString(16);
+			if (i === 0 || i === 1) hex += '0';
+			if (i === 2) hex = '00' + hex;
+			return acc + hex;
+		}, '');
+
+		actLvl = parseInt(calcLvl, 16);
+	}
 
 	const data = {
 		step,
 		atk: parseInt(atk.value),
 		def: parseInt(def.value),
-		lvl: parseInt(calcLvl, 16),
+		lvl: actLvl,
 	};
 
 	return data;
@@ -248,5 +257,6 @@ module.exports = {
 	setDataCache,
 	getStepCache,
 	setCardCache,
+	getCardCache,
 	CACHE_DATA,
 };
