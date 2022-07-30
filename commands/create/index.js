@@ -1,6 +1,6 @@
 const { Collection } = require('discord.js');
 const { cardInfoSubmit, cardStatsSubmit } = require('./modal');
-const { bcStart, bcHalt, bcEdit, bcNext, bcEdit2, bcNext3, bcEdit3, bcNext4 } = require('./buttons');
+const { bcStart, bcHalt, bcEdit, bcNext,bcEdit2, bcNext3, bcEdit3, bcNext4, LinkButtons } = require('./buttons');
 const { selectionType, selectionRace, selectionAtt } = require('./selections');
 
 const { UID_START, UID_HALT, UID_CARD_INFO, UID_EDIT_STEP1,
@@ -25,6 +25,17 @@ const interactButton = new Collection([
 	// step 3
 	[UID_EDIT_STEP3, bcEdit3],
 	[UID_NEXT_STEP4, bcNext4],
+
+	// link btn
+	['↖️', LinkButtons],
+	['⬆️', LinkButtons],
+	['↗️', LinkButtons],
+	['⬅️', LinkButtons],
+	['🔵', LinkButtons],
+	['➡️', LinkButtons],
+	['↙️', LinkButtons],
+	['⬇️', LinkButtons],
+	['↘️', LinkButtons],
 ]);
 
 const interactModalSubmit = new Collection([

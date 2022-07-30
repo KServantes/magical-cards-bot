@@ -159,55 +159,59 @@ const bcEdit3 = async interaction => {
 	}
 };
 
+const createLinkButtons = () => {
+	const tLBtn = new MessageButton()
+		.setCustomId('↖️')
+		.setLabel('↖️')
+		.setStyle('SECONDARY');
+	const tMBtn = new MessageButton()
+		.setCustomId('⬆️')
+		.setLabel('⬆️')
+		.setStyle('SECONDARY');
+	const tRBtn = new MessageButton()
+		.setCustomId('↗️')
+		.setLabel('↗️')
+		.setStyle('SECONDARY');
+
+	const lMBtn = new MessageButton()
+		.setCustomId('⬅️')
+		.setLabel('⬅️')
+		.setStyle('SECONDARY');
+	const mMBtn = new MessageButton()
+		.setCustomId('🔵')
+		.setLabel('🔵')
+		.setStyle('SECONDARY')
+		.setDisabled(true);
+	const rMBtn = new MessageButton()
+		.setCustomId('➡️')
+		.setLabel('➡️')
+		.setStyle('SECONDARY');
+
+	const pLBtn = new MessageButton()
+		.setCustomId('↙️')
+		.setLabel('↙️')
+		.setStyle('SECONDARY');
+	const pMBtn = new MessageButton()
+		.setCustomId('⬇️')
+		.setLabel('⬇️')
+		.setStyle('SECONDARY');
+	const pRBtn = new MessageButton()
+		.setCustomId('↘️')
+		.setLabel('↘️')
+		.setStyle('SECONDARY');
+
+	return {
+		top: [ tLBtn, tMBtn, tRBtn ],
+		center: [ lMBtn, mMBtn, rMBtn ],
+		pie: [ pLBtn, pMBtn, pRBtn ],
+	};
+};
+
 const bcNext4 = async interaction => {
 	try {
-		const { cache } = interaction.client;
-		const cardRec = Helper.setCardCache(cache);
-		console.log('Recorded as: ', cardRec);
-
-		const tLBtn = new MessageButton()
-			.setCustomId('top left')
-			.setLabel('↖️')
-			.setStyle('SECONDARY');
-		const tMBtn = new MessageButton()
-			.setCustomId('top')
-			.setLabel('⬆️')
-			.setStyle('SECONDARY');
-		const tRBtn = new MessageButton()
-			.setCustomId('top right')
-			.setLabel('↗️')
-			.setStyle('SECONDARY');
-
-		const lMBtn = new MessageButton()
-			.setCustomId('left')
-			.setLabel('⬅️')
-			.setStyle('SECONDARY');
-		const mMBtn = new MessageButton()
-			.setCustomId('n/a')
-			.setLabel('🔵')
-			.setStyle('SECONDARY')
-			.setDisabled(true);
-		const rMBtn = new MessageButton()
-			.setCustomId('right')
-			.setLabel('➡️')
-			.setStyle('SECONDARY');
-
-		// 'pie' Spanish
-		// referring to base floor
-		const pLBtn = new MessageButton()
-			.setCustomId('pie left')
-			.setLabel('↙️')
-			.setStyle('SECONDARY');
-
-		const pMBtn = new MessageButton()
-			.setCustomId('pie')
-			.setLabel('⬇️')
-			.setStyle('SECONDARY');
-
-		const pRBtn = new MessageButton()
-			.setCustomId('pie right')
-			.setLabel('↘️')
-			.setStyle('SECONDARY');
+		// const { cache } = interaction.client;
+		// const cardRec = Helper.setCardCache(cache);
+		// console.log('Recorded as: ', cardRec);
 
 		// If Link
 		const embed = new MessageEmbed()
@@ -216,22 +220,85 @@ const bcNext4 = async interaction => {
 			.setDescription('Please select the link markers for this card:')
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
-		const topRow = new MessageActionRow().addComponents(tLBtn, tMBtn, tRBtn);
-		const midRow = new MessageActionRow().addComponents(lMBtn, mMBtn, rMBtn);
-		const pesRow = new MessageActionRow().addComponents(pLBtn, pMBtn, pRBtn);
-		return await interaction.update({ embeds: [embed], components: [topRow, midRow, pesRow] });
+		const { top: t, center: c, pie: p } = createLinkButtons();
+		const topRow = new MessageActionRow().addComponents(t);
+		const midRow = new MessageActionRow().addComponents(c);
+		const pieRow = new MessageActionRow().addComponents(p);
+		return await interaction.update({ embeds: [embed], components: [topRow, midRow, pieRow] });
 
 		// Skip to Archetype
 		// haven't made it yet kekw
 	}
 	catch (error) {
+		console.log(error);
 		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
 	}
 };
 
-// const LinkButtons = async interaction => {
+const LinkButtons = async interaction => {
+	const buttons = ['↖️', '⬆️', '↗️', '⬅️', '🔵', '➡️', '↙️', '⬇️', '↘️'];
 
-// };
+	const [selected] = buttons.filter(btn => interaction.customId === btn);
+	const index = buttons.indexOf(selected) + 1;
+	// rows {}
+	const [top, center, pie] = interaction.message.components;
+	const { embeds: e } = interaction.message;
+	let fields = e[0].fields;
+
+	const editFields = (select, style) => {
+		const newField = s => {
+			return {
+				name: 'Select',
+				value: s,
+				inline: true,
+			};
+		};
+
+		if (style === 'PRIMARY') {
+			const field = newField(select);
+
+			fields.push(field);
+		}
+		else {
+			const rest = fields.filter(f => f.value !== select);
+			fields = rest;
+		}
+	};
+
+	const newStyle = comp => {
+		const style = comp.style === 'SECONDARY' ? 'PRIMARY' : 'SECONDARY';
+		return style;
+	};
+
+	const setRowComps = row => {
+		let i = index;
+		const iDict = { 4: 0, 5: 1, 6: 2, 7: 0, 8: 1, 9: 2 };
+		i = i > 3 ? iDict[i] : i - 1;
+
+		const btn = row.components[i];
+		const style = newStyle(btn);
+		const newBtn = btn.setStyle(style);
+
+		row.components[i] = newBtn;
+
+		const newComp = row.components;
+
+		editFields(selected, style);
+		row.setComponents(newComp);
+	};
+
+	if (index <= 3) setRowComps(top);
+	if (index >= 4 && index <= 6) setRowComps(center);
+	if (index >= 7) setRowComps(pie);
+
+	const embed = new MessageEmbed()
+		.setColor('#0099ff')
+		.setTitle('Link Markers')
+		.setDescription('Please select the link markers for this card:')
+		.setFields(fields)
+		.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+	return await interaction.update({ embeds: [embed], components: [top, center, pie] });
+};
 
 module.exports = {
 	bcStart,
@@ -242,4 +309,5 @@ module.exports = {
 	bcNext3,
 	bcEdit3,
 	bcNext4,
+	LinkButtons,
 };
