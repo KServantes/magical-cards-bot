@@ -84,9 +84,7 @@ const stepTwoData = (field, stepCache) => {
 };
 
 const stepThreeData = (stats, step) => {
-	console.log('stats', stats);
 	const [ atk, def, lvl] = stats;
-
 	let actLvl = parseInt(lvl.value);
 
 	if (stats.length > 3) {

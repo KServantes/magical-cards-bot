@@ -1,4 +1,4 @@
-const { MessageActionRow, MessageSelectMenu, MessageEmbed } = require('discord.js');
+const { MessageActionRow, MessageSelectMenu, MessageEmbed, MessageButton } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
 const Helper = require('./cache');
 const { infoForm } = require('./forms/info');
@@ -98,9 +98,6 @@ const bcNext = async interaction => {
 
 const bcEdit = async interaction => {
 	try {
-		const { cache } = interaction.client;
-		const prevCard = Helper.getStepCache(cache, 1);
-		if (prevCard === 'undefined') return await interaction.update({ content: 'there was an error.', components: [] });
 		await infoForm(interaction);
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
@@ -167,12 +164,74 @@ const bcNext4 = async interaction => {
 		const { cache } = interaction.client;
 		const cardRec = Helper.setCardCache(cache);
 		console.log('Recorded as: ', cardRec);
+
+		const tLBtn = new MessageButton()
+			.setCustomId('top left')
+			.setLabel('↖️')
+			.setStyle('SECONDARY');
+		const tMBtn = new MessageButton()
+			.setCustomId('top')
+			.setLabel('⬆️')
+			.setStyle('SECONDARY');
+		const tRBtn = new MessageButton()
+			.setCustomId('top right')
+			.setLabel('↗️')
+			.setStyle('SECONDARY');
+
+		const lMBtn = new MessageButton()
+			.setCustomId('left')
+			.setLabel('⬅️')
+			.setStyle('SECONDARY');
+		const mMBtn = new MessageButton()
+			.setCustomId('n/a')
+			.setLabel('🔵')
+			.setStyle('SECONDARY')
+			.setDisabled(true);
+		const rMBtn = new MessageButton()
+			.setCustomId('right')
+			.setLabel('➡️')
+			.setStyle('SECONDARY');
+
+		// 'pie' Spanish
+		// referring to base floor
+		const pLBtn = new MessageButton()
+			.setCustomId('pie left')
+			.setLabel('↙️')
+			.setStyle('SECONDARY');
+
+		const pMBtn = new MessageButton()
+			.setCustomId('pie')
+			.setLabel('⬇️')
+			.setStyle('SECONDARY');
+
+		const pRBtn = new MessageButton()
+			.setCustomId('pie right')
+			.setLabel('↘️')
+			.setStyle('SECONDARY');
+
+		// If Link
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Link Markers')
+			.setDescription('Please select the link markers for this card:')
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+
+		const topRow = new MessageActionRow().addComponents(tLBtn, tMBtn, tRBtn);
+		const midRow = new MessageActionRow().addComponents(lMBtn, mMBtn, rMBtn);
+		const pesRow = new MessageActionRow().addComponents(pLBtn, pMBtn, pRBtn);
+		return await interaction.update({ embeds: [embed], components: [topRow, midRow, pesRow] });
+
+		// Skip to Archetype
+		// haven't made it yet kekw
 	}
 	catch (error) {
 		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
 	}
 };
 
+// const LinkButtons = async interaction => {
+
+// };
 
 module.exports = {
 	bcStart,

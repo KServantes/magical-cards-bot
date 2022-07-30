@@ -121,7 +121,6 @@ const cardStatsSubmit = async interaction => {
 		const { cache } = interaction.client;
 		const card = Helper.getCardCache(cache);
 		if (card.temp.isPendy) {
-			console.log('Pendy?', card.temp);
 			cardLScale = getInputVal('lsInput');
 			cardRScale = getInputVal('rsInput');
 
@@ -186,7 +185,6 @@ const cardStatsSubmit = async interaction => {
 		return await interaction.update({ embeds: [embed], components: [row] });
 	}
 	catch (error) {
-		console.log(error);
 		if (error.name === 'TypeError') {
 			const embed = mkEmbed([]);
 			const reEmbed = embed
