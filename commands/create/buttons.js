@@ -236,68 +236,118 @@ const bcNext4 = async interaction => {
 };
 
 const LinkButtons = async interaction => {
-	const buttons = ['↖️', '⬆️', '↗️', '⬅️', '🔵', '➡️', '↙️', '⬇️', '↘️'];
+	try {
+		const [top, center, pie] = interaction.message.components;
+		const { embeds: e } = interaction.message;
+		let fields = e[0].fields;
 
-	const [selected] = buttons.filter(btn => interaction.customId === btn);
-	const index = buttons.indexOf(selected) + 1;
-	// rows {}
-	const [top, center, pie] = interaction.message.components;
-	const { embeds: e } = interaction.message;
-	let fields = e[0].fields;
-
-	const editFields = (select, style) => {
-		const newField = s => {
-			return {
-				name: 'Select',
-				value: s,
-				inline: true,
-			};
+		const Buttons = {
+			index: 0,
+			section: '',
+			top: {
+				ids: {
+					'↖️': 0,
+					'⬆️': 1,
+					'↗️': 2,
+				},
+				get row() {return top;},
+			},
+			center: {
+				ids: {
+					'⬅️': 0,
+					'🔵': 1,
+					'➡️': 2,
+				},
+				get row() {return center;},
+			},
+			pie: {
+				ids: {
+					'↙️': 0,
+					'⬇️': 1,
+					'↘️': 2,
+				},
+				get row() {return pie;},
+			},
+			get array() {
+				const r1 = Object.keys(this.top.ids);
+				const r2 = Object.keys(this.center.ids);
+				const r3 = Object.keys(this.pie.ids);
+				return [...r1, ...r2, ...r3];
+			},
+			/**
+			* @param {number} selected
+			*/
+			set indexOf(selected) {
+				const sections = Object.keys(this).filter(k => typeof this[k] === 'object');
+				for (const section of sections) {
+					if (section === 'array') continue;
+					const { ids } = this[section];
+					if (selected in ids) {
+						this.index = ids[selected];
+						this.section = section;
+					}
+				}
+			},
 		};
 
-		if (style === 'PRIMARY') {
-			const field = newField(select);
+		const buttons = Buttons.array;
+		const [selected] = buttons.filter(btn => interaction.customId === btn);
+		Buttons.indexOf = selected;
+		const index = Buttons.index;
 
-			fields.push(field);
-		}
-		else {
-			const rest = fields.filter(f => f.value !== select);
-			fields = rest;
-		}
-	};
+		const editFields = (select, style) => {
+			const newField = s => {
+				return {
+					name: 'Select',
+					value: `\\${s}`,
+					inline: true,
+				};
+			};
 
-	const newStyle = comp => {
-		const style = comp.style === 'SECONDARY' ? 'PRIMARY' : 'SECONDARY';
-		return style;
-	};
+			if (style === 'PRIMARY') {
+				const field = newField(select);
 
-	const setRowComps = row => {
-		let i = index;
-		const iDict = { 4: 0, 5: 1, 6: 2, 7: 0, 8: 1, 9: 2 };
-		i = i > 3 ? iDict[i] : i - 1;
+				fields.push(field);
+			}
+			else {
+				const rest = fields.filter(f => f.value !== `\\${select}`);
+				fields = rest;
+			}
+		};
 
-		const btn = row.components[i];
-		const style = newStyle(btn);
-		const newBtn = btn.setStyle(style);
+		const newStyle = comp => {
+			const style = comp.style === 'SECONDARY' ? 'PRIMARY' : 'SECONDARY';
+			return style;
+		};
 
-		row.components[i] = newBtn;
+		const setRowComps = row => {
+			const btn = row.components[index];
+			const style = newStyle(btn);
+			const newBtn = btn.setStyle(style);
 
-		const newComp = row.components;
+			row.components[index] = newBtn;
 
-		editFields(selected, style);
-		row.setComponents(newComp);
-	};
+			const newComp = row.components;
 
-	if (index <= 3) setRowComps(top);
-	if (index >= 4 && index <= 6) setRowComps(center);
-	if (index >= 7) setRowComps(pie);
+			editFields(selected, style);
+			row.setComponents(newComp);
+		};
 
-	const embed = new MessageEmbed()
-		.setColor('#0099ff')
-		.setTitle('Link Markers')
-		.setDescription('Please select the link markers for this card:')
-		.setFields(fields)
-		.setThumbnail('https://i.imgur.com/ebtLbkK.png');
-	return await interaction.update({ embeds: [embed], components: [top, center, pie] });
+		const section = Buttons.section;
+		setRowComps(Buttons[section].row);
+
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Link Markers')
+			.setDescription('Please select the link markers for this card:')
+			.setFields(fields)
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+		return await interaction.update({ embeds: [embed], components: [top, center, pie] });
+	}
+	catch (error) {
+		console.log(error);
+		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+	}
 };
 
 module.exports = {
