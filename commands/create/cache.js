@@ -40,15 +40,17 @@ const typeVal = (field) => {
 	let val = 0;
 
 	const fields = field.value.split('\n');
+	let isLink = false;
 
 	fields.forEach(t => {
 		if (Types.has(t)) {
+			if (t === 'Link') isLink = true;
 			return val += Types.get(t);
 		}
 	});
 
 	if (val === 0) return 777;
-	return val;
+	return [val, isLink];
 };
 
 const attVal = (field) => {
@@ -84,8 +86,15 @@ const stepTwoData = (field, stepCache) => {
 };
 
 const stepThreeData = (stats, step) => {
-	const [ atk, def, lvl] = stats;
+	const [ atk, lvl] = stats;
+
+	let actDef = 0;
 	let actLvl = parseInt(lvl.value);
+
+	if (stats.length > 2) {
+		const [ ,, def] = stats;
+		actDef = parseInt(def.value);
+	}
 
 	if (stats.length > 3) {
 		const [ ,,, lscale, rscale] = stats;
@@ -104,7 +113,7 @@ const stepThreeData = (stats, step) => {
 	const data = {
 		step,
 		atk: parseInt(atk.value),
-		def: parseInt(def.value),
+		def: actDef,
 		lvl: actLvl,
 	};
 
@@ -157,13 +166,17 @@ const getStepCache = (cache, step) => {
 
 // db cache
 const cardInitial = {
+	// card info
 	id: 0,
+	// default 32 'custom'
 	ot: 32,
 	alias: 0,
 	setcode: 0,
 	type: 0,
 	atk: 0,
+	// def || link markers
 	def: 0,
+	// lvl || rating
 	lvl: 0,
 	race: 0,
 	attribute: 0,
@@ -218,15 +231,17 @@ const setCardCache = cache => {
 	}
 	if (data.step === 2) {
 		const { step, race, type, attribute } = data;
+		const [truType, isLink] = type;
 
 		const { temp: rest } = cardCache;
 		const cardTwo = { ...cardCache,
 			race,
-			type,
+			type: truType,
 			attribute,
 			temp: {
 				...rest,
 				stepNo: step,
+				isLink,
 			},
 		};
 

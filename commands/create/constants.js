@@ -33,6 +33,13 @@ const UID_CARD_STATS = 'card stats';
 const UID_EDIT_STEP3 = 'edit3';
 const UID_NEXT_STEP4 = 'step4';
 
+// link stuff
+// 
+// step 4
+
+// archetypes
+// step 5
+
 // card stat maps
 const Races = new Collection([
 	['Warrior', 0x1],

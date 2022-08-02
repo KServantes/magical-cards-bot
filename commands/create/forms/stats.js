@@ -5,6 +5,7 @@ const { getCardCache } = require('../cache');
 const statsForm = async (interaction) => {
 	const { cache } = interaction.client;
 	const card = getCardCache(cache);
+	const { isLink, isPendy } = card.temp;
 
 	const modal = new Modal()
 		.setCustomId(UID_CARD_STATS)
@@ -23,12 +24,17 @@ const statsForm = async (interaction) => {
 		.setPlaceholder('DEF')
 		.setMaxLength(7)
 		.setRequired(true);
+	const rating = {
+		label: isLink ? 'Link Rating' : 'LVL',
+		holder: isLink ? 'LINK' : 'LVL',
+		long: isLink ? 1 : 2,
+	};
 	const lvlInput = new TextInputComponent()
 		.setCustomId('lvlInput')
-		.setLabel('What is this card\'s LVL?')
+		.setLabel(`What is this card's ${rating.label}?`)
 		.setStyle('SHORT')
-		.setPlaceholder('LVL')
-		.setMaxLength(2)
+		.setPlaceholder(`${rating.holder}`)
+		.setMaxLength(rating.long)
 		.setRequired(true);
 	const lsInput = new TextInputComponent()
 		.setCustomId('lsInput')
@@ -49,15 +55,10 @@ const statsForm = async (interaction) => {
 	const lscaleActionRow = new MessageActionRow().addComponents(lsInput);
 	const rscaleActionRow = new MessageActionRow().addComponents(rsInput);
 
-	modal.addComponents(
-		atkActionRow,
-		defActionRow,
-		lvlActionRow,
-	);
-
-	if (card.temp.isPendy) {
-		modal.addComponents(lscaleActionRow, rscaleActionRow);
-	}
+	modal.addComponents(atkActionRow);
+	if (!isLink) modal.addComponents(defActionRow);
+	modal.addComponents(lvlActionRow);
+	if (isPendy) modal.addComponents(lscaleActionRow, rscaleActionRow);
 
 	interaction.showModal(modal);
 };

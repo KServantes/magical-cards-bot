@@ -13,7 +13,7 @@ const bcStart = async interaction => {
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Creating')
-			.setDescription('Please wait...')
+			.setDescription('> Please wait...')
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 		await infoForm(interaction);
 		return await interaction.message.edit({ embeds: [embed], components: [] });
@@ -209,25 +209,28 @@ const createLinkButtons = () => {
 
 const bcNext4 = async interaction => {
 	try {
-		// const { cache } = interaction.client;
-		// const cardRec = Helper.setCardCache(cache);
-		// console.log('Recorded as: ', cardRec);
+		const { cache } = interaction.client;
+		const cardRec = Helper.setCardCache(cache);
+		console.log('Recorded as: ', cardRec);
 
-		// If Link
-		const embed = new MessageEmbed()
-			.setColor('#0099ff')
-			.setTitle('Link Markers')
-			.setDescription('Please select the link markers for this card:')
-			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+		const card = Helper.getCardCache(cache);
+		if (card && card.temp.isLink) {
+			// If Link
+			const embed = new MessageEmbed()
+				.setColor('#0099ff')
+				.setTitle('Link Markers')
+				.setDescription('Please select the link markers for this card:')
+				.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
-		const { top: t, center: c, pie: p } = createLinkButtons();
-		const topRow = new MessageActionRow().addComponents(t);
-		const midRow = new MessageActionRow().addComponents(c);
-		const pieRow = new MessageActionRow().addComponents(p);
-		return await interaction.update({ embeds: [embed], components: [topRow, midRow, pieRow] });
-
+			const { top: t, center: c, pie: p } = createLinkButtons();
+			const topRow = new MessageActionRow().addComponents(t);
+			const midRow = new MessageActionRow().addComponents(c);
+			const pieRow = new MessageActionRow().addComponents(p);
+			return await interaction.update({ embeds: [embed], components: [topRow, midRow, pieRow] });
+		}
 		// Skip to Archetype
 		// haven't made it yet kekw
+		console.log('We\'re not a link');
 	}
 	catch (error) {
 		console.log(error);
@@ -240,6 +243,10 @@ const LinkButtons = async interaction => {
 		const [top, center, pie] = interaction.message.components;
 		const { embeds: e } = interaction.message;
 		let fields = e[0].fields;
+
+		const { cache } = interaction.client;
+		const card = Helper.getCardCache(cache);
+		const { lvl } = card;
 
 		const Buttons = {
 			index: 0,
@@ -295,15 +302,20 @@ const LinkButtons = async interaction => {
 		Buttons.indexOf = selected;
 		const index = Buttons.index;
 
-		const editFields = (select, style) => {
-			const newField = s => {
-				return {
-					name: 'Select',
-					value: `\\${s}`,
-					inline: true,
-				};
+		const newField = s => {
+			return {
+				name: 'Selection',
+				value: `\\${s}`,
+				inline: true,
 			};
+		};
 
+		const newStyle = comp => {
+			const style = comp.style === 'SECONDARY' ? 'PRIMARY' : 'SECONDARY';
+			return style;
+		};
+
+		const editFields = (select, style) => {
 			if (style === 'PRIMARY') {
 				const field = newField(select);
 
@@ -313,11 +325,6 @@ const LinkButtons = async interaction => {
 				const rest = fields.filter(f => f.value !== `\\${select}`);
 				fields = rest;
 			}
-		};
-
-		const newStyle = comp => {
-			const style = comp.style === 'SECONDARY' ? 'PRIMARY' : 'SECONDARY';
-			return style;
 		};
 
 		const setRowComps = row => {
@@ -336,12 +343,33 @@ const LinkButtons = async interaction => {
 		const section = Buttons.section;
 		setRowComps(Buttons[section].row);
 
+
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Link Markers')
-			.setDescription('Please select the link markers for this card:')
+			.setDescription(`>>> Please select the link markers for this card:
+			Link Rating: ${lvl}`)
 			.setFields(fields)
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+
+		if (fields.length === lvl) {
+			const reEmbed = embed
+				.setDescription(`> Please confirm the Link Markers (${lvl}) and click Next`);
+
+			const nextBtn = new MessageButton()
+				.setCustomId('step5')
+				.setLabel('Next')
+				.setStyle('SUCCESS');
+
+			pie.addComponents(nextBtn);
+			return await interaction.update({ embeds: [reEmbed], components: [top, center, pie] });
+		}
+
+		const { components: comp } = pie;
+		if (comp.length === 4) {
+			const [t, c, p] = comp;
+			pie.setComponents(t, c, p);
+		}
 		return await interaction.update({ embeds: [embed], components: [top, center, pie] });
 	}
 	catch (error) {

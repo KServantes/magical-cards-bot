@@ -22,7 +22,7 @@ module.exports = {
 					.setStyle('DANGER'),
 			);
 
-		const greeting = 'Hello! I\'m Magical Card\'s Bot!\nI\'ll take you through the steps to make a card.\n    Are you ready?';
+		const greeting = '>>> Hello! I\'m Magical Card\'s Bot!\nI\'ll take you through the steps to make a card.\n    Are you ready?';
 
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')

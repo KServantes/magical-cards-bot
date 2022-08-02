@@ -107,20 +107,25 @@ const cardStatsSubmit = async interaction => {
 		const getInputVal = input => interaction.fields.getTextInputValue(input);
 
 		const cardATK = getInputVal('atkInput');
-		const cardDEF = getInputVal('defInput');
+		let cardDEF = 0;
 		const cardLVL = getInputVal('lvlInput');
 		let cardLScale = '';
 		let cardRScale = '';
 
 		const stats = {
 			'ATK': cardATK,
-			'DEF': cardDEF,
 			'LVL': cardLVL,
 		};
 
 		const { cache } = interaction.client;
 		const card = Helper.getCardCache(cache);
-		if (card.temp.isPendy) {
+		const { isLink, isPendy } = card.temp;
+		if (!isLink) {
+			cardDEF = getInputVal('defInput');
+
+			stats['DEF'] = cardDEF;
+		}
+		if (isPendy) {
 			cardLScale = getInputVal('lsInput');
 			cardRScale = getInputVal('rsInput');
 
@@ -144,8 +149,11 @@ const cardStatsSubmit = async interaction => {
 			}
 
 			if (val === '') val = '0';
+			let truStat = stat;
+			const arrStat = Object.keys(stats);
+			if (arrStat.length === 2 && stat === 'LVL') truStat = 'LINK';
 			const field = {
-				name: stat,
+				name: truStat,
 				value: val,
 				inline: true,
 			};
