@@ -34,7 +34,7 @@ const UID_EDIT_STEP3 = 'edit3';
 const UID_NEXT_STEP4 = 'step4';
 
 // link stuff
-// 
+//
 // step 4
 
 // archetypes

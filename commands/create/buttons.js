@@ -499,7 +499,28 @@ const bcNext5 = async interaction => {
 			.setLabel('NEXT PG')
 			.setDisabled(pgNo === 6 ? true : false)
 			.setStyle('SECONDARY');
-		const row5 = new MessageActionRow().addComponents(prev, next);
+
+		// Next
+		const nextStep = new MessageButton()
+			.setCustomId('step6')
+			.setLabel('Next Step')
+			.setDisabled(true)
+			.setStyle('PRIMARY');
+
+		// customs & anime page
+		const animtom = new MessageButton()
+			.setCustomId('anitom')
+			.setLabel('Anime/Custom')
+			.setDisabled(true)
+			.setStyle('PRIMARY');
+
+		// new archetype
+		const newArch = new MessageButton()
+			.setCustomId('new arch')
+			.setLabel('New Archetype')
+			.setDisabled(false)
+			.setStyle('SUCCESS');
+		const row5 = new MessageActionRow().addComponents(prev, next, nextStep, animtom, newArch);
 
 		// if any row is empty
 		// lack of entries
@@ -511,18 +532,33 @@ const bcNext5 = async interaction => {
 			if (rows[index].length > 0) comp.push(row);
 		}
 
+		// displays first option and last option
+		const { components: menu_a } = mapper.get(1);
+		const { components: menu_z } = mapper.get(comp.length);
+
+		const { options: op_a } = menu_a[0];
+		const { options: op_z } = menu_z[0];
+
+		const sectionA = op_a[0].value;
+		const sectionZ = op_z.at(-1).value;
+
+		const embedMsg = `>>> Select the Archetype(s) for this card:
+		
+		If you do not find the archetype, select the next page
+		
+		Archetypes on this page: **${sectionA}** - **${sectionZ}**`;
+
+		// msg update
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Archetype')
-			.setDescription(`>>> Select the Archetype(s) for this card:
-		
-		If you do not find the archetype, select the next page
-		All Archtypes 0-Z`)
+			.setDescription(embedMsg)
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
 			.setFooter({
 				'text': `Archetypes Page: ${pgNo}`,
 				'iconURL': 'https://i.imgur.com/ebtLbkK.png',
 			});
+
 
 		return await interaction.update({ embeds: [embed], components: [...comp, row5] });
 	}

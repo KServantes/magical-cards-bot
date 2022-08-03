@@ -85,6 +85,7 @@ const stepTwoData = (field, stepCache) => {
 	return { ...stepCache, ...data };
 };
 
+
 const stepThreeData = (stats, step) => {
 	const [ atk, lvl] = stats;
 
@@ -119,6 +120,7 @@ const stepThreeData = (stats, step) => {
 
 	return data;
 };
+
 
 const initializeCache = (cache) => {
 	const coll = new Collection();
