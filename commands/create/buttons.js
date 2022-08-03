@@ -1,9 +1,9 @@
-const { MessageActionRow, MessageSelectMenu, MessageEmbed, MessageButton } = require('discord.js');
+const { MessageActionRow, MessageSelectMenu, MessageEmbed, MessageButton, Collection } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
 const Helper = require('./cache');
 const { infoForm } = require('./forms/info');
 const { statsForm } = require('./forms/stats');
-const { Races, Types, Attributes } = require('./constants');
+const { Races, Types, Attributes, Archetypes } = require('./constants');
 
 const { UID_CARD_ATT, UID_CARD_RACE, UID_CARD_TYPE } = require('./constants');
 
@@ -228,9 +228,30 @@ const bcNext4 = async interaction => {
 			const pieRow = new MessageActionRow().addComponents(p);
 			return await interaction.update({ embeds: [embed], components: [topRow, midRow, pieRow] });
 		}
+
 		// Skip to Archetype
-		// haven't made it yet kekw
-		console.log('We\'re not a link');
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Archetype')
+			.setDescription(`>>> Does this card belong to an Archetype(s)?
+
+
+	**Next Steps:**`)
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
+			.setFooter({
+				'text': '<- to Strings  |  to Archetype Select ->',
+			});
+
+		const none = new MessageButton()
+			.setCustomId('no setcard')
+			.setLabel('Skip')
+			.setStyle('PRIMARY');
+		const hero = new MessageButton()
+			.setCustomId('step5')
+			.setLabel('Continue')
+			.setStyle('PRIMARY');
+		const row = new MessageActionRow().addComponents(none, hero);
+		return await interaction.update({ embeds: [embed], components: [row] });
 	}
 	catch (error) {
 		console.log(error);
@@ -378,6 +399,167 @@ const LinkButtons = async interaction => {
 	}
 };
 
+
+// step 4 => step 5
+// or from Link Step 3
+const bcNext5 = async interaction => {
+	// set page info for cache
+	// object for later info?
+	const { cache } = interaction.client;
+	if (!cache.has('page info')) {
+		cache.set('page info', { page: 1 });
+	}
+
+	try {
+		const pageInfo = cache.get('page info');
+		const { page: pgNo } = pageInfo;
+
+		// decide what page info to use
+		const map = new Collection([
+			[1, 'pg_one'],
+			[2, 'pg_two'],
+			[3, 'pg_three'],
+			[4, 'pg_four'],
+			[5, 'pg_five'],
+			[6, 'pg_six'],
+		]);
+
+		const slice = map.get(pgNo);
+		const page = Archetypes.get(slice);
+
+		const addToRows = p => {
+			const rows = {
+				1: [],
+				2: [],
+				3: [],
+				4: [],
+			};
+
+			let count = 0;
+			let i = 1;
+
+			for (const arch of p.keys()) {
+				const row = rows[i];
+				rows[i] = row.concat(arch);
+				count += 1;
+				if (count === 25) {
+					i = i + 1;
+					count = 0;
+				}
+			}
+
+			return rows;
+		};
+
+		// rows correspond to message action rows
+		// only 5 allowed so the first 4 are select menu
+		const rows = addToRows(page);
+
+		const getOptions = coll => {
+			const options = coll.reduce((acc, i) => {
+				const option = {
+					label: i,
+					value: i,
+				};
+
+				return acc.concat(option);
+			}, []);
+
+			return options;
+		};
+
+		const getMessageRow = row_no => {
+			const rOptions = getOptions(rows[row_no]);
+			const lastIndex = !rOptions.length === true ? 'Archetype' : rOptions.at(-1).label;
+			const row = new MessageActionRow()
+				.addComponents(
+					new MessageSelectMenu()
+						.setCustomId(`row${row_no}`)
+						.setPlaceholder(lastIndex)
+						.addOptions(rOptions),
+				);
+
+
+			return row;
+		};
+
+		const row1 = getMessageRow(1);
+		const row2 = getMessageRow(2);
+		const row3 = getMessageRow(3);
+		const row4 = getMessageRow(4);
+
+		// last row
+		const prev = new MessageButton()
+			.setCustomId('prev page')
+			.setLabel('PREV PG')
+			.setDisabled(pgNo === 1 ? true : false)
+			.setStyle('SECONDARY');
+		const next = new MessageButton()
+			.setCustomId('next page')
+			.setLabel('NEXT PG')
+			.setDisabled(pgNo === 6 ? true : false)
+			.setStyle('SECONDARY');
+		const row5 = new MessageActionRow().addComponents(prev, next);
+
+		// if any row is empty
+		// lack of entries
+		// skip them || error
+		const comp = [];
+		const mapper = new Collection([[1, row1], [2, row2], [3, row3], [4, row4]]);
+
+		for (const [index, row] of mapper.entries()) {
+			if (rows[index].length > 0) comp.push(row);
+		}
+
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Archetype')
+			.setDescription(`>>> Select the Archetype(s) for this card:
+		
+		If you do not find the archetype, select the next page
+		All Archtypes 0-Z`)
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
+			.setFooter({
+				'text': `Archetypes Page: ${pgNo}`,
+				'iconURL': 'https://i.imgur.com/ebtLbkK.png',
+			});
+
+		return await interaction.update({ embeds: [embed], components: [...comp, row5] });
+	}
+	catch (error) {
+		console.log(error);
+		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+	}
+};
+
+const nextPage = async interaction => {
+	try {
+		const { cache } = interaction.client;
+		const { page: pgNo } = cache.get('page info');
+
+		cache.set('page info', { page: pgNo + 1 });
+		return await bcNext5(interaction);
+	}
+	catch (error) {
+		console.log(error);
+		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+	}
+};
+
+const prevPage = async interaction => {
+	try {
+		const { cache } = interaction.client;
+		const { page: pgNo } = cache.get('page info');
+
+		cache.set('page info', { page: pgNo - 1 });
+		return await bcNext5(interaction);
+	}
+	catch (error) {
+		console.log(error);
+		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+	}
+};
+
 module.exports = {
 	bcStart,
 	bcHalt,
@@ -387,5 +569,8 @@ module.exports = {
 	bcNext3,
 	bcEdit3,
 	bcNext4,
+	bcNext5,
+	nextPage,
+	prevPage,
 	LinkButtons,
 };

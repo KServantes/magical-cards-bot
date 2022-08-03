@@ -135,10 +135,6 @@ const cardStatsSubmit = async interaction => {
 
 
 		// form validation
-		// not counting lscale or rscale atm
-		// later refactor to check card
-		// if pend then input received
-		// if not pend then no input in the modal (undefined)
 		const errStr = [];
 		const fields = [];
 		// eslint-disable-next-line prefer-const
