@@ -6,6 +6,7 @@ const {
 	UID_CARD_ATT,
 	UID_EDIT_STEP2,
 	UID_NEXT_STEP3,
+	Archetypes,
 
 } = require('./constants');
 
@@ -120,8 +121,44 @@ const selectionAtt = async interaction => {
 	return await selection(interaction, 'Attribute', att, UID_CARD_ATT);
 };
 
+const selectionArch = async interaction => {
+	const arcs = interaction.values;
+
+	const { components, embeds } = interaction.message;
+	const msgEmbFields = embeds[0].fields;
+	// const footerPage = embeds[0].footer.text.split(' ').at(-1);
+
+	const fields = arcs.reduce((acc, a) => {
+		const val = Archetypes.get(a);
+		const str = `Dec: ${val}
+		Hex: ${parseInt(val).toString(16)}`;
+
+		const field = {
+			name: a,
+			value: str,
+			inline: true,
+		};
+
+		return acc.concat(field);
+	}, []);
+
+
+	let mergedFields = [...msgEmbFields, ...fields];
+	for (const f of fields) {
+		const { name } = f;
+		if (msgEmbFields.some(field => field.name === name)) {
+			mergedFields = mergedFields.filter(field => field.name !== name);
+		}
+	}
+
+	// message update
+	const embed = embeds[0].setFields(mergedFields);
+	return await interaction.update({ embeds: [embed], components: components });
+};
+
 module.exports = {
 	selectionType,
 	selectionRace,
 	selectionAtt,
+	selectionArch,
 };

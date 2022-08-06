@@ -3,11 +3,20 @@ const wait = require('node:timers/promises').setTimeout;
 const Helper = require('./cache');
 const { infoForm } = require('./forms/info');
 const { statsForm } = require('./forms/stats');
-const { Races, Types, Attributes, Archetypes } = require('./constants');
-
-const { UID_CARD_ATT, UID_CARD_RACE, UID_CARD_TYPE } = require('./constants');
+const {
+	Races,
+	Types,
+	Attributes,
+	Archetypes,
+	UID_CARD_ATT,
+	UID_CARD_RACE,
+	UID_CARD_TYPE,
+	UID_SKIP,
+	UID_NEXT_STEP5,
+} = require('./constants');
 
 // start
+// modal (name, peff, desc, id)
 const bcStart = async interaction => {
 	try {
 		const embed = new MessageEmbed()
@@ -36,6 +45,7 @@ const bcHalt = async interaction => {
 
 
 // step 1 => step 2
+// selections (race, att, type)
 const bcNext = async interaction => {
 
 	const { cache } = interaction.client;
@@ -113,6 +123,7 @@ const bcEdit = async interaction => {
 
 
 // step 2 => step 3
+// redo selections
 const bcEdit2 = async interaction => {
 	try {
 		return await bcNext(interaction);
@@ -121,7 +132,7 @@ const bcEdit2 = async interaction => {
 		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
 	}
 };
-
+// modal (atk, def, lvl, lscale, rscale)
 const bcNext3 = async interaction => {
 	try {
 
@@ -235,7 +246,6 @@ const bcNext4 = async interaction => {
 			.setTitle('Archetype')
 			.setDescription(`>>> Does this card belong to an Archetype(s)?
 
-
 	**Next Steps:**`)
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
 			.setFooter({
@@ -243,11 +253,11 @@ const bcNext4 = async interaction => {
 			});
 
 		const none = new MessageButton()
-			.setCustomId('no setcard')
+			.setCustomId(UID_SKIP)
 			.setLabel('Skip')
 			.setStyle('PRIMARY');
 		const hero = new MessageButton()
-			.setCustomId('step5')
+			.setCustomId(UID_NEXT_STEP5)
 			.setLabel('Continue')
 			.setStyle('PRIMARY');
 		const row = new MessageActionRow().addComponents(none, hero);
@@ -270,8 +280,11 @@ const LinkButtons = async interaction => {
 		const { lvl } = card;
 
 		const Buttons = {
+			// component's index
 			index: 0,
+			// section of the object
 			section: '',
+			// id[selected] = this.index
 			top: {
 				ids: {
 					'↖️': 0,
@@ -401,7 +414,7 @@ const LinkButtons = async interaction => {
 
 
 // step 4 => step 5
-// or from Link Step 3
+// or from no Link Step 3
 const bcNext5 = async interaction => {
 	// set page info for cache
 	// object for later info?
@@ -413,20 +426,31 @@ const bcNext5 = async interaction => {
 	try {
 		const pageInfo = cache.get('page info');
 		const { page: pgNo } = pageInfo;
+		const MAX_PAGE = Math.floor((Archetypes.size / 100) + 1);
 
 		// decide what page info to use
-		const map = new Collection([
-			[1, 'pg_one'],
-			[2, 'pg_two'],
-			[3, 'pg_three'],
-			[4, 'pg_four'],
-			[5, 'pg_five'],
-			[6, 'pg_six'],
-		]);
+		const getPageFromArcs = (coll = new Collection(), start_index = 0, end_index = 100) => {
+			const page = new Collection();
+			if (coll.keyAt(end_index)) {
+				for (let i = start_index; i < end_index; i++) {
+					const set = coll.keyAt(i);
+					const code = coll.get(set);
+					page.set(set, code);
+				}
 
-		const slice = map.get(pgNo);
-		const page = Archetypes.get(slice);
+				return page;
+			}
 
+			for (let i = start_index; i < coll.size; i++) {
+				const set = coll.keyAt(i);
+				const code = coll.get(set);
+				page.set(set, code);
+			}
+
+			return page;
+		};
+
+		const page = getPageFromArcs(Archetypes, ((pgNo * 100) - 100), (pgNo * 100));
 		const addToRows = p => {
 			const rows = {
 				1: [],
@@ -497,7 +521,7 @@ const bcNext5 = async interaction => {
 		const next = new MessageButton()
 			.setCustomId('next page')
 			.setLabel('NEXT PG')
-			.setDisabled(pgNo === 6 ? true : false)
+			.setDisabled(pgNo === MAX_PAGE ? true : false)
 			.setStyle('SECONDARY');
 
 		// Next
@@ -548,17 +572,38 @@ const bcNext5 = async interaction => {
 		
 		Archetypes on this page: **${sectionA}** - **${sectionZ}**`;
 
+
+		// pre archs populate
+		const { embeds } = interaction.message;
+		const fields = embeds[0].fields ?? [];
+
+		const card = Helper.getCardCache(cache);
+		if (card) {
+			const { name } = card;
+
+			for (const [set, code] of Archetypes.entries()) {
+				if (name.includes(set)) {
+					const f = new Object();
+					f.name = set;
+					f.value = `${code}`;
+					f.inline = true;
+
+					fields.push(f);
+				}
+			}
+		}
+
 		// msg update
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Archetype')
 			.setDescription(embedMsg)
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
+			.setFields(fields)
 			.setFooter({
 				'text': `Archetypes Page: ${pgNo}`,
 				'iconURL': 'https://i.imgur.com/ebtLbkK.png',
 			});
-
 
 		return await interaction.update({ embeds: [embed], components: [...comp, row5] });
 	}

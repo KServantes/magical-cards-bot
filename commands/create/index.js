@@ -1,6 +1,6 @@
 const { Collection } = require('discord.js');
 const { cardInfoSubmit, cardStatsSubmit } = require('./modal');
-const { selectionType, selectionRace, selectionAtt } = require('./selections');
+const { selectionType, selectionRace, selectionAtt, selectionArch } = require('./selections');
 const { bcStart, bcHalt, bcEdit, bcNext, bcEdit2,
 	bcNext3, bcEdit3, bcNext4, LinkButtons, bcNext5, nextPage, prevPage } = require('./buttons');
 
@@ -58,6 +58,12 @@ const interactSelectMenu = new Collection([
 	[UID_CARD_TYPE, selectionType],
 	[UID_CARD_RACE, selectionRace],
 	[UID_CARD_ATT, selectionAtt],
+
+	// step 5 'archetypes'
+	['row1', selectionArch],
+	['row2', selectionArch],
+	['row3', selectionArch],
+	['row4', selectionArch],
 ]);
 
 

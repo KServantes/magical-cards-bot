@@ -28,4 +28,8 @@ client.on('interactionCreate', async interaction => {
 	}
 });
 
+client.on('error', e => {
+	console.log(e);
+});
+
 client.login(process.env.TOKEN);

@@ -33,9 +33,12 @@ const UID_CARD_STATS = 'card stats';
 const UID_EDIT_STEP3 = 'edit3';
 const UID_NEXT_STEP4 = 'step4';
 
+// skip to 5
 // link stuff
-//
+const UID_SKIP = 'no setcard';
 // step 4
+const UID_NEXT_STEP5 = 'step5';
+
 
 // archetypes
 // step 5
@@ -107,7 +110,7 @@ const Attributes = new Collection([
 	['DIVINE', 0x40],
 ]);
 
-const page_one = new Collection([
+const Archetypes = new Collection([
 	['@Ignister', 0x135],
 	['Assault Mode', 0x104f],
 	['A.I.', 0x136],
@@ -122,7 +125,6 @@ const page_one = new Collection([
 	['Allure Queen', 0x14],
 	['Ally of Justice', 0x1],
 	['Altergeist', 0x103],
-	['Amazement', 0x15e],
 	['Amazement', 0x15e],
 	['Amazoness', 0x4],
 	['Amorphage', 0xe0],
@@ -143,21 +145,16 @@ const page_one = new Collection([
 	['Assault Blackwing', 0x1033],
 	['Atlantean', 0x77],
 	['Attraction', 0x15f],
-	['Attraction', 0x15f],
 	['B.E.S.', 0x15],
 	['Bamboo Sword', 0x60],
 	['Barbaros', 0x13e],
 	['Barian', 0x178],
-	['Barian', 0x178],
-	['Barian\'s', 0x1178],
 	['Barian\'s', 0x1178],
 	['Batteryman', 0x28],
-	['Battleguard', 0x2178],
 	['Battleguard', 0x2178],
 	['Battlewasp', 0x12f],
 	['Battlin\' Boxer', 0x84],
 	['Beast\'s Battle', 0x4d],
-	['Beetrooper', 0x172],
 	['Beetrooper', 0x172],
 	['Black Luster Soldier', 0x10cf],
 	['Blackwing', 0x33],
@@ -166,7 +163,6 @@ const page_one = new Collection([
 	['Bonding -', 0x100],
 	['Borrel', 0x10f],
 	['Bounzer', 0x6b],
-	['Branded', 0x160],
 	['Branded', 0x160],
 	['Bridge', 0x188],
 	['Bujin', 0x88],
@@ -182,7 +178,6 @@ const page_one = new Collection([
 	['Chronomaly', 0x70],
 	['Chrysalis', 0x1e],
 	['Cipher', 0xe5],
-	['Cipher Dragon', 0x10e5],
 	['Cipher Dragon', 0x10e5],
 	['Clear Wing', 0xff],
 	['Cloudian', 0x18],
@@ -208,9 +203,6 @@ const page_one = new Collection([
 	['Dark World', 0x6],
 	['Dark Scorpion', 0x1a],
 	['Dark Lucius', 0x4f],
-]);
-
-const page_two = new Collection([
 	['Dark Mimic', 0x5e],
 	['Dark Magician', 0x10a2],
 	['Dark Magician Girl', 0x30a2],
@@ -229,7 +221,6 @@ const page_two = new Collection([
 	['Djinn of Rituals', 0x106d],
 	['Dododo', 0x82],
 	['Dogmatika', 0x146],
-	['Doll Monster', 0x15c],
 	['Doll Monster', 0x15c],
 	['Doodle', 0x186],
 	['Doodle Beast', 0x1186],
@@ -311,9 +302,6 @@ const page_two = new Collection([
 	['Gladiator Beast', 0x19],
 	['Goblin', 0xac],
 	['Gogogo', 0x59],
-]);
-
-const page_three = new Collection([
 	['Golden Land', 0x144],
 	['Gottoms', 0xb0],
 	['Gouki', 0xfc],
@@ -335,9 +323,7 @@ const page_three = new Collection([
 	['Hole', 0x89],
 	['Horus the Black Flame Dragon', 0x3],
 	['Hyperion', 0x171],
-	['Hyperion', 0x171],
 	['Ice Barrier', 0x2f],
-	['Icejade', 0x16e],
 	['Icejade', 0x16e],
 	['Igknight', 0xc8],
 	['Impcantation', 0x117],
@@ -355,7 +341,6 @@ const page_three = new Collection([
 	['Jurrac', 0x22],
 	['Kaiju', 0xd3],
 	['Kairyu-Shin', 0x179],
-	['Kairyu-Shin', 0x179],
 	['Karakuri', 0x11],
 	['Ki-sikil', 0x153],
 	['Knightmare', 0x112],
@@ -367,12 +352,10 @@ const page_three = new Collection([
 	['Kuriboh', 0xa4],
 	['Labrynth', 0x17f],
 	['Lady of Lament', 0x176],
-	['Lady of Lament', 0x176],
 	['Laundsallyn', 0xa8],
 	['Laval', 0x39],
 	['Legendary Knight', 0xa0],
 	['Legendary Dragon', 0xa1],
-	['Libromancer', 0x17d],
 	['Libromancer', 0x17d],
 	['Lightray', 0x6c],
 	['Lightsworn', 0x38],
@@ -390,7 +373,6 @@ const page_three = new Collection([
 	['Magician', 0xa2],
 	['Magician Girl', 0x20a2],
 	['Magikey', 0x167],
-	['Magikey', 0x167],
 	['Magistus', 0x152],
 	['Magna Warrior', 0xe9],
 	['Magnet Warrior', 0x2066],
@@ -400,7 +382,6 @@ const page_three = new Collection([
 	['Malicevorous', 0x8b],
 	['Marincess', 0x12b],
 	['Masked HERO', 0xa008],
-	['Materiactor', 0x162],
 	['Materiactor', 0x162],
 	['Mathmech', 0x132],
 	['Mayakashi', 0x121],
@@ -414,9 +395,6 @@ const page_three = new Collection([
 	['Melffy', 0x147],
 	['Melodious', 0x9b],
 	['Melodious Maestra', 0x109b],
-]);
-
-const page_four = new Collection([
 	['Mermail', 0x74],
 	['Metalfoes', 0xe1],
 	['Metaphys', 0x105],
@@ -425,8 +403,6 @@ const page_four = new Collection([
 	['Monarch', 0xbe],
 	['Morphtronic', 0x26],
 	['Mystic Swordsman', 0x5f],
-	['Mystical Beast of the Forest', 0x1169],
-	['Mystical Spirit of the Forest', 0x2169],
 	['Mystical Beast of the Forest', 0x1169],
 	['Mystical Spirit of the Forest', 0x2169],
 	['Mythical Beast', 0x10d],
@@ -461,15 +437,12 @@ const page_four = new Collection([
 	['Numerounius', 0x16b],
 	['Odd-Eyes', 0x99],
 	['of the Forest', 0x169],
-	['of the Forest', 0x169],
-	['Ogdoadic', 0x163],
 	['Ogdoadic', 0x163],
 	['Ojama', 0xf],
 	['Old Entity', 0x40b7],
 	['Onomat', 0x139],
 	['Orcust', 0x11b],
 	['Outer Entity', 0x10b7],
-	['P.U.N.K.', 0x173],
 	['P.U.N.K.', 0x173],
 	['Paleozoic', 0xd4],
 	['Palladium', 0x13a],
@@ -502,7 +475,6 @@ const page_four = new Collection([
 	['R-Genex', 0x1002],
 	['Raidraptor', 0xba],
 	['Rank-Down-Magic', 0x15d],
-	['Rank-Down-Magic', 0x15d],
 	['Rank-Up-Magic', 0x95],
 	['Reactor', 0x63],
 	['Rebellion', 0x13b],
@@ -517,21 +489,15 @@ const page_four = new Collection([
 	['Ritual Beast Ulti-', 0x40b5],
 	['roid', 0x16],
 	['Rokket', 0x102],
-]);
-
-const page_five = new Collection([
 	['Roland', 0x149],
 	['Rose', 0x123],
 	['Rose Dragon', 0x1123],
 	['Runick', 0x180],
 	['S-Force', 0x15a],
-	['S-Force', 0x15a],
 	['Saber', 0xd],
 	['Salamangreat', 0x119],
 	['Scareclaw', 0x17c],
-	['Scareclaw', 0x17c],
 	['Scrap', 0x24],
-	['Sea Stealth', 0x17a],
 	['Sea Stealth', 0x17a],
 	['Secret Six Samurai', 0x103d],
 	['Seven Emperors', 0x177],
@@ -564,14 +530,12 @@ const page_five = new Collection([
 	['Spiritual Wind Art', 0xa14d],
 	['Splight', 0x181],
 	['Springans', 0x158],
-	['Springans', 0x158],
 	['sprout', 0xa6],
 	['SPYRAL', 0xee],
 	['SPYRAL GEAR', 0x10ee],
 	['SPYRAL MISSION', 0x20ee],
 	['Star Seraph', 0x86],
 	['Stardust', 0xa3],
-	['Starry Knight', 0x15b],
 	['Starry Knight', 0x15b],
 	['Starving Venom', 0x1050],
 	['Stealth Kragen', 0x16a],
@@ -594,7 +558,6 @@ const page_five = new Collection([
 	['Supreme King Dragon', 0x20f8],
 	['Suship', 0x168],
 	['Swordsoul', 0x16d],
-	['Swordsoul', 0x16d],
 	['Sylvan', 0x90],
 	['Symphonic Warrior', 0x1066],
 	['Synchro', 0x17],
@@ -616,13 +579,9 @@ const page_five = new Collection([
 	['Tindangle', 0x10b],
 	['Toon', 0x62],
 	['Topologic', 0x170],
-	['Topologic', 0x170],
 	['Trap Hole', 0x4c],
 	['Traptrix', 0x108a],
 	['Tri-Brigade', 0x14f],
-]);
-
-const page_six = new Collection([
 	['Triamid', 0xe2],
 	['Trickstar', 0xfb],
 	['U.A.', 0xb2],
@@ -631,7 +590,6 @@ const page_six = new Collection([
 	['Umbral Horror', 0x87],
 	['Unchained', 0x130],
 	['Unchained Soul', 0x1130],
-	['Ursarctic', 0x165],
 	['Ursarctic', 0x165],
 	['Utopia', 0x107f],
 	['Utopic', 0x7f],
@@ -649,7 +607,6 @@ const page_six = new Collection([
 	['Void', 0xc5],
 	['Volcanic', 0x32],
 	['Vylon', 0x30],
-	['War Rock', 0x161],
 	['War Rock', 0x161],
 	['Warrior', 0x66],
 	['Watt', 0xe],
@@ -670,21 +627,11 @@ const page_six = new Collection([
 	['Yosenju', 0xb3],
 	['Zefra', 0xc4],
 	['Zexal', 0x7e],
-	['Zexal', 0x7e],
 	['Zoodiac', 0xf1],
 	['ZS -', 0x207e],
 	['Zubaba', 0x8f],
 	['ZW -', 0x107e],
 	['True Draco|True King', 0xf9],
-]);
-
-const Archetypes = new Collection([
-	['pg_one', page_one],
-	['pg_two', page_two],
-	['pg_three', page_three],
-	['pg_four', page_four],
-	['pg_five', page_five],
-	['pg_six', page_six],
 ]);
 
 module.exports = {
@@ -705,4 +652,6 @@ module.exports = {
 	UID_NEXT_STEP3,
 	UID_EDIT_STEP3,
 	UID_NEXT_STEP4,
+	UID_SKIP,
+	UID_NEXT_STEP5,
 };
