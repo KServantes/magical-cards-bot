@@ -13,6 +13,12 @@ const {
 	UID_CARD_TYPE,
 	UID_SKIP,
 	UID_NEXT_STEP5,
+	UID_FINISH_LINE,
+	UID_PREV_PAGE,
+	UID_NEXT_PAGE,
+	UID_NEXT_STEP6,
+	UID_ANITOM,
+	UID_NEW_SET,
 } = require('./constants');
 
 // start
@@ -245,8 +251,9 @@ const bcNext4 = async interaction => {
 			.setColor('#0099ff')
 			.setTitle('Archetype')
 			.setDescription(`>>> Does this card belong to an Archetype(s)?
-
-	**Next Steps:**`)
+	
+	** Skip to Strings or Archetype Selection(s) **
+	** Next Steps: **`)
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
 			.setFooter({
 				'text': '<- to Strings  |  to Archetype Select ->',
@@ -514,33 +521,33 @@ const bcNext5 = async interaction => {
 
 		// last row
 		const prev = new MessageButton()
-			.setCustomId('prev page')
+			.setCustomId(UID_PREV_PAGE)
 			.setLabel('PREV PG')
 			.setDisabled(pgNo === 1 ? true : false)
 			.setStyle('SECONDARY');
 		const next = new MessageButton()
-			.setCustomId('next page')
+			.setCustomId(UID_NEXT_PAGE)
 			.setLabel('NEXT PG')
 			.setDisabled(pgNo === MAX_PAGE ? true : false)
 			.setStyle('SECONDARY');
 
 		// Next
 		const nextStep = new MessageButton()
-			.setCustomId('step6')
+			.setCustomId(UID_NEXT_STEP6)
 			.setLabel('Next Step')
 			.setDisabled(true)
 			.setStyle('PRIMARY');
 
 		// customs & anime page
 		const animtom = new MessageButton()
-			.setCustomId('anitom')
+			.setCustomId(UID_ANITOM)
 			.setLabel('Anime/Custom')
 			.setDisabled(true)
 			.setStyle('PRIMARY');
 
 		// new archetype
 		const newArch = new MessageButton()
-			.setCustomId('new arch')
+			.setCustomId(UID_NEW_SET)
 			.setLabel('New Archetype')
 			.setDisabled(false)
 			.setStyle('SUCCESS');
@@ -641,6 +648,60 @@ const prevPage = async interaction => {
 	}
 };
 
+
+// step 6
+// strings modals ()
+const bcNext6 = async interaction => {
+
+	// finish the app
+	const skip = new MessageButton()
+		.setCustomId(UID_FINISH_LINE)
+		.setLabel('Skip')
+		.setStyle('PRIMARY');
+
+	// strings no to add
+	const one = new MessageButton()
+		.setCustomId('add one')
+		.setLabel('1')
+		.setStyle('PRIMARY');
+	const two = new MessageButton()
+		.setCustomId('add two')
+		.setLabel('2')
+		.setStyle('PRIMARY');
+	const three = new MessageButton()
+		.setCustomId('add three')
+		.setLabel('3')
+		.setStyle('PRIMARY');
+	const four = new MessageButton()
+		.setCustomId('add four')
+		.setLabel('4')
+		.setStyle('PRIMARY');
+	const five = new MessageButton()
+		.setCustomId('add five')
+		.setLabel('5')
+		.setStyle('PRIMARY');
+
+	// msg update
+	const embed = new MessageEmbed()
+		.setColor('#0099ff')
+		.setTitle('Strings')
+		.setDescription(`>>> [Scripting]
+		Description messages used in YGOPro.
+		Suggestions: 'Destroy', 'Draw', 'Facedown'
+
+		**Skip to complete the process or choose the number of strings you want to add**
+		
+		**Next Steps:**`)
+		.setThumbnail('https://i.imgur.com/ebtLbkK.png')
+		.setFooter({
+			'text': '<- Complete  |  Strings to add (max 16) ->',
+		});
+
+	const skipRow = new MessageActionRow().addComponents(skip);
+	const strRow = new MessageActionRow().addComponents(one, two, three, four, five);
+	return await interaction.update({ embeds: [embed], components: [skipRow, strRow] });
+};
+
 module.exports = {
 	bcStart,
 	bcHalt,
@@ -651,6 +712,7 @@ module.exports = {
 	bcEdit3,
 	bcNext4,
 	bcNext5,
+	bcNext6,
 	nextPage,
 	prevPage,
 	LinkButtons,

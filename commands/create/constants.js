@@ -39,9 +39,22 @@ const UID_SKIP = 'no setcard';
 // step 4
 const UID_NEXT_STEP5 = 'step5';
 
-
 // archetypes
+// selections / buttons
 // step 5
+const UID_ARCH_ROW1 = 'row1';
+const UID_ARCH_ROW2 = 'row2';
+const UID_ARCH_ROW3 = 'row3';
+const UID_ARCH_ROW4 = 'row4';
+
+const UID_NEXT_STEP6 = 'step6';
+const UID_PREV_PAGE = 'prev page';
+const UID_NEXT_PAGE = 'next page';
+const UID_ANITOM = 'anitom';
+const UID_NEW_SET = 'new arch';
+
+// step 6
+const UID_FINISH_LINE = 'finish';
 
 // card stat maps
 const Races = new Collection([
@@ -654,4 +667,14 @@ module.exports = {
 	UID_NEXT_STEP4,
 	UID_SKIP,
 	UID_NEXT_STEP5,
+	UID_NEXT_STEP6,
+	UID_ARCH_ROW1,
+	UID_ARCH_ROW2,
+	UID_ARCH_ROW3,
+	UID_ARCH_ROW4,
+	UID_ANITOM,
+	UID_NEW_SET,
+	UID_PREV_PAGE,
+	UID_NEXT_PAGE,
+	UID_FINISH_LINE,
 };
