@@ -20,6 +20,7 @@ const {
 	UID_ANITOM,
 	UID_NEW_SET,
 } = require('./constants');
+const { stringsForm } = require('./forms/strings');
 
 // start
 // modal (name, peff, desc, id)
@@ -702,6 +703,18 @@ const bcNext6 = async interaction => {
 	return await interaction.update({ embeds: [embed], components: [skipRow, strRow] });
 };
 
+const Strings = async interaction => {
+
+	const embed = new MessageEmbed()
+		.setColor('#0099ff')
+		.setTitle('Strings')
+		.setDescription('>>> **Adding in strings...**')
+		.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+
+	await stringsForm(interaction);
+	return await interaction.message.edit({ embeds: [embed], components: [] });
+};
+
 module.exports = {
 	bcStart,
 	bcHalt,
@@ -715,5 +728,6 @@ module.exports = {
 	bcNext6,
 	nextPage,
 	prevPage,
+	Strings,
 	LinkButtons,
 };

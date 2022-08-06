@@ -2,7 +2,9 @@ const { Collection } = require('discord.js');
 const { cardInfoSubmit, cardStatsSubmit } = require('./modal');
 const { selectionType, selectionRace, selectionAtt, selectionArch } = require('./selections');
 const { bcStart, bcHalt, bcEdit, bcNext, bcEdit2,
-	bcNext3, bcEdit3, bcNext4, LinkButtons, bcNext5, nextPage, prevPage, bcNext6 } = require('./buttons');
+	bcNext3, bcEdit3, bcNext4, LinkButtons, bcNext5, 
+	nextPage, prevPage, bcNext6, Strings,
+} = require('./buttons');
 
 
 const { UID_START, UID_HALT, UID_CARD_INFO, UID_EDIT_STEP1,
@@ -52,6 +54,13 @@ const interactButton = new Collection([
 
 	// step 6
 	[UID_NEXT_STEP6, bcNext6],
+
+	// add strings
+	['add one', Strings],
+	['add two', Strings],
+	['add three', Strings],
+	['add four', Strings],
+	['add five', Strings],
 ]);
 
 const interactModalSubmit = new Collection([
