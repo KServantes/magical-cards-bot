@@ -4,6 +4,36 @@ const { Races, Types, Attributes } = require('./constants');
 const CACHE_DATA = 'card data';
 const CACHE_CARD = 'card cache';
 
+// general structure of the
+// card object injected into db
+const cardInitial = {
+	// card info
+	id: 0,
+	// default 32 'custom'
+	ot: 32,
+	alias: 0,
+	setcode: 0,
+	type: 0,
+	atk: 0,
+	// def || link markers
+	def: 0,
+	// lvl || rating
+	lvl: 0,
+	race: 0,
+	attribute: 0,
+	category: 0,
+	name: '',
+	desc: '',
+	temp: {
+		cardPEff: '',
+		cardDesc: '',
+		isPendy: false,
+		isLink: false,
+		// trap / spell
+		isTrell: false,
+		stepNo: 0,
+	},
+};
 
 // memory cache
 const stepOneData = (card, step) => {
@@ -167,34 +197,6 @@ const getStepCache = (cache, step) => {
 
 
 // db cache
-const cardInitial = {
-	// card info
-	id: 0,
-	// default 32 'custom'
-	ot: 32,
-	alias: 0,
-	setcode: 0,
-	type: 0,
-	atk: 0,
-	// def || link markers
-	def: 0,
-	// lvl || rating
-	lvl: 0,
-	race: 0,
-	attribute: 0,
-	category: 0,
-	name: '',
-	desc: '',
-
-	temp: {
-		cardPEff: '',
-		cardDesc: '',
-		isPendy: false,
-		isLink: false,
-		stepNo: 0,
-	},
-};
-
 const getCardCache = cache => {
 	return cache.get(CACHE_CARD);
 };

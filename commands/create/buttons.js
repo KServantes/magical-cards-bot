@@ -583,7 +583,10 @@ const bcNext5 = async interaction => {
 
 		// pre archs populate
 		const { embeds } = interaction.message;
-		const fields = embeds[0].fields ?? [];
+		const { fields: eFields } = embeds[0];
+		const con = eFields.length > 0 && eFields[0].name != 'Selection';
+		// if has fields from last step
+		const fields = con ? eFields : [];
 
 		const card = Helper.getCardCache(cache);
 		if (card) {
@@ -653,66 +656,191 @@ const prevPage = async interaction => {
 // step 6
 // strings modals ()
 const bcNext6 = async interaction => {
-
+	try {
 	// finish the app
-	const skip = new MessageButton()
-		.setCustomId(UID_FINISH_LINE)
-		.setLabel('Skip')
-		.setStyle('PRIMARY');
+		const skip = new MessageButton()
+			.setCustomId(UID_FINISH_LINE)
+			.setLabel('Skip')
+			.setStyle('PRIMARY');
 
-	// strings no to add
-	const one = new MessageButton()
-		.setCustomId('add one')
-		.setLabel('1')
-		.setStyle('PRIMARY');
-	const two = new MessageButton()
-		.setCustomId('add two')
-		.setLabel('2')
-		.setStyle('PRIMARY');
-	const three = new MessageButton()
-		.setCustomId('add three')
-		.setLabel('3')
-		.setStyle('PRIMARY');
-	const four = new MessageButton()
-		.setCustomId('add four')
-		.setLabel('4')
-		.setStyle('PRIMARY');
-	const five = new MessageButton()
-		.setCustomId('add five')
-		.setLabel('5')
-		.setStyle('PRIMARY');
+		// strings no to add
+		const one = new MessageButton()
+			.setCustomId('add one')
+			.setLabel('1')
+			.setStyle('PRIMARY');
+		const two = new MessageButton()
+			.setCustomId('add two')
+			.setLabel('2')
+			.setStyle('PRIMARY');
+		const three = new MessageButton()
+			.setCustomId('add three')
+			.setLabel('3')
+			.setStyle('PRIMARY');
+		const four = new MessageButton()
+			.setCustomId('add four')
+			.setLabel('4')
+			.setStyle('PRIMARY');
+		const five = new MessageButton()
+			.setCustomId('add five')
+			.setLabel('5')
+			.setStyle('PRIMARY');
 
-	// msg update
-	const embed = new MessageEmbed()
-		.setColor('#0099ff')
-		.setTitle('Strings')
-		.setDescription(`>>> [Scripting]
+		// msg update
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Strings')
+			.setDescription(`>>> [Scripting]
 		Description messages used in YGOPro.
 		Suggestions: 'Destroy', 'Draw', 'Facedown'
 
 		**Skip to complete the process or choose the number of strings you want to add**
 		
 		**Next Steps:**`)
-		.setThumbnail('https://i.imgur.com/ebtLbkK.png')
-		.setFooter({
-			'text': '<- Complete  |  Strings to add (max 16) ->',
-		});
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
+			.setFooter({
+				'text': '<- Complete  |  Strings to add (max 16) ->',
+			});
 
-	const skipRow = new MessageActionRow().addComponents(skip);
-	const strRow = new MessageActionRow().addComponents(one, two, three, four, five);
-	return await interaction.update({ embeds: [embed], components: [skipRow, strRow] });
+		const skipRow = new MessageActionRow().addComponents(skip);
+		const strRow = new MessageActionRow().addComponents(one, two, three, four, five);
+		return await interaction.update({ embeds: [embed], components: [skipRow, strRow] });
+	}
+	catch (error) {
+		console.log(error);
+		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+	}
 };
 
 const Strings = async interaction => {
+	try {
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Strings')
+			.setDescription('>>> **Adding in strings...**')
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
-	const embed = new MessageEmbed()
-		.setColor('#0099ff')
-		.setTitle('Strings')
-		.setDescription('>>> **Adding in strings...**')
-		.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+		await stringsForm(interaction);
+		return await interaction.message.edit({ embeds: [embed], components: [] });
+	}
+	catch (error) {
+		console.log(error);
+		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+	}
+};
 
-	await stringsForm(interaction);
-	return await interaction.message.edit({ embeds: [embed], components: [] });
+const bcFinish = async interaction => {
+	try {
+		const { cache } = interaction.client;
+		const card = Helper.getCardCache(cache);
+		if (!card) throw new Error('No Card Cache data found!');
+
+		const {
+			id,
+			name,
+			type: types,
+			att,
+			lvl,
+			race,
+			atk,
+			def,
+			setcode,
+		} = card;
+
+		const descFormat = c => {
+			let str = '';
+			const template = {
+				pendulum: (pend, des) => {
+					return `[Pendulum Effect]
+				${pend}
+				----------------------------------------
+				[Card Text]
+				${des}`;
+				},
+				regular: des => {
+					return `[Card Text]
+					${des}`;
+				},
+			};
+
+			const { cardPEff, cardDesc } = c.temp;
+			if (cardPEff) {str = template.pendulum(cardPEff, cardDesc);}
+			else { str = template.regular(cardDesc); }
+			return str;
+		};
+
+		// extract lvl and scales
+		const extractLVLScales = val => {
+			let truLvl = 0;
+			const hex = parseInt(val).toString(16);
+			truLvl = parseInt(hex.slice(-1), 16);
+			const lscale = hex.at(0);
+			const rscale = hex.at(2);
+			return {
+				level: truLvl,
+				pendulum: {
+					lscale,
+					rscale,
+				},
+			};
+		};
+
+
+		// Desc
+		const desc = descFormat(card);
+		// Type
+		const tcoll = Types.reverse();
+		const tStr = tcoll.reduce((acc, v, t) => {
+			if ((types & v).toString(16) != 0) {
+				return acc.concat(t + ' ');
+			}
+			return acc;
+		}, '').replace(/\s\b/g, ' / ');
+		// Attribute
+		const attStr = Attributes.keyAt(att);
+		// Race
+		const raceStr = Races.keyAt(race);
+		// Rating/Rank/Level
+		let lvlType = tStr.includes('Xyz') ? 'Rank' : 'Level';
+		lvlType = tStr.includes('Link') ? 'LINK' : 'Level';
+		// Level
+		let lvlActual = lvl;
+		let lscale = 0;
+		let rscale = 0;
+		if (card.temp.isPendy) {
+			const { level, pendulum: pendy } = extractLVLScales(lvl);
+			lvlActual = level;
+			lscale = pendy.lscale;
+			rscale = pendy.rscale;
+		}
+		// Archetypes
+		let arcsStr = '';
+		if (setcode) {
+			const arc = Archetypes.findKey(v => v === setcode);
+			if (arc) arcsStr = arc;
+		}
+		// Pendulum
+		const pendyInfo = `**Left Scale**: ${lscale} | **Right Scale**: ${rscale}`;
+
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Complete')
+			.setDescription(`>>> Thank you!
+			Your card has been added to the Library:
+			**${name}**
+			**Type**: ${tStr}
+			**Attribute** ${attStr} | **${lvlType}**: ${lvlActual} | **Race**: ${raceStr}
+			**ATK** ${atk} **DEF** ${def}
+			${rscale === 0 ? '\n' : pendyInfo}
+			${arcsStr ? `**Archetypes**: ${arcsStr}` : arcsStr}
+			${desc}
+			**${id}**`)
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+		return await interaction.message.edit({ embeds: [embed], components: [] });
+	}
+	catch (error) {
+		console.log(error);
+		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+	}
 };
 
 module.exports = {
@@ -728,6 +856,7 @@ module.exports = {
 	bcNext6,
 	nextPage,
 	prevPage,
+	bcFinish,
 	Strings,
 	LinkButtons,
 };
