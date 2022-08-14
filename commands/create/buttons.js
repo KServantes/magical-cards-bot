@@ -757,8 +757,7 @@ const bcFinish = async interaction => {
 				${des}`;
 				},
 				regular: des => {
-					return `[Card Text]
-					${des}`;
+					return des;
 				},
 			};
 
@@ -804,8 +803,8 @@ const bcFinish = async interaction => {
 		lvlType = tStr.includes('Link') ? 'LINK' : 'Level';
 		// Level
 		let lvlActual = lvl;
-		let lscale = 0;
-		let rscale = 0;
+		let lscale = null;
+		let rscale = null;
 		if (card.temp.isPendy) {
 			const { level, pendulum: pendy } = extractLVLScales(lvl);
 			lvlActual = level;
@@ -821,21 +820,25 @@ const bcFinish = async interaction => {
 		// Pendulum
 		const pendyInfo = `**Left Scale**: ${lscale} | **Right Scale**: ${rscale}`;
 
-		const embed = new MessageEmbed()
+		const systemEmbed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Complete')
 			.setDescription(`>>> Thank you!
-			Your card has been added to the Library:
+			Your card has been added to the Library:`)
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+		const resultEmbed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setDescription(`
 			**${name}**
 			**Type**: ${tStr}
 			**Attribute** ${attStr} | **${lvlType}**: ${lvlActual} | **Race**: ${raceStr}
 			**ATK** ${atk} **DEF** ${def}
-			${rscale === 0 ? '\n' : pendyInfo}
+			${!rscale ? '' : pendyInfo}
 			${arcsStr ? `**Archetypes**: ${arcsStr}` : arcsStr}
 			${desc}
 			**${id}**`)
-			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
-		return await interaction.message.edit({ embeds: [embed], components: [] });
+			.setThumbnail('https://i.imgur.com/PSlH5Nl.png');
+		return await interaction.message.edit({ embeds: [systemEmbed, resultEmbed], components: [] });
 	}
 	catch (error) {
 		console.log(error);

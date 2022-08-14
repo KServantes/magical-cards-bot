@@ -1,3 +1,4 @@
+/* eslint-disable no-inline-comments */
 const { Collection } = require('discord.js');
 const { Races, Types, Attributes } = require('./constants');
 
@@ -36,7 +37,7 @@ const cardInitial = {
 };
 
 // memory cache
-const stepOneData = (card, step) => {
+const infoData = (_cache, card, step) => {
 	const { cardName, cardCode, cardPEff, cardDesc } = card;
 
 	const data = {
@@ -96,7 +97,10 @@ const attVal = (field) => {
 	return val;
 };
 
-const stepTwoData = (field, stepCache) => {
+const typeData = (cache, field, step) => {
+	const stepCache = getStepCache(cache, step) ?? { step: 2 };
+	console.log('step cache in types', stepCache);
+
 	const fields = new Collection([
 		['Race', raceVal],
 		['Type', typeVal],
@@ -116,7 +120,8 @@ const stepTwoData = (field, stepCache) => {
 };
 
 
-const stepThreeData = (stats, step) => {
+const statData = (cache, stats, step) => {
+	console.log('data step 3', cache);
 	const [ atk, lvl] = stats;
 
 	let actDef = 0;
@@ -154,30 +159,26 @@ const stepThreeData = (stats, step) => {
 
 const initializeCache = (cache) => {
 	const coll = new Collection();
-	const steps = coll.set(1, {});
+	const steps = coll.set(0, { step: 0 });
 	return cache.set(CACHE_DATA, steps);
 };
 
 const setDataCache = (cache, args, step) => {
 	if (!cache.has(CACHE_DATA)) initializeCache(cache);
 	const cacheCan = cache.get(CACHE_DATA);
+	if (!args) cacheCan.set(step, { step });
 
-	let data = { step: 0 };
+	const stepColl = new Collection([
+		[1, infoData], // id, name, desc
+		[2, typeData], // type, race, att
+		[3, statData], // atk, def, lvl, lscale, rscale
+		// [4, linkData], // link stuff
+		// [5, setData], // archetypes
+		// [6, strData], // strings
+	]);
 
-	if (step === 1) {
-		data = stepOneData(args, step);
-		cacheCan.set(step, data);
-	}
-	if (step === 2) {
-		const stepCache = cacheCan.get(step);
-		data = stepTwoData(args, stepCache);
-		data.step = 2;
-		cacheCan.set(step, data);
-	}
-	if (step === 3) {
-		data = stepThreeData(args, step);
-		cacheCan.set(step, data);
-	}
+	const data = stepColl.get(step)(cache, args, step);
+	cacheCan.set(step, data);
 
 	return getStepCache(cache, step);
 };

@@ -53,7 +53,10 @@ const UID_NEXT_PAGE = 'next page';
 const UID_ANITOM = 'anitom';
 const UID_NEW_SET = 'new arch';
 
-// step 6
+// step 6 (strings)
+
+
+// finish line
 const UID_FINISH_LINE = 'finish';
 
 // card stat maps
