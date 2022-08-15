@@ -17,14 +17,20 @@ client.on('ready', () => {
 });
 
 client.on('interactionCreate', async interaction => {
-	const { interactions } = client;
+	try {
+		const { interactions } = client;
 
-	// eslint-disable-next-line no-unused-vars
-	for (const [ _, interactType] of interactions.entries()) {
-		const { type, interact } = interactType;
-		if (type(interaction)) {
-			interact(interaction);
+		// eslint-disable-next-line no-unused-vars
+		for (const [ _, interactType] of interactions.entries()) {
+			const { type, interact } = interactType;
+			if (type(interaction)) {
+				interact(interaction);
+			}
 		}
+	}
+	catch (error) {
+		console.log('interaction error', error);
+		return await interaction.reply({ content: 'There was an error executing this interaction!', ephemeral: true });
 	}
 });
 

@@ -3,7 +3,7 @@ const { cardInfoSubmit, cardStatsSubmit } = require('./modal');
 const { selectionType, selectionRace, selectionAtt, selectionArch } = require('./selections');
 const { bcStart, bcHalt, bcEdit, bcNext, bcEdit2,
 	bcNext3, bcEdit3, bcNext4, LinkButtons, bcNext5, 
-	nextPage, prevPage, bcNext6, Strings, bcFinish,
+	nextPage, prevPage, bcNext6, Strings, bcFinish, clearFields,
 } = require('./buttons');
 
 
@@ -12,7 +12,8 @@ const { UID_START, UID_HALT, UID_CARD_INFO, UID_EDIT_STEP1,
 	UID_EDIT_STEP3, UID_CARD_ATT, UID_CARD_RACE, UID_CARD_TYPE,
 	UID_NEXT_STEP4, UID_NEXT_STEP5, UID_ANITOM, UID_ARCH_ROW1,
 	UID_ARCH_ROW2, UID_ARCH_ROW3, UID_ARCH_ROW4, UID_NEW_SET,
-	UID_NEXT_PAGE, UID_NEXT_STEP6, UID_PREV_PAGE, UID_SKIP, UID_FINISH_LINE
+	UID_NEXT_PAGE, UID_NEXT_STEP6, UID_PREV_PAGE, UID_SKIP, UID_FINISH_LINE,
+	UID_CLEAR,
 } = require('./constants');
 
 const interactButton = new Collection([
@@ -51,6 +52,7 @@ const interactButton = new Collection([
 	[UID_NEXT_STEP5, bcNext5],
 	[UID_NEXT_PAGE, nextPage],
 	[UID_PREV_PAGE, prevPage],
+	[UID_CLEAR, clearFields],
 
 	// step 6
 	[UID_NEXT_STEP6, bcNext6],

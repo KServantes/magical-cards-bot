@@ -1,9 +1,10 @@
 /* eslint-disable no-inline-comments */
 const { Collection } = require('discord.js');
-const { Races, Types, Attributes } = require('./constants');
+const { Races, Types, Attributes, Archetypes } = require('./constants');
 
 const CACHE_DATA = 'card data';
 const CACHE_CARD = 'card cache';
+const CACHE_PAGE = 'page info';
 
 // general structure of the
 // card object injected into db
@@ -336,10 +337,45 @@ const setCardCache = cache => {
 	return cache.get(CACHE_CARD);
 };
 
+const setColl = new Collection([ ['tcg', Archetypes] ]);
+
+const initializePageCache = cache => {
+	const pageInfo = {
+		page: 1,
+		set: Archetypes,
+		prefill: false,
+		wipe: false,
+		// sets: ['tcg', 'anime', 'custom'],
+		/**
+			 * @param {string} set
+			 */
+		set switchSet(set) {
+			this.set = setColl.get(set);
+		},
+		/**
+		 * @param {number} p
+		 */
+		set pageOf(p) {
+			this.page = p;
+		},
+	};
+
+	return cache.set(CACHE_PAGE, pageInfo);
+};
+
+const getPageInfo = cache => {
+	if (!cache.has(CACHE_PAGE)) {
+		initializePageCache(cache);
+	}
+
+	return cache.get(CACHE_PAGE);
+};
+
 module.exports = {
 	setDataCache,
 	getStepCache,
 	setCardCache,
 	getCardCache,
+	getPageInfo,
 	CACHE_DATA,
 };

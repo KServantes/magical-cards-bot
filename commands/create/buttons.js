@@ -3,6 +3,7 @@ const wait = require('node:timers/promises').setTimeout;
 const Helper = require('./cache');
 const { infoForm } = require('./forms/info');
 const { statsForm } = require('./forms/stats');
+const { stringsForm } = require('./forms/strings');
 const {
 	Races,
 	Types,
@@ -19,8 +20,8 @@ const {
 	UID_NEXT_STEP6,
 	UID_ANITOM,
 	UID_NEW_SET,
+	UID_CLEAR,
 } = require('./constants');
-const { stringsForm } = require('./forms/strings');
 
 // start
 // modal (name, peff, desc, id)
@@ -424,17 +425,13 @@ const LinkButtons = async interaction => {
 // step 4 => step 5
 // or from no Link Step 3
 const bcNext5 = async interaction => {
-	// set page info for cache
-	// object for later info?
-	const { cache } = interaction.client;
-	if (!cache.has('page info')) {
-		cache.set('page info', { page: 1 });
-	}
-
 	try {
-		const pageInfo = cache.get('page info');
-		const { page: pgNo } = pageInfo;
-		const MAX_PAGE = Math.floor((Archetypes.size / 100) + 1);
+		// set page info for cache
+		// object for later info?
+		const { cache } = interaction.client;
+		const pageInfo = Helper.getPageInfo(cache);
+		const { page: pgNo, set: pageSet, preFill, wipe } = pageInfo;
+		const MAX_PAGE = Math.floor((pageSet.size / 100) + 1);
 
 		// decide what page info to use
 		const getPageFromArcs = (coll = new Collection(), start_index = 0, end_index = 100) => {
@@ -458,7 +455,7 @@ const bcNext5 = async interaction => {
 			return page;
 		};
 
-		const page = getPageFromArcs(Archetypes, ((pgNo * 100) - 100), (pgNo * 100));
+		const page = getPageFromArcs(pageSet, ((pgNo * 100) - 100), (pgNo * 100));
 		const addToRows = p => {
 			const rows = {
 				1: [],
@@ -545,13 +542,13 @@ const bcNext5 = async interaction => {
 			.setDisabled(true)
 			.setStyle('PRIMARY');
 
-		// new archetype
-		const newArch = new MessageButton()
-			.setCustomId(UID_NEW_SET)
-			.setLabel('New Archetype')
+		// clear
+		const clear = new MessageButton()
+			.setCustomId(UID_CLEAR)
+			.setLabel('Clear')
 			.setDisabled(false)
-			.setStyle('SUCCESS');
-		const row5 = new MessageActionRow().addComponents(prev, next, nextStep, animtom, newArch);
+			.setStyle('DANGER');
+		const row5 = new MessageActionRow().addComponents(prev, next, nextStep, animtom, clear);
 
 		// if any row is empty
 		// lack of entries
@@ -583,24 +580,34 @@ const bcNext5 = async interaction => {
 		// pre archs populate
 		const { embeds } = interaction.message;
 		const { fields: eFields } = embeds[0];
-		const con = eFields.length > 0 && eFields[0].name != 'Selection';
+		const isOldFields = eFields.length > 0 && eFields[0].name != 'Selection';
 		// if has fields from last step
-		const fields = con ? eFields : [];
+		// in state of wiping the fields
+		console.log('page info[wipe]: ', wipe);
+		const fields = isOldFields ? (!wipe ? eFields : []) : [];
+		if (wipe) pageInfo.wipe = false;
+		console.log('on falsify = page info[wipe]: ', wipe);
 
 		const card = Helper.getCardCache(cache);
-		if (card) {
+		if (card && !preFill) {
 			const { name } = card;
+			const strfy = val => {
+				return `Dec: ${val}
+		Hex: ${parseInt(val).toString(16)}`;
+			};
 
-			for (const [set, code] of Archetypes.entries()) {
+			for (const [set, code] of pageSet.entries()) {
 				if (name.includes(set)) {
 					const f = new Object();
 					f.name = set;
-					f.value = `${code}`;
+					f.value = strfy(code);
 					f.inline = true;
 
 					fields.push(f);
 				}
 			}
+
+			pageInfo.preFill = true;
 		}
 
 		// msg update
@@ -626,9 +633,11 @@ const bcNext5 = async interaction => {
 const nextPage = async interaction => {
 	try {
 		const { cache } = interaction.client;
-		const { page: pgNo } = cache.get('page info');
+		const pageInfo = Helper.getPageInfo(cache);
+		const { page: pgNo } = pageInfo;
 
-		cache.set('page info', { page: pgNo + 1 });
+		pageInfo.pageOf = pgNo + 1;
+
 		return await bcNext5(interaction);
 	}
 	catch (error) {
@@ -640,9 +649,11 @@ const nextPage = async interaction => {
 const prevPage = async interaction => {
 	try {
 		const { cache } = interaction.client;
-		const { page: pgNo } = cache.get('page info');
+		const pageInfo = Helper.getPageInfo(cache);
+		const { page: pgNo } = pageInfo;
 
-		cache.set('page info', { page: pgNo - 1 });
+		pageInfo.pageOf = pgNo - 1;
+
 		return await bcNext5(interaction);
 	}
 	catch (error) {
@@ -651,6 +662,20 @@ const prevPage = async interaction => {
 	}
 };
 
+const clearFields = async interaction => {
+	try {
+		const { cache } = interaction.client;
+		const pageInfo = Helper.getPageInfo(cache);
+
+		pageInfo.wipe = true;
+
+		return await bcNext5(interaction);
+	}
+	catch (error) {
+		console.log(error);
+		return await interaction.reply({ content: 'There was an error clearing the fields.', ephemeral: true });
+	}
+};
 
 // step 6
 // strings modals ()
@@ -871,6 +896,7 @@ module.exports = {
 	bcNext6,
 	nextPage,
 	prevPage,
+	clearFields,
 	bcFinish,
 	Strings,
 	LinkButtons,
