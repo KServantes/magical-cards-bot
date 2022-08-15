@@ -536,7 +536,6 @@ const bcNext5 = async interaction => {
 		const nextStep = new MessageButton()
 			.setCustomId(UID_NEXT_STEP6)
 			.setLabel('Next Step')
-			.setDisabled(true)
 			.setStyle('PRIMARY');
 
 		// customs & anime page
@@ -657,7 +656,17 @@ const prevPage = async interaction => {
 // strings modals ()
 const bcNext6 = async interaction => {
 	try {
-	// finish the app
+		const { cache } = interaction.client;
+		const { embeds } = interaction.message;
+		const { fields } = embeds[0];
+		const data = Helper.setDataCache(cache, fields, 5);
+		console.log('data entered: ', data);
+
+		const cardRec = Helper.setCardCache(cache);
+		console.log('Recorded as: ', cardRec);
+
+
+		// finish the app
 		const skip = new MessageButton()
 			.setCustomId(UID_FINISH_LINE)
 			.setLabel('Skip')
@@ -738,7 +747,7 @@ const bcFinish = async interaction => {
 			id,
 			name,
 			type: types,
-			att,
+			attribute: att,
 			lvl,
 			race,
 			atk,
@@ -772,8 +781,8 @@ const bcFinish = async interaction => {
 			let truLvl = 0;
 			const hex = parseInt(val).toString(16);
 			truLvl = parseInt(hex.slice(-1), 16);
-			const lscale = hex.at(0);
-			const rscale = hex.at(2);
+			const lscale = parseInt(hex.at(0), 16);
+			const rscale = parseInt(hex.at(2), 16);
 			return {
 				level: truLvl,
 				pendulum: {
@@ -795,12 +804,12 @@ const bcFinish = async interaction => {
 			return acc;
 		}, '').replace(/\s\b/g, ' / ');
 		// Attribute
-		const attStr = Attributes.keyAt(att);
+		const attStr = Attributes.findKey(v => v === att);
 		// Race
-		const raceStr = Races.keyAt(race);
+		const raceStr = Races.findKey(v => v === race);
 		// Rating/Rank/Level
 		let lvlType = tStr.includes('Xyz') ? 'Rank' : 'Level';
-		lvlType = tStr.includes('Link') ? 'LINK' : 'Level';
+		lvlType = tStr.includes('Link') ? 'LINK' : lvlType;
 		// Level
 		let lvlActual = lvl;
 		let lscale = null;
@@ -819,6 +828,10 @@ const bcFinish = async interaction => {
 		}
 		// Pendulum
 		const pendyInfo = `**Left Scale**: ${lscale} | **Right Scale**: ${rscale}`;
+		// Extra Info
+		let placeholder = '';
+		if (rscale) placeholder += `${pendyInfo}` + '\n';
+		if (arcsStr) placeholder += `**Archetypes**: ${arcsStr}` + '\n';
 
 		const systemEmbed = new MessageEmbed()
 			.setColor('#0099ff')
@@ -828,13 +841,12 @@ const bcFinish = async interaction => {
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 		const resultEmbed = new MessageEmbed()
 			.setColor('#0099ff')
-			.setDescription(`
+			.setDescription(`>>> 
 			**${name}**
 			**Type**: ${tStr}
 			**Attribute** ${attStr} | **${lvlType}**: ${lvlActual} | **Race**: ${raceStr}
 			**ATK** ${atk} **DEF** ${def}
-			${!rscale ? '' : pendyInfo}
-			${arcsStr ? `**Archetypes**: ${arcsStr}` : arcsStr}
+			${placeholder}
 			${desc}
 			**${id}**`)
 			.setThumbnail('https://i.imgur.com/PSlH5Nl.png');

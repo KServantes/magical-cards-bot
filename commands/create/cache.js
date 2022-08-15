@@ -98,7 +98,7 @@ const attVal = (field) => {
 };
 
 const typeData = (cache, field, step) => {
-	const stepCache = getStepCache(cache, step) ?? { step: 2 };
+	const stepCache = getStepCache(cache, step) ?? { step };
 	console.log('step cache in types', stepCache);
 
 	const fields = new Collection([
@@ -157,6 +157,50 @@ const statData = (cache, stats, step) => {
 };
 
 
+// const linkData = () => {
+
+// };
+
+
+const setData = (_cache, arcs, step) => {
+	const temp = {
+		step,
+		archetypes: {
+			sets: [],
+			codes: [],
+		},
+	};
+
+	// step data for later ref
+	const data = arcs.reduce((acc, arc) => {
+		const { name: set, value: code } = arc;
+		const codeDec = code.match(/\d(?!:)\w+/)[0];
+
+		acc.archetypes.sets.push(set);
+		acc.archetypes.codes.push(codeDec);
+
+		return acc;
+	}, temp);
+
+	// clean data for db
+	const setcode = data.archetypes.codes.reduce((acc, dec) => {
+		const num = parseInt(dec);
+		return acc += num;
+	}, 0);
+
+	data.setcode = setcode;
+	return data;
+};
+
+const dataSteps = new Collection([
+	[1, infoData], // id, name, desc
+	[2, typeData], // type, race, att
+	[3, statData], // atk, def, lvl, lscale, rscale
+	// [4, linkData], // link markers
+	[5, setData], // archetypes
+	// [6, strData], // strings
+]);
+
 const initializeCache = (cache) => {
 	const coll = new Collection();
 	const steps = coll.set(0, { step: 0 });
@@ -165,19 +209,10 @@ const initializeCache = (cache) => {
 
 const setDataCache = (cache, args, step) => {
 	if (!cache.has(CACHE_DATA)) initializeCache(cache);
+
 	const cacheCan = cache.get(CACHE_DATA);
-	if (!args) cacheCan.set(step, { step });
+	const data = dataSteps.get(step)(cache, args, step);
 
-	const stepColl = new Collection([
-		[1, infoData], // id, name, desc
-		[2, typeData], // type, race, att
-		[3, statData], // atk, def, lvl, lscale, rscale
-		// [4, linkData], // link stuff
-		// [5, setData], // archetypes
-		// [6, strData], // strings
-	]);
-
-	const data = stepColl.get(step)(cache, args, step);
 	cacheCan.set(step, data);
 
 	return getStepCache(cache, step);
@@ -198,6 +233,88 @@ const getStepCache = (cache, step) => {
 
 
 // db cache
+const regInfo = (data, current) => {
+	const { step, name, id, temp } = data;
+
+	const { cardPEff, cardDesc } = temp;
+	const pendy = cardPEff != '' ? true : false;
+
+	const { temp: rest } = current;
+	const cardOne = { ...current,
+		id,
+		name,
+		temp: {
+			...rest,
+			isPendy: pendy,
+			stepNo: step,
+			cardPEff: cardPEff,
+			cardDesc: cardDesc,
+		},
+	};
+
+	return cardOne;
+};
+
+const regTypes = (data, current) => {
+	const { step, race, type, attribute } = data;
+	const [truType, isLink] = type;
+
+	const { temp: rest } = current;
+	const cardTwo = { ...current,
+		race,
+		type: truType,
+		attribute,
+		temp: {
+			...rest,
+			stepNo: step,
+			isLink,
+		},
+	};
+
+	return cardTwo;
+};
+
+const regStats = (data, current) => {
+	const { step, atk, def, lvl } = data;
+
+	const { temp: rest } = current;
+	const cardThree = { ...current,
+		atk,
+		def,
+		lvl,
+		temp: {
+			...rest,
+			stepNo: step,
+		},
+	};
+
+	return cardThree;
+};
+
+const regArcs = (data, current) => {
+	const { step, setcode } = data;
+
+	const { temp: rest } = current;
+	const cardFive = { ...current,
+		setcode,
+		temp: {
+			...rest,
+			stepNo: step,
+		},
+	};
+
+	return cardFive;
+};
+
+const cacheSteps = new Collection([
+	[1, regInfo],
+	[2, regTypes],
+	[3, regStats],
+	// [4, regMarkers],
+	[5, regArcs],
+	// [6, regStrs],
+]);
+
 const getCardCache = cache => {
 	return cache.get(CACHE_CARD);
 };
@@ -212,62 +329,10 @@ const setCardCache = cache => {
 
 	const coll = cache.get(CACHE_DATA);
 	const data = coll.last();
+	const card = cacheSteps.get(data.step)(data, cardCache);
 
-	if (data.step === 1) {
-		const { step, name, id, temp } = data;
+	cache.set(CACHE_CARD, card);
 
-		const { cardPEff, cardDesc } = temp;
-		const pendy = cardPEff != '' ? true : false;
-
-		const { temp: rest } = cardCache;
-		const cardOne = { ...cardCache,
-			id,
-			name,
-			temp: {
-				...rest,
-				isPendy: pendy,
-				stepNo: step,
-				cardPEff: cardPEff,
-				cardDesc: cardDesc,
-			},
-		};
-
-		cache.set(CACHE_CARD, cardOne);
-	}
-	if (data.step === 2) {
-		const { step, race, type, attribute } = data;
-		const [truType, isLink] = type;
-
-		const { temp: rest } = cardCache;
-		const cardTwo = { ...cardCache,
-			race,
-			type: truType,
-			attribute,
-			temp: {
-				...rest,
-				stepNo: step,
-				isLink,
-			},
-		};
-
-		cache.set(CACHE_CARD, cardTwo);
-	}
-	if (data.step === 3) {
-		const { step, atk, def, lvl } = data;
-
-		const { temp: rest } = cardCache;
-		const cardThree = { ...cardCache,
-			atk,
-			def,
-			lvl,
-			temp: {
-				...rest,
-				stepNo: step,
-			},
-		};
-
-		cache.set(CACHE_CARD, cardThree);
-	}
 	return cache.get(CACHE_CARD);
 };
 
