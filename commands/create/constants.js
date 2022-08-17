@@ -127,6 +127,17 @@ const Attributes = new Collection([
 	['DIVINE', 0x40],
 ]);
 
+const LinkMarkers = new Collection([
+	['↙️', 0x001],
+	['⬇️', 0x002],
+	['↘️', 0x004],
+	['⬅️', 0x008],
+	['➡️', 0x020],
+	['↖️', 0x040],
+	['⬆️', 0x080],
+	['↗️', 0x100],
+]);
+
 const Archetypes = new Collection([
 	['@Ignister', 0x135],
 	['Assault Mode', 0x104f],
@@ -656,6 +667,7 @@ module.exports = {
 	Types,
 	Attributes,
 	Archetypes,
+	LinkMarkers,
 	UID_START,
 	UID_HALT,
 	UID_CARD_INFO,

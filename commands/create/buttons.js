@@ -400,7 +400,7 @@ const LinkButtons = async interaction => {
 				.setDescription(`> Please confirm the Link Markers (${lvl}) and click Next`);
 
 			const nextBtn = new MessageButton()
-				.setCustomId('step5')
+				.setCustomId(UID_NEXT_STEP5)
 				.setLabel('Next')
 				.setStyle('SUCCESS');
 
@@ -429,6 +429,17 @@ const bcNext5 = async interaction => {
 		// set page info for cache
 		// object for later info?
 		const { cache } = interaction.client;
+		const { embeds } = interaction.message;
+		const { fields: eFields } = embeds[0];
+
+		// register link info (if any)
+		// gotta put this here for now
+		const card = Helper.getCardCache(cache);
+		if (card.temp.isLink) {
+			Helper.setDataCache(cache, eFields, 4);
+			Helper.setCardCache(cache);
+		}
+
 		const pageInfo = Helper.getPageInfo(cache);
 		const { page: pgNo, set: pageSet, preFill, wipe } = pageInfo;
 		const MAX_PAGE = Math.floor((pageSet.size / 100) + 1);
@@ -578,17 +589,12 @@ const bcNext5 = async interaction => {
 
 
 		// pre archs populate
-		const { embeds } = interaction.message;
-		const { fields: eFields } = embeds[0];
 		const isOldFields = eFields.length > 0 && eFields[0].name != 'Selection';
 		// if has fields from last step
 		// in state of wiping the fields
-		console.log('page info[wipe]: ', wipe);
 		const fields = isOldFields ? (!wipe ? eFields : []) : [];
 		if (wipe) pageInfo.wipe = false;
-		console.log('on falsify = page info[wipe]: ', wipe);
 
-		const card = Helper.getCardCache(cache);
 		if (card && !preFill) {
 			const { name } = card;
 			const strfy = val => {

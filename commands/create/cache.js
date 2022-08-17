@@ -1,6 +1,6 @@
 /* eslint-disable no-inline-comments */
 const { Collection } = require('discord.js');
-const { Races, Types, Attributes, Archetypes } = require('./constants');
+const { Races, Types, Attributes, Archetypes, LinkMarkers } = require('./constants');
 
 const CACHE_DATA = 'card data';
 const CACHE_CARD = 'card cache';
@@ -158,9 +158,18 @@ const statData = (cache, stats, step) => {
 };
 
 
-// const linkData = () => {
+const linkData = (_cache, mrks, step) => {
+	const linkVal = mrks.reduce((acc, mrk) => {
+		const { value } = mrk;
+		const markVal = value.slice(1).trim();
+		if (LinkMarkers.has(markVal)) {
+			acc += LinkMarkers.get(markVal);
+		}
+		return acc;
+	}, 0);
 
-// };
+	return { step, markers: linkVal };
+};
 
 
 const setData = (_cache, arcs, step) => {
@@ -197,7 +206,7 @@ const dataSteps = new Collection([
 	[1, infoData], // id, name, desc
 	[2, typeData], // type, race, att
 	[3, statData], // atk, def, lvl, lscale, rscale
-	// [4, linkData], // link markers
+	[4, linkData], // link markers
 	[5, setData], // archetypes
 	// [6, strData], // strings
 ]);
@@ -292,6 +301,22 @@ const regStats = (data, current) => {
 	return cardThree;
 };
 
+const regMarkers = (data, current) => {
+	const { step, markers: def } = data;
+	console.log('registering markers', def);
+
+	const { temp: rest } = current;
+	const cardFour = { ...current,
+		def,
+		temp: {
+			...rest,
+			stepNo: step,
+		},
+	};
+
+	return cardFour;
+};
+
 const regArcs = (data, current) => {
 	const { step, setcode } = data;
 
@@ -311,7 +336,7 @@ const cacheSteps = new Collection([
 	[1, regInfo],
 	[2, regTypes],
 	[3, regStats],
-	// [4, regMarkers],
+	[4, regMarkers],
 	[5, regArcs],
 	// [6, regStrs],
 ]);
