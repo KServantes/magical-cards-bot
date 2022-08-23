@@ -20,7 +20,7 @@ const cardInitial = {
 	// def || link markers
 	def: 0,
 	// lvl || rating
-	lvl: 0,
+	level: 0,
 	race: 0,
 	attribute: 0,
 	category: 0,
@@ -151,7 +151,7 @@ const statData = (cache, stats, step) => {
 		step,
 		atk: parseInt(atk.value),
 		def: actDef,
-		lvl: actLvl,
+		level: actLvl,
 	};
 
 	return data;
@@ -285,13 +285,13 @@ const regTypes = (data, current) => {
 };
 
 const regStats = (data, current) => {
-	const { step, atk, def, lvl } = data;
+	const { step, atk, def, level } = data;
 
 	const { temp: rest } = current;
 	const cardThree = { ...current,
 		atk,
 		def,
-		lvl,
+		level,
 		temp: {
 			...rest,
 			stepNo: step,
@@ -362,6 +362,11 @@ const setCardCache = cache => {
 	return cache.get(CACHE_CARD);
 };
 
+const clearCardCache = cache => {
+	cache.set(CACHE_CARD, cardInitial);
+	initializeCache(cache);
+};
+
 const setColl = new Collection([ ['tcg', Archetypes] ]);
 
 const initializePageCache = cache => {
@@ -402,5 +407,6 @@ module.exports = {
 	setCardCache,
 	getCardCache,
 	getPageInfo,
+	clearCardCache,
 	CACHE_DATA,
 };

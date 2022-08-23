@@ -22,6 +22,7 @@ const {
 	UID_NEW_SET,
 	UID_CLEAR,
 } = require('./constants');
+const { addCardToBase } = require('../../data/models');
 
 // start
 // modal (name, peff, desc, id)
@@ -286,7 +287,7 @@ const LinkButtons = async interaction => {
 
 		const { cache } = interaction.client;
 		const card = Helper.getCardCache(cache);
-		const { lvl } = card;
+		const { level } = card;
 
 		const Buttons = {
 			// component's index
@@ -391,13 +392,13 @@ const LinkButtons = async interaction => {
 			.setColor('#0099ff')
 			.setTitle('Link Markers')
 			.setDescription(`>>> Please select the link markers for this card:
-			Link Rating: ${lvl}`)
+			Link Rating: ${level}`)
 			.setFields(fields)
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
-		if (fields.length === lvl) {
+		if (fields.length === level) {
 			const reEmbed = embed
-				.setDescription(`> Please confirm the Link Markers (${lvl}) and click Next`);
+				.setDescription(`> Please confirm the Link Markers (${level}) and click Next`);
 
 			const nextBtn = new MessageButton()
 				.setCustomId(UID_NEXT_STEP5)
@@ -683,6 +684,7 @@ const clearFields = async interaction => {
 	}
 };
 
+
 // step 6
 // strings modals ()
 const bcNext6 = async interaction => {
@@ -707,23 +709,23 @@ const bcNext6 = async interaction => {
 		const one = new MessageButton()
 			.setCustomId('add one')
 			.setLabel('1')
-			.setStyle('PRIMARY');
+			.setStyle('SECONDARY');
 		const two = new MessageButton()
 			.setCustomId('add two')
 			.setLabel('2')
-			.setStyle('PRIMARY');
+			.setStyle('SECONDARY');
 		const three = new MessageButton()
 			.setCustomId('add three')
 			.setLabel('3')
-			.setStyle('PRIMARY');
+			.setStyle('SECONDARY');
 		const four = new MessageButton()
 			.setCustomId('add four')
 			.setLabel('4')
-			.setStyle('PRIMARY');
+			.setStyle('SECONDARY');
 		const five = new MessageButton()
 			.setCustomId('add five')
 			.setLabel('5')
-			.setStyle('PRIMARY');
+			.setStyle('SECONDARY');
 
 		// msg update
 		const embed = new MessageEmbed()
@@ -771,6 +773,7 @@ const Strings = async interaction => {
 const bcFinish = async interaction => {
 	try {
 		const { cache } = interaction.client;
+		const { member } = interaction.message;
 		const card = Helper.getCardCache(cache);
 		if (!card) throw new Error('No Card Cache data found!');
 
@@ -779,7 +782,7 @@ const bcFinish = async interaction => {
 			name,
 			type: types,
 			attribute: att,
-			lvl,
+			level,
 			race,
 			atk,
 			def,
@@ -791,10 +794,10 @@ const bcFinish = async interaction => {
 			const template = {
 				pendulum: (pend, des) => {
 					return `[Pendulum Effect]
-				${pend}
-				----------------------------------------
-				[Card Text]
-				${des}`;
+${pend}
+----------------------------------------
+[${tStr.includes('normal') ? 'Flavor Text' : 'Monster Effect'}]
+${des}`;
 				},
 				regular: des => {
 					return des;
@@ -823,9 +826,6 @@ const bcFinish = async interaction => {
 			};
 		};
 
-
-		// Desc
-		const desc = descFormat(card);
 		// Type
 		const tcoll = Types.reverse();
 		const tStr = tcoll.reduce((acc, v, t) => {
@@ -842,12 +842,12 @@ const bcFinish = async interaction => {
 		let lvlType = tStr.includes('Xyz') ? 'Rank' : 'Level';
 		lvlType = tStr.includes('Link') ? 'LINK' : lvlType;
 		// Level
-		let lvlActual = lvl;
+		let lvlActual = level;
 		let lscale = null;
 		let rscale = null;
 		if (card.temp.isPendy) {
-			const { level, pendulum: pendy } = extractLVLScales(lvl);
-			lvlActual = level;
+			const { level: lvl, pendulum: pendy } = extractLVLScales(level);
+			lvlActual = lvl;
 			lscale = pendy.lscale;
 			rscale = pendy.rscale;
 		}
@@ -857,6 +857,8 @@ const bcFinish = async interaction => {
 			const arc = Archetypes.findKey(v => v === setcode);
 			if (arc) arcsStr = arc;
 		}
+		// Desc
+		const desc = descFormat(card);
 		// Pendulum
 		const pendyInfo = `**Left Scale**: ${lscale} | **Right Scale**: ${rscale}`;
 		// Extra Info
@@ -881,6 +883,15 @@ const bcFinish = async interaction => {
 			${desc}
 			**${id}**`)
 			.setThumbnail('https://i.imgur.com/PSlH5Nl.png');
+
+		// db enter && clear cache
+		// eslint-disable-next-line no-unused-vars
+		const { temp, ...rest } = card;
+		const dbCard = await addCardToBase(member, { ...rest, desc });
+		console.log('card added to db', dbCard);
+		if (dbCard)	Helper.clearCardCache(cache);
+
+		// reply
 		return await interaction.message.edit({ embeds: [systemEmbed, resultEmbed], components: [] });
 	}
 	catch (error) {

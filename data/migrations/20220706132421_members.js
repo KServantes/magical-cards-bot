@@ -19,6 +19,7 @@ exports.up = async knex => {
 			cards.integer('race').defaultTo(0);
 			cards.integer('attribute').defaultTo(0);
 			cards.integer('category').defaultTo(0);
+			cards.json('strings');
 		});
 	await knex.schema
 		.createTable('member_cards', memcards => {

@@ -47,8 +47,7 @@ const getMemCards = memID => {
 		.leftJoin('cards as c', 'mc.card_id', 'c.id');
 };
 
-const addCardToBase = async (member, { cardName, cardDesc, cardCode }) => {
-	const card = { name: cardName, desc: cardDesc, id: cardCode };
+const addCardToBase = async (member, card) => {
 	try {
 		// Add card to DB
 		const oldCard = await getCard(card.id);
