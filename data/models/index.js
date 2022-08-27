@@ -5,9 +5,7 @@ const BOT_DEFAULT_RNG = BOT_DEFAULT_PASS + 500;
 
 const addCard = card => {
 	return db('cards').insert(card)
-		.then(([id]) => {
-			return getCard(id);
-		});
+		.then(([id]) => getCard(id));
 };
 
 const getCard = card_id => {
@@ -25,9 +23,7 @@ const checkCard = () => {
 
 const addMember = member => {
 	return db('members').insert(member)
-		.then(([id]) => {
-			return getMember(id);
-		});
+		.then(([id]) => getMember(id));
 };
 
 const getMember = member_id => {

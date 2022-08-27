@@ -1,10 +1,10 @@
 const { Collection } = require('discord.js');
-const { cardInfoSubmit, cardStatsSubmit } = require('./modal');
-const { selectionType, selectionRace, selectionAtt, selectionArch } = require('./selections');
+const { cardInfoSubmit, cardStatsSubmit } = require('./interacts/modal');
+const { selectionType, selectionRace, selectionAtt, selectionArch } = require('./interacts/selections');
 const { bcStart, bcHalt, bcEdit, bcNext, bcEdit2,
-	bcNext3, bcEdit3, bcNext4, LinkButtons, bcNext5, 
+	bcNext3, bcEdit3, bcNext4, LinkButtons, bcNext5,
 	nextPage, prevPage, bcNext6, Strings, bcFinish, clearFields,
-} = require('./buttons');
+} = require('./interacts/buttons');
 
 
 const { UID_START, UID_HALT, UID_CARD_INFO, UID_EDIT_STEP1,

@@ -1,5 +1,5 @@
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
-const Helper = require('./cache');
+const Helper = require('../cache');
 const {
 	UID_CARD_TYPE,
 	UID_CARD_RACE,
@@ -8,7 +8,7 @@ const {
 	UID_NEXT_STEP3,
 	Archetypes,
 
-} = require('./constants');
+} = require('../constants');
 
 const getRestArray = (components, uid) => {
 	// refers to what left

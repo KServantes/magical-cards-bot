@@ -1,9 +1,8 @@
 const { MessageActionRow, MessageSelectMenu, MessageEmbed, MessageButton, Collection } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
-const Helper = require('./cache');
-const { infoForm } = require('./forms/info');
-const { statsForm } = require('./forms/stats');
-const { stringsForm } = require('./forms/strings');
+const Helper = require('../cache');
+const Form = require('../forms');
+const { addCardToBase } = require('../../../data/models');
 const {
 	Races,
 	Types,
@@ -19,10 +18,10 @@ const {
 	UID_NEXT_PAGE,
 	UID_NEXT_STEP6,
 	UID_ANITOM,
-	UID_NEW_SET,
+	// UID_NEW_SET,
 	UID_CLEAR,
-} = require('./constants');
-const { addCardToBase } = require('../../data/models');
+} = require('../constants');
+
 
 // start
 // modal (name, peff, desc, id)
@@ -33,7 +32,7 @@ const bcStart = async interaction => {
 			.setTitle('Creating')
 			.setDescription('> Please wait...')
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
-		await infoForm(interaction);
+		await Form.info(interaction);
 		return await interaction.message.edit({ embeds: [embed], components: [] });
 	}
 	catch (error) {
@@ -117,7 +116,7 @@ const bcNext = async interaction => {
 
 const bcEdit = async interaction => {
 	try {
-		await infoForm(interaction);
+		await Form.info(interaction);
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Editing Card')
@@ -154,7 +153,7 @@ const bcNext3 = async interaction => {
 			.setTitle('Creating')
 			.setDescription('Step 3 of 6...')
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
-		await statsForm(interaction);
+		await Form.stats(interaction);
 		return await interaction.message.edit({ embeds: [embed], components: [] });
 	}
 	catch (error) {
@@ -171,7 +170,7 @@ const bcEdit3 = async interaction => {
 			.setTitle('Editing')
 			.setDescription('Step 3 of 6...')
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
-		await statsForm(interaction);
+		await Form.stats(interaction);
 		return await interaction.message.edit({ embeds: [embed], components: [] });
 	}
 	catch (error) {
@@ -761,7 +760,7 @@ const Strings = async interaction => {
 			.setDescription('>>> **Adding in strings...**')
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
-		await stringsForm(interaction);
+		await Form.strings(interaction);
 		return await interaction.message.edit({ embeds: [embed], components: [] });
 	}
 	catch (error) {
@@ -878,7 +877,7 @@ ${des}`;
 			**${name}**
 			**Type**: ${tStr}
 			**Attribute** ${attStr} | **${lvlType}**: ${lvlActual} | **Race**: ${raceStr}
-			**ATK** ${atk} **DEF** ${def}
+			**ATK** ${atk} ${card.temp.isLink ? '' : `**DEF** ${def}`}
 			${placeholder}
 			${desc}
 			**${id}**`)

@@ -8,19 +8,14 @@ module.exports = {
 		.setDescription('Start the card creation process.'),
 
 	async execute(interaction) {
-		const row = new MessageActionRow()
-			.addComponents(
-				new MessageButton()
-					.setCustomId(UID_START)
-					.setLabel('Ready')
-					.setStyle('SUCCESS'),
-			)
-			.addComponents(
-				new MessageButton()
-					.setCustomId(UID_HALT)
-					.setLabel('Not yet')
-					.setStyle('DANGER'),
-			);
+		const start = new MessageButton()
+			.setCustomId(UID_START)
+			.setLabel('Ready')
+			.setStyle('SUCCESS');
+		const abort = new MessageButton()
+			.setCustomId(UID_HALT)
+			.setLabel('Not yet')
+			.setStyle('DANGER');
 
 		const greeting = '>>> Hello! I\'m Magical Card\'s Bot!\nI\'ll take you through the steps to make a card.\n    Are you ready?';
 
@@ -30,6 +25,7 @@ module.exports = {
 			.setDescription(greeting)
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
+		const row = new MessageActionRow().addComponents(abort, start);
 		return interaction.reply({ content: null, components: [row], embeds: [embed] });
 	},
 };
