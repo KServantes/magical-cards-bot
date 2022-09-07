@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 const { UID_START, UID_HALT } = require('./create/constants');
+const Helper = require('../commands/create/cache');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -8,6 +9,17 @@ module.exports = {
 		.setDescription('Start the card creation process.'),
 
 	async execute(interaction) {
+		// temp cache for
+		// grab member info
+		const { member, client } = interaction;
+		const { cache } = client;
+
+		const apps = Helper.getMemberApps(cache, member);
+		if (apps.size > 0) {
+			// new embeds and such
+			// to continue unfinished cards
+		}
+
 		const start = new MessageButton()
 			.setCustomId(UID_START)
 			.setLabel('Ready')

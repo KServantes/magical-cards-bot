@@ -74,6 +74,7 @@ const getEmbed = (fields, finish) => {
 };
 
 const selection = async (interaction, type, value, uid) => {
+	const { member } = interaction;
 	const { components } = interaction.message;
 
 	const { embeds: msgEmbed } = interaction.message;
@@ -94,7 +95,7 @@ const selection = async (interaction, type, value, uid) => {
 
 	// set in cache
 	const { cache } = interaction.client;
-	Helper.setDataCache(cache, newField, 2);
+	Helper.setDataCache({ member, cache, args: newField, step: 2 });
 
 	// message update
 	const embed = getEmbed([...msgEmbFields, newField], isEmptyRest);
@@ -122,38 +123,44 @@ const selectionAtt = async interaction => {
 };
 
 const selectionArch = async interaction => {
-	const arcs = interaction.values;
+	try {
+		const arcs = interaction.values;
 
-	const { components, embeds } = interaction.message;
-	const msgEmbFields = embeds[0].fields;
-	// const footerPage = embeds[0].footer.text.split(' ').at(-1);
+		const { components, embeds } = interaction.message;
+		const msgEmbFields = embeds[0].fields;
+		// const footerPage = embeds[0].footer.text.split(' ').at(-1);
 
-	const fields = arcs.reduce((acc, a) => {
-		const val = Archetypes.get(a);
-		const str = `Dec: ${val}
+		const fields = arcs.reduce((acc, a) => {
+			const val = Archetypes.get(a);
+			const str = `Dec: ${val}
 		Hex: ${parseInt(val).toString(16)}`;
 
-		const field = {
-			name: a,
-			value: str,
-			inline: true,
-		};
+			const field = {
+				name: a,
+				value: str,
+				inline: true,
+			};
 
-		return acc.concat(field);
-	}, []);
+			return acc.concat(field);
+		}, []);
 
 
-	let mergedFields = [...msgEmbFields, ...fields];
-	for (const f of fields) {
-		const { name } = f;
-		if (msgEmbFields.some(field => field.name === name)) {
-			mergedFields = mergedFields.filter(field => field.name !== name);
+		let mergedFields = [...msgEmbFields, ...fields];
+		for (const f of fields) {
+			const { name } = f;
+			if (msgEmbFields.some(field => field.name === name)) {
+				mergedFields = mergedFields.filter(field => field.name !== name);
+			}
 		}
-	}
 
-	// message update
-	const embed = embeds[0].setFields(mergedFields);
-	return await interaction.update({ embeds: [embed], components: components });
+		// message update
+		const embed = embeds[0].setFields(mergedFields);
+		return await interaction.update({ embeds: [embed], components: components });
+	}
+	catch (error) {
+		console.log(error);
+		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
+	}
 };
 
 module.exports = {

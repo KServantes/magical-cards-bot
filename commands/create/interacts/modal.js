@@ -64,15 +64,15 @@ ${cardDesc}`;
 					.setStyle('PRIMARY'),
 			);
 
-		// const { member } = interaction;
-		// const params = { cardName, cardDesc, cardCode };
-		// const card = await db.addCardToBase(member, params);
 		const currentCard = { cardName, cardPEff, cardDesc, cardCode };
-		const { cache } = interaction.client;
-		Helper.setDataCache(cache, currentCard, STEP_NO);
+		const { member, client } = interaction;
+		const { cache } = client;
+
+		Helper.setDataCache({ member, cache, args: currentCard, step: STEP_NO });
 		await interaction.update({ embeds: [embed], components: [row] });
 	}
 	catch (error) {
+		console.log(error);
 		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
 	}
 };
@@ -118,7 +118,8 @@ const cardStatsSubmit = async interaction => {
 		};
 
 		const { cache } = interaction.client;
-		const card = Helper.getCardCache(cache);
+		const { member } = interaction;
+		const card = Helper.getCardCache(cache, member);
 		const { isLink, isPendy } = card.temp;
 		if (!isLink) {
 			cardDEF = getInputVal('defInput');
@@ -181,7 +182,7 @@ const cardStatsSubmit = async interaction => {
 		}
 
 		// set card data - step 3
-		Helper.setDataCache(cache, fields, 3);
+		Helper.setDataCache({ member, cache, args: fields, step: 3 });
 
 		// message update
 		const embed = mkEmbed(fields);

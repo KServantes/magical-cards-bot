@@ -5,7 +5,8 @@ const Helper = require('../cache');
 
 const infoForm = async (interaction) => {
 	const { cache } = interaction.client;
-	const prev = Helper.getStepCache(cache, 1);
+	const { member } = interaction;
+	const prev = Helper.getStepCache({ cache, member, step: 1 });
 
 	const modal = new Modal()
 		.setCustomId(UID_CARD_INFO)
@@ -50,6 +51,4 @@ const infoForm = async (interaction) => {
 	interaction.showModal(modal);
 };
 
-module.exports = {
-	infoForm,
-};
+module.exports = { infoForm };

@@ -4,7 +4,9 @@ const { getCardCache } = require('../cache');
 
 const statsForm = async (interaction) => {
 	const { cache } = interaction.client;
-	const card = getCardCache(cache);
+	const { member } = interaction;
+	const card = getCardCache(cache, member);
+	console.log('what kinda card we got', card);
 	const { isLink, isPendy } = card.temp;
 
 	const modal = new Modal()

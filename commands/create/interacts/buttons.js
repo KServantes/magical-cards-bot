@@ -36,6 +36,7 @@ const bcStart = async interaction => {
 		return await interaction.message.edit({ embeds: [embed], components: [] });
 	}
 	catch (error) {
+		console.log(error);
 		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
 	}
 };
@@ -57,7 +58,8 @@ const bcHalt = async interaction => {
 const bcNext = async interaction => {
 
 	const { cache } = interaction.client;
-	const cardRec = Helper.setCardCache(cache);
+	const { member } = interaction;
+	const cardRec = Helper.setCardCache(cache, member);
 	console.log('Recorded as: ', cardRec);
 
 	const getOptions = coll => {
@@ -145,7 +147,8 @@ const bcNext3 = async interaction => {
 	try {
 
 		const { cache } = interaction.client;
-		const cardRec = Helper.setCardCache(cache);
+		const { member } = interaction;
+		const cardRec = Helper.setCardCache(cache, member);
 		console.log('Recorded as: ', cardRec);
 
 		const embed = new MessageEmbed()
@@ -157,6 +160,7 @@ const bcNext3 = async interaction => {
 		return await interaction.message.edit({ embeds: [embed], components: [] });
 	}
 	catch (error) {
+		console.log(error);
 		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
 	}
 };
@@ -228,11 +232,12 @@ const createLinkButtons = () => {
 
 const bcNext4 = async interaction => {
 	try {
-		const { cache } = interaction.client;
-		const cardRec = Helper.setCardCache(cache);
+		const { client, member } = interaction;
+		const { cache } = client;
+		const cardRec = Helper.setCardCache(cache, member);
 		console.log('Recorded as: ', cardRec);
 
-		const card = Helper.getCardCache(cache);
+		const card = Helper.getCardCache(cache, member);
 		if (card && card.temp.isLink) {
 			// If Link
 			const embed = new MessageEmbed()
@@ -285,7 +290,8 @@ const LinkButtons = async interaction => {
 		let fields = e[0].fields;
 
 		const { cache } = interaction.client;
-		const card = Helper.getCardCache(cache);
+		const { member } = interaction;
+		const card = Helper.getCardCache(cache, member);
 		const { level } = card;
 
 		const Buttons = {
@@ -428,19 +434,20 @@ const bcNext5 = async interaction => {
 	try {
 		// set page info for cache
 		// object for later info?
-		const { cache } = interaction.client;
-		const { embeds } = interaction.message;
+		const { client, message, member } = interaction;
+		const { cache } = client;
+		const { embeds } = message;
 		const { fields: eFields } = embeds[0];
 
 		// register link info (if any)
 		// gotta put this here for now
-		const card = Helper.getCardCache(cache);
+		const card = Helper.getCardCache(cache, member);
 		if (card.temp.isLink) {
-			Helper.setDataCache(cache, eFields, 4);
-			Helper.setCardCache(cache);
+			Helper.setDataCache({ member, cache, args: eFields, step: 4 });
+			Helper.setCardCache(cache, member);
 		}
 
-		const pageInfo = Helper.getPageInfo(cache);
+		const pageInfo = Helper.getPageInfo(cache, member);
 		const { page: pgNo, set: pageSet, preFill, wipe } = pageInfo;
 		const MAX_PAGE = Math.floor((pageSet.size / 100) + 1);
 
@@ -639,7 +646,8 @@ const bcNext5 = async interaction => {
 const nextPage = async interaction => {
 	try {
 		const { cache } = interaction.client;
-		const pageInfo = Helper.getPageInfo(cache);
+		const { member } = interaction;
+		const pageInfo = Helper.getPageInfo(cache, member);
 		const { page: pgNo } = pageInfo;
 
 		pageInfo.pageOf = pgNo + 1;
@@ -655,7 +663,8 @@ const nextPage = async interaction => {
 const prevPage = async interaction => {
 	try {
 		const { cache } = interaction.client;
-		const pageInfo = Helper.getPageInfo(cache);
+		const { member } = interaction;
+		const pageInfo = Helper.getPageInfo(cache, member);
 		const { page: pgNo } = pageInfo;
 
 		pageInfo.pageOf = pgNo - 1;
@@ -671,7 +680,8 @@ const prevPage = async interaction => {
 const clearFields = async interaction => {
 	try {
 		const { cache } = interaction.client;
-		const pageInfo = Helper.getPageInfo(cache);
+		const { member } = interaction;
+		const pageInfo = Helper.getPageInfo(cache, member);
 
 		pageInfo.wipe = true;
 
@@ -688,13 +698,15 @@ const clearFields = async interaction => {
 // strings modals ()
 const bcNext6 = async interaction => {
 	try {
-		const { cache } = interaction.client;
-		const { embeds } = interaction.message;
+		const { client, message, member } = interaction;
+		const { cache } = client;
+		const { embeds } = message;
 		const { fields } = embeds[0];
-		const data = Helper.setDataCache(cache, fields, 5);
+
+		const data = Helper.setDataCache({ member, cache, args: fields, step: 5 });
 		console.log('data entered: ', data);
 
-		const cardRec = Helper.setCardCache(cache);
+		const cardRec = Helper.setCardCache(cache, member);
 		console.log('Recorded as: ', cardRec);
 
 
@@ -772,8 +784,8 @@ const Strings = async interaction => {
 const bcFinish = async interaction => {
 	try {
 		const { cache } = interaction.client;
-		const { member } = interaction.message;
-		const card = Helper.getCardCache(cache);
+		const { member } = interaction;
+		const card = Helper.getCardCache(cache, member);
 		if (!card) throw new Error('No Card Cache data found!');
 
 		const {
@@ -888,8 +900,7 @@ ${des}`;
 		const { temp, ...rest } = card;
 		const dbCard = await addCardToBase(member, { ...rest, desc });
 		console.log('card added to db', dbCard);
-		if (dbCard)	Helper.clearCardCache(cache);
-
+		if (dbCard)	Helper.clearCardCache(cache, member);
 		// reply
 		return await interaction.message.edit({ embeds: [systemEmbed, resultEmbed], components: [] });
 	}
