@@ -14,7 +14,7 @@ module.exports = {
 		const { member, client } = interaction;
 		const { cache } = client;
 
-		const apps = Helper.getMemberApps(cache, member);
+		const { apps } = Helper.getMemberApps(cache, member);
 		if (apps.size > 0) {
 			// new embeds and such
 			// to continue unfinished cards
