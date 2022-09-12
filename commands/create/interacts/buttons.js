@@ -60,7 +60,7 @@ const bcNext = async interaction => {
 	const { cache } = interaction.client;
 	const { member } = interaction;
 	const cardRec = Helper.setCardCache(cache, member);
-	console.log('Recorded as: ', cardRec);
+	console.log(member.user.username, ' Recorded Card as: ', cardRec);
 
 	const getOptions = coll => {
 		const options = coll.reduce((acc, _, r) => {

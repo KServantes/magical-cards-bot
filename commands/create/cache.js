@@ -4,10 +4,6 @@ const { Races, Types, Attributes, Archetypes, LinkMarkers } = require('./constan
 
 const CACHE_MEMBER = 'member cache';
 
-const Members = new Collection();
-const Data = new Collection();
-const Steps = Data.set(0, { step: 0 });
-
 // general structure of the
 // card object injected into db
 const cardInitial = {
@@ -67,7 +63,7 @@ const createMemberInfo = member => {
 	const { username, avatar } = user;
 
 	const memberInfo = {
-		name: nickname,
+		name: nickname ?? username,
 		avatar,
 		username,
 		apps: new Collection(),
@@ -78,35 +74,53 @@ const createMemberInfo = member => {
 		set currentOf(x) {
 			this.current = x;
 		},
+		/**
+		 * @param {object} data
+		 */
+		set newApp(data) {
+			this.apps.set(this.current, data);
+		},
+		get appInfo() {
+			return this.apps.get(this.current);
+		},
 	};
 
 	return memberInfo;
 };
 
-const getMemberApps = (cache, member) => {
+const getMemberInfo = (cache, member) => {
 	const memberCache = getMemberCache(cache);
-	const info = memberCache.get(member.id);
-	if (info) {
-		const { apps, current } = info;
-		return { apps, current };
-	}
 
+	return memberCache.get(member.id);
+};
+
+const setMemberInfo = (cache, member) => {
 	const memberInfo = createMemberInfo(member);
+
+	const memberCache = getMemberCache(cache, member);
 
 	const memberColl = memberCache.set(member.id, memberInfo);
 	const memInfo = memberColl.get(member.id);
-	const { apps, current } = memInfo;
 
-	return { apps, current };
+	return memInfo;
+};
+
+const getMemberApps = (cache, member) => {
+	const info = getMemberInfo(cache, member);
+
+	if (!info) {
+		const newInfo = setMemberInfo(cache, member);
+
+		return newInfo.apps;
+	}
+
+	return info.apps;
 };
 
 const setAppCache = (cache, member) => {
 	const { id, name, icon, preferredLocale: locale } = member.guild;
 
-	const card = getCardCache(cache, member) ?? cardInitial;
-	const data = getDataCache(cache, member) ?? Steps;
-
-	const { apps, current } = getMemberApps(cache, member);
+	const memInfo = getMemberInfo(cache, member);
 	const serverInfo = {
 		id,
 		name,
@@ -114,12 +128,22 @@ const setAppCache = (cache, member) => {
 		locale,
 	};
 
-	return apps.set(current, { data, card, serverInfo, pageInfo });
+	const Data = new Collection();
+	const Steps = Data.set(0, { step: 0 });
+
+	return memInfo.newApp = {
+		data: Steps,
+		card: cardInitial,
+		server: serverInfo,
+		page: pageInfo,
+	};
 };
 
 const getMemberCache = cache => {
 	if (!cache.get(CACHE_MEMBER)) {
-		cache.set(CACHE_MEMBER, Members);
+		const Members = new Collection();
+
+		return cache.set(CACHE_MEMBER, Members);
 	}
 
 	return cache.get(CACHE_MEMBER);
@@ -297,11 +321,10 @@ const dataSteps = new Collection([
 ]);
 
 const getDataCache = (cache, member) => {
-	const { apps, current } = getMemberApps(cache, member);
-	const appInfo = apps.get(current);
-	const data = appInfo?.data;
+	const memInfo = getMemberInfo(cache, member);
+	const app = memInfo.appInfo;
 
-	return data;
+	return app?.data;
 };
 
 const getStepCache = cacheObject => {
@@ -326,18 +349,18 @@ const setDataCache = cacheObject => {
 	const data = dataSteps.get(step)(stepCache, args, step);
 
 	if (!cacheCan) {
-		const appsColl = setAppCache(cache, member);
-		const { data: dataColl } = appsColl.last();
+		setAppCache(cache, member);
+
+		const memInfo = getMemberInfo(cache, member);
+		const app = memInfo.appInfo;
+		const { data: dataColl } = app;
 
 		dataColl.set(step, data);
 
 		return getStepCache({ member, cache, step });
 	}
 
-	const { apps, current } = getMemberApps(cache, member);
-	const { data: dataColl } = apps.get(current);
-
-	dataColl.set(step, data);
+	cacheCan.set(step, data);
 
 	return getStepCache({ member, cache, step });
 };
@@ -443,11 +466,10 @@ const cacheSteps = new Collection([
 ]);
 
 const getCardCache = (cache, member) => {
-	const { apps, current } = getMemberApps(cache, member);
-	const appInfo = apps.get(current);
-	const card = appInfo?.card;
+	const memInfo = getMemberInfo(cache, member);
+	const app = memInfo.appInfo;
 
-	return card;
+	return app?.card;
 };
 
 const setCardCache = (cache, member) => {
@@ -457,20 +479,23 @@ const setCardCache = (cache, member) => {
 	const data = coll.last();
 	const card = cacheSteps.get(data.step)(data, cardCache);
 
-	const { apps, current } = getMemberApps(cache, member);
-	const appInfo = apps.get(current);
+	const memInfo = getMemberInfo(cache, member);
+	const { apps, current } = memInfo;
+	const app = memInfo.appInfo;
 
-	apps.set(current, { ...appInfo, card });
+	apps.set(current, { ...app, card });
 
 	return getCardCache(cache, member);
 };
 
 const clearCardCache = (cache, member) => {
-	const { apps, current } = getMemberApps(cache, member);
+	const memInfo = getMemberInfo(cache, member);
+	const { apps, current } = memInfo;
+
 	if (current > 1) {
 		apps.delete(current);
-		const members = getMemberCache(cache);
-		const memberInfo = members.get(member.id);
+
+		const memberInfo = getMemberInfo(cache, member);
 		memberInfo.currentOf = memberInfo.apps.size;
 	}
 
@@ -479,11 +504,10 @@ const clearCardCache = (cache, member) => {
 
 // cache page info
 const getPageInfo = (cache, member) => {
-	const { apps, current } = getMemberApps(cache, member);
-	const appInfo = apps.get(current);
-	const page = appInfo?.pageInfo;
+	const memInfo = getMemberInfo(cache, member);
+	const app = memInfo.appInfo;
 
-	return page;
+	return app?.page;
 };
 
 module.exports = {
@@ -494,5 +518,4 @@ module.exports = {
 	getMemberApps,
 	getPageInfo,
 	clearCardCache,
-	// CACHE_DATA,
 };
