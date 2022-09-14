@@ -22,17 +22,45 @@ const {
 	UID_CLEAR,
 } = require('../constants');
 
+// error embed
+const CheckOwner = async interaction => {
+	const { member, message } = interaction;
+	const { footer } = message.embeds[0];
+
+	if (!footer.text.includes(member.id)) {
+		const embed = new MessageEmbed()
+			.setColor('#dd0f0f')
+			.setTitle('Trap Card, Activate!')
+			.setDescription('>>> Sorry. You didn\'t type this command.\nPlease type the /create command to make a card of your own.')
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+
+		await interaction.reply({ embeds: [embed], components: [], ephemeral: true });
+
+		return false;
+	}
+
+	return true;
+};
 
 // start
 // modal (name, peff, desc, id)
 const bcStart = async interaction => {
 	try {
+		const { message } = interaction;
+		const { footer } = message.embeds[0];
+
+		const check = await CheckOwner(interaction);
+		if (!check) return ;
+
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Creating')
 			.setDescription('> Please wait...')
+			.setFooter(footer)
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+
 		await Form.info(interaction);
+
 		return await interaction.message.edit({ embeds: [embed], components: [] });
 	}
 	catch (error) {
@@ -43,6 +71,9 @@ const bcStart = async interaction => {
 
 const bcHalt = async interaction => {
 	try {
+		const check = await CheckOwner(interaction);
+		if (!check) return ;
+
 		await interaction.update({ content: 'Okay. See you!', components: [], embeds: [] });
 		await wait(4000);
 		return await interaction.message.delete();
@@ -442,7 +473,7 @@ const bcNext5 = async interaction => {
 		// register link info (if any)
 		// gotta put this here for now
 		const card = Helper.getCardCache(cache, member);
-		if (card.temp.isLink) {
+		if (card.temp.isLink && eFields > 0) {
 			Helper.setDataCache({ member, cache, args: eFields, step: 4 });
 			Helper.setCardCache(cache, member);
 		}
@@ -530,10 +561,10 @@ const bcNext5 = async interaction => {
 			return row;
 		};
 
-		const row1 = getMessageRow(1);
-		const row2 = getMessageRow(2);
-		const row3 = getMessageRow(3);
-		const row4 = getMessageRow(4);
+		const [row1, row2, row3, row4] = [1, 2, 3, 4].reduce((acc, n) => {
+			const row = getMessageRow(n);
+			return acc.concat(row);
+		}, []);
 
 		// last row
 		const prev = new MessageButton()

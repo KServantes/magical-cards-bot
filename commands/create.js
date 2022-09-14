@@ -14,7 +14,9 @@ module.exports = {
 		const { member, client } = interaction;
 		const { cache } = client;
 
-		const apps = Helper.getMemberApps(cache, member);
+		const memInfo = Helper.getMemberInfo(cache, member);
+		const { apps, name } = memInfo;
+
 		if (apps.size > 0) {
 			// new embeds and such
 			// to continue unfinished cards
@@ -29,15 +31,17 @@ module.exports = {
 			.setLabel('Not yet')
 			.setStyle('DANGER');
 
-		const greeting = '>>> Hello! I\'m Magical Card\'s Bot!\nI\'ll take you through the steps to make a card.\n    Are you ready?';
+		const greeting = '>>> Hello! I\'m Magical Card\'s Bot!\nI\'ll take you through the steps to make a card.\n\nAre you ready?';
 
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
-			.setTitle('Welcome')
+			.setTitle(`Welcome ${name}`)
 			.setDescription(greeting)
+			.setFooter({ text: member.id })
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
 		const row = new MessageActionRow().addComponents(abort, start);
+
 		return interaction.reply({ content: null, components: [row], embeds: [embed] });
 	},
 };

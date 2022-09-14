@@ -90,8 +90,15 @@ const createMemberInfo = member => {
 
 const getMemberInfo = (cache, member) => {
 	const memberCache = getMemberCache(cache);
+	const info = memberCache.get(member.id);
 
-	return memberCache.get(member.id);
+	if (!info) {
+		const newInfo = setMemberInfo(cache, member);
+
+		return newInfo;
+	}
+
+	return info;
 };
 
 const setMemberInfo = (cache, member) => {
@@ -103,18 +110,6 @@ const setMemberInfo = (cache, member) => {
 	const memInfo = memberColl.get(member.id);
 
 	return memInfo;
-};
-
-const getMemberApps = (cache, member) => {
-	const info = getMemberInfo(cache, member);
-
-	if (!info) {
-		const newInfo = setMemberInfo(cache, member);
-
-		return newInfo.apps;
-	}
-
-	return info.apps;
 };
 
 const setAppCache = (cache, member) => {
@@ -515,7 +510,7 @@ module.exports = {
 	getStepCache,
 	setCardCache,
 	getCardCache,
-	getMemberApps,
+	getMemberInfo,
 	getPageInfo,
 	clearCardCache,
 };
