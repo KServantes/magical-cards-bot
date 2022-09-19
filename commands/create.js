@@ -37,7 +37,7 @@ module.exports = {
 			.setColor('#0099ff')
 			.setTitle(`Welcome ${name}`)
 			.setDescription(greeting)
-			.setFooter({ text: member.id })
+			.setFooter({ text: '‌‌  \n\n' + member.id })
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
 		const row = new MessageActionRow().addComponents(abort, start);
