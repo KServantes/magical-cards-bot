@@ -30,8 +30,9 @@ exports.up = async knex => {
 		});
 	await knex.schema
 		.createTable('strings', strings => {
-			strings.integer('id').primary();
+			// strings.integer('id');
 			strings.integer('card_id')
+				.primary()
 				.references('id')
 				.inTable('cards')
 				.onUpdate('CASCADE')

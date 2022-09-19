@@ -927,9 +927,20 @@ ${des}`;
 			.setThumbnail('https://i.imgur.com/PSlH5Nl.png');
 
 		// db enter && clear cache
+		const memInfo = Helper.getMemberInfo(cache, member);
 		// eslint-disable-next-line no-unused-vars
 		const { temp, ...rest } = card;
-		const dbCard = await addCardToBase(member, { ...rest, desc });
+		// console.log('MEMBER INFO IN BUTTONS', memInfo);
+		const { name: memName, avatar } = memInfo;
+		const { server } = memInfo.appInfo;
+
+		const payday = {
+			card: { ...rest, desc },
+			member: { id: member.id, name: memName, avatar },
+			server,
+		};
+
+		const dbCard = await addCardToBase(payday);
 		console.log('card added to db', dbCard);
 		if (dbCard)	Helper.clearCardCache(cache, member);
 		// reply
