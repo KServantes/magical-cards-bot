@@ -930,7 +930,6 @@ ${des}`;
 		const memInfo = Helper.getMemberInfo(cache, member);
 		// eslint-disable-next-line no-unused-vars
 		const { temp, ...rest } = card;
-		// console.log('MEMBER INFO IN BUTTONS', memInfo);
 		const { name: memName, avatar } = memInfo;
 		const { server } = memInfo.appInfo;
 
