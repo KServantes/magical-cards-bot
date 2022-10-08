@@ -1,7 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, MessageButton, MessageActionRow } = require('discord.js');
 const Cards = require('../data/models');
-const Cache = require('../commands/library/cache');
+const Cache = require('./library/cache');
+const Helper = require('./library/msgHelper');
 const wait = require('node:timers/promises').setTimeout;
 
 module.exports = {
@@ -24,55 +25,24 @@ module.exports = {
 		// const userOp = options.getUser('duelist');
 		// const { id: memberID } = userOp ? userOp : member;
 		const cards = await Cards.getAllCards();
-		const servers = await Cards.getAllServers();
-
-		const cardCount = cards.length;
-		const servCount = servers.length;
-		const maxPage = Math.ceil(cards.length / 10);
 
 		const { cache } = client;
+		Helper.setPageInfo({ cache, member, cards });
+
 		const memInfo = Cache.getMemberInfo(cache, member);
-		const { page, select } = memInfo;
+		const { page } = memInfo;
 
-		if (memInfo && page !== 1) {
-			const end = page * 10;
-			const start = end / 10;
-			const pageCards = cards.slice(start, end);
-			memInfo.pageInfo = pageCards;
-		}
-		else {
-			const fpage = cards.slice(0,10);
-			memInfo.pageInfo = fpage;
-		}
-
-		if (cardCount >= 1) {
+		if (cards.length >= 1) {
 			try {
-				const extraS = count => count > 1 ? 's' : '';
-				const msg = `I have a total of ${cardCount} card${extraS(cardCount)} in ${servCount} server${extraS(servCount)}.`;
-
-				const descStrings = memInfo.pageInfo.reduce((acc, card) => {
-					const stringAs = `[${card.id}] - ${card.name} `;
-					return acc.concat(stringAs);
-				}, []);
-
-				const desc = descStrings.reduce((acc, str, i) => {
-					let format = `[${i + 1}] | ` + str;
-					if ((i + 1) === select) {
-						format = `**${format}**`;
-					}
-
-					return acc + `${format} \n`;
-				}, '');
-
-
+				const { msg, maxPage } = Helper.getEmbedMsg({ cache, member });
 				const url = user.displayAvatarURL();
+
 				const cardsEmbed = new MessageEmbed()
 					.setColor('#7ec460')
 					.setTitle('Library')
-					.setDescription('>>> ' + msg + '\n\n' + desc)
+					.setDescription(msg)
 					.setThumbnail('https://i.imgur.com/ebtLbkK.png')
 					.setFooter({ text: `Page 1 of ${maxPage}`, iconURL: url });
-
 
 				const prevPage = new MessageButton()
 					.setCustomId('lib prev page')
@@ -84,9 +54,13 @@ module.exports = {
 					.setLabel('>>')
 					.setDisabled(page === maxPage ? true : false)
 					.setStyle('PRIMARY');
+				const exportCards = new MessageButton()
+					.setCustomId('export cards')
+					.setLabel('Export')
+					.setDisabled(true)
+					.setStyle('SUCCESS');
 
-
-				const row = new MessageActionRow().addComponents(prevPage, nextPage);
+				const row = new MessageActionRow().addComponents(prevPage, nextPage, exportCards);
 
 				const buttons = new Array(10);
 				for (const index of buttons.keys()) {

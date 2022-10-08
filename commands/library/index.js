@@ -1,4 +1,4 @@
-const { Collection } = require('discord.js');
+const { Collection, MessageEmbed, MessageButton } = require('discord.js');
 const { getMemCards } = require('../../data/models');
 const { getCardExtra, addCardExtra } = require('../../data/cards/extraModels');
 
@@ -6,6 +6,7 @@ const fs = require('node:fs/promises');
 const { access, constants } = require('node:fs');
 const wait = require('node:timers/promises').setTimeout;
 const path = require('node:path');
+const Cache = require('./cache');
 
 const defaultConfig = member => {
 	const str = `const knex = require('knex');
@@ -116,9 +117,107 @@ const bcExportCards = async interaction => {
 	}
 };
 
+const bcDetails = async interaction => {
+	const { member, message, client, user, customId } = interaction;
+	const { embeds } = message;
+	const { cache } = client;
+
+	const memInfo = Cache.getMemberInfo(cache, member);
+	const url = user.displayAvatarURL();
+
+	const detailEmbed = new MessageEmbed()
+		.setColor('#7ec460')
+		.setThumbnail(url)
+		.setTitle('Pendulum Zombie Dragon')
+		.setImage('https://i.imgur.com/Rbx9Li0.png')
+		.setDescription(`>>> 
+**Type**: Monster / Normal / Pendulum
+**Attribute** DARK | **Level**: ${4} | **Race**: Zombie
+**ATK** 1800 **DEF** 0
+**Left Scale**: ${5} | **Right Scale**: ${5}
+
+[ Pendulum Effect ]
+When this card is activated: You can add 1 Level 4 or lower Pendulum Monster from your Deck to your hand. If a Zombie-Type monster you control with 2000 or less ATK attacks an opponent's monster: You can reduce the ATK and DEF of the card it battles with to 0. You can only use this effect of "Pendulum Zombie Dragon" once per turn. 
+----------------------------------------
+[ Flavor Text ]
+A dragon revived by sorcery. Its breath is highly corrosive.
+
+(This card's name is always treated as "Dragon Zombie".)
+
+**${1013030}**`)
+		.setFields([
+			{
+				name: 'Creator',
+				value: 'Keddy',
+				inline: true,
+			},
+			{
+				name: 'Indexed in',
+				value: 'Kedy\'s Kafé\n9/22/22',
+				inline: true,
+			},
+			{
+				name: 'Card Sets',
+				value: 'Reborn Pepe\nKedy Zombie Support',
+				inline: true,
+			},
+		]);
+
+
+	// if creator / admin
+	const modify = new MessageButton()
+		.setCustomId('server cards')
+		.setLabel('Modify')
+		.setStyle('SECONDARY');
+	const delCard = new MessageButton()
+		.setCustomId('card delete')
+		.setLabel('Delete')
+		.setStyle('DANGER');
+
+	const { components } = message;
+
+	const topRow = components[0];
+	const tbtnRow = components[1];
+	const bbtnRow = components[2];
+
+	const { components: tbtns } = tbtnRow;
+	const { components: bbtns } = bbtnRow;
+
+	const btns = [ ...tbtns, ...bbtns];
+	const [deetsBtn] = btns.filter(btn => btn.customId === customId);
+
+	if (!memInfo.details) {
+		memInfo.details = true;
+		embeds.push(detailEmbed);
+		topRow.addComponents(modify, delCard);
+		deetsBtn.setStyle('PRIMARY');
+
+		return await interaction.update({ embeds, components });
+	}
+
+	if (memInfo.details) {
+		memInfo.details = false;
+		embeds.length = 1;
+		topRow.spliceComponents(3, 2);
+		deetsBtn.setStyle('SECONDARY');
+
+		return await interaction.update({ embeds, components });
+	}
+};
+
 const interactButton = new Collection([
 	['show_cards', bcShowCards],
 	['export_cards', bcExportCards],
+	['card 0', bcDetails],
+	['card 1', bcDetails],
+	['card 2', bcDetails],
+	['card 3', bcDetails],
+	['card 4', bcDetails],
+	['card 5', bcDetails],
+	['card 6', bcDetails],
+	['card 7', bcDetails],
+	['card 8', bcDetails],
+	['card 9', bcDetails],
 ]);
 
 
