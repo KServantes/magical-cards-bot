@@ -34,7 +34,7 @@ module.exports = {
 
 		if (cards.length >= 1) {
 			try {
-				const { msg, maxPage } = Helper.getEmbedMsg({ cache, member });
+				const { msg, maxPage } = await Helper.getEmbedMsg({ cache, member });
 				const url = user.displayAvatarURL();
 
 				const cardsEmbed = new MessageEmbed()
