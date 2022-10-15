@@ -14,6 +14,13 @@ const getCard = card_id => {
 		.first();
 };
 
+const getCardAuthor = card_id => {
+	return db('member_cards')
+		.where('card_id', card_id)
+		.select('member_id')
+		.first();
+};
+
 const getAllCards = () => {
 	return db('cards').select('*');
 };
@@ -141,8 +148,11 @@ module.exports = {
 	addCardToBase,
 	getServerCards,
 	getAllServers,
+	getCardAuthor,
 	getAllCards,
 	getMemCards,
+	getMember,
 	checkCard,
+	getCard,
 	BOT_DEFAULT_PASS,
 };

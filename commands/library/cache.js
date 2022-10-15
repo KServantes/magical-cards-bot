@@ -18,8 +18,17 @@ const setMemberInfo = (cache, member) => {
 	const memberInfo = {
 		page: 1,
 		pageInfo: [],
-		select: 0,
+		select: 10,
 		details: false,
+		/**
+		 * @param {number} n
+		 */
+		set selectOn(n) {
+			this.select = n;
+		},
+		get cardInfo() {
+			return this.pageInfo[this.select];
+		},
 	};
 
 	const libraryCache = getLibraryCache(cache, member);

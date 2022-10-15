@@ -4,9 +4,12 @@ const wait = require('node:timers/promises').setTimeout;
 const path = require('node:path');
 
 const Cache = require('./cache');
-const { getMemCards } = require('../../data/models');
+const Helper = require('./msgHelper');
+const { getMemCards, getCard, getCardAuthor, getMember } = require('../../data/models');
 const { MessageEmbed, MessageButton } = require('discord.js');
 const { getCardExtra, addCardExtra } = require('../../data/cards/extraModels');
+
+const { Types, Attributes, Races, Archetypes } = require('../../commands/create/constants');
 
 
 const defaultConfig = member => {
@@ -92,38 +95,125 @@ const bcExportCards = async interaction => {
 	}
 };
 
+const defaultError = async interaction => {
+	const embed = new MessageEmbed()
+		.setColor('#dd0f0f')
+		.setTitle('Library')
+		.setDescription('There was an error executing this.\nPlease try the command again.')
+		.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+
+	await interaction.update({ embeds: [embed], components: [] });
+	await wait(4000);
+	return await interaction.deleteReply();
+};
+
 const bcDetails = async interaction => {
 	const { member, message, client, user, customId } = interaction;
 	const { embeds } = message;
 	const { cache } = client;
 
 	const memInfo = Cache.getMemberInfo(cache, member);
-	const url = user.displayAvatarURL();
+	memInfo.selectOn = parseInt(customId.at(-1));
+	if (!memInfo.cardInfo) return await defaultError(interaction);
+	const { id: card_id } = memInfo.cardInfo;
 
+	const card = await getCard(card_id);
+	const owner = await getCardAuthor(card_id);
+
+	const memberName = await (async () => {
+		if (!owner) return '??????';
+		const { name } = await getMember(owner.member_id);
+
+		return name;
+	})();
+
+	const {
+		id,
+		name,
+		desc,
+		type: types,
+		attribute: att,
+		level,
+		race,
+		atk,
+		def,
+		setcode,
+	} = card;
+
+
+	// extract lvl and scales
+	const extractLVLScales = val => {
+		let truLvl = 0;
+		const hex = parseInt(val).toString(16);
+		truLvl = parseInt(hex.slice(-1), 16);
+		const lscale = parseInt(hex.at(0), 16);
+		const rscale = parseInt(hex.at(2), 16);
+		return {
+			level: truLvl,
+			pendulum: {
+				lscale,
+				rscale,
+			},
+		};
+	};
+
+	// Type
+	const tcoll = Types.reverse();
+	const tStr = tcoll.reduce((acc, v, t) => {
+		if ((types & v).toString(16) != 0) {
+			return acc.concat(t + ' ');
+		}
+		return acc;
+	}, '').replace(/\s\b/g, ' / ');
+
+	const isType = type => {
+		return tStr.includes(type);
+	};
+	// Attribute
+	const attStr = Attributes.findKey(v => v === att);
+	// Race
+	const raceStr = Races.findKey(v => v === race);
+	// Rating/Rank/Level
+	let lvlType = isType('Xyz') ? 'Rank' : 'Level';
+	lvlType = isType('Link') ? 'LINK' : lvlType;
+	// Level
+	let lvlActual = level;
+	let lscale = null;
+	let rscale = null;
+	if (isType('Pendulum')) {
+		const { level: lvl, pendulum: pendy } = extractLVLScales(level);
+		lvlActual = lvl;
+		lscale = pendy.lscale;
+		rscale = pendy.rscale;
+	}
+	// Archetypes
+	let arcsStr = '';
+	if (setcode) {
+		const arc = Archetypes.findKey(v => v === setcode);
+		if (arc) arcsStr = arc;
+	}
+	// Pendulum
+	const pendyInfo = `**Left Scale**: ${lscale} | **Right Scale**: ${rscale}`;
+	// Extra Info
+	let placeholder = '';
+	if (rscale) placeholder += `${pendyInfo}` + '\n';
+	if (arcsStr) placeholder += `**Archetypes**: ${arcsStr}` + '\n';
+
+	const url = user.displayAvatarURL();
 	const detailEmbed = new MessageEmbed()
 		.setColor('#7ec460')
-		.setThumbnail(url)
-		.setTitle('Pendulum Zombie Dragon')
-		.setImage('https://i.imgur.com/Rbx9Li0.png')
-		.setDescription(`>>> 
-**Type**: Monster / Normal / Pendulum
-**Attribute** DARK | **Level**: ${4} | **Race**: Zombie
-**ATK** 1800 **DEF** 0
-**Left Scale**: ${5} | **Right Scale**: ${5}
-
-[ Pendulum Effect ]
-When this card is activated: You can add 1 Level 4 or lower Pendulum Monster from your Deck to your hand. If a Zombie-Type monster you control with 2000 or less ATK attacks an opponent's monster: You can reduce the ATK and DEF of the card it battles with to 0. You can only use this effect of "Pendulum Zombie Dragon" once per turn. 
-----------------------------------------
-[ Flavor Text ]
-A dragon revived by sorcery. Its breath is highly corrosive.
-
-(This card's name is always treated as "Dragon Zombie".)
-
-**${1013030}**`)
+		.setThumbnail('https://i.imgur.com/Rbx9Li0.png')
+		.setTitle(name)
+		.setDescription(`>>> **Type**: ${tStr}
+        **Attribute** ${attStr} | **${lvlType}**: ${lvlActual} | **Race**: ${raceStr}
+        **ATK** ${atk} ${isType('Link') ? '' : `**DEF** ${def}`}
+        ${placeholder}
+        ${desc}
+        **${id}**`)
 		.setFields([
 			{
 				name: 'Creator',
-				value: 'Keddy',
+				value: memberName,
 				inline: true,
 			},
 			{
@@ -161,23 +251,67 @@ A dragon revived by sorcery. Its breath is highly corrosive.
 	const btns = [ ...tbtns, ...bbtns];
 	const [deetsBtn] = btns.filter(btn => btn.customId === customId);
 
-	if (!memInfo.details) {
-		memInfo.details = true;
-		embeds.push(detailEmbed);
-		topRow.addComponents(modify, delCard);
-		deetsBtn.setStyle('PRIMARY');
+	// check owner/admin
+	const isAbleToModify = interaction.member.id == owner?.member_id;
 
-		return await interaction.update({ embeds, components });
-	}
+	const updateSelect = async embedsArray => {
+		// update embed msg
+		const { maxPage, msg } = await Helper.getEmbedMsg({ cache, member });
+
+		const infoEmbed = embedsArray[0];
+		infoEmbed
+			.setDescription(msg)
+			.setFooter({ text: `Page 1 of ${maxPage}`, iconURL: url });
+	};
 
 	if (memInfo.details) {
-		memInfo.details = false;
-		embeds.length = 1;
-		topRow.spliceComponents(3, 2);
-		deetsBtn.setStyle('SECONDARY');
+		// current button re-clicked
+		// return to original state
+		if (deetsBtn.style === 'PRIMARY') {
+			memInfo.details = false;
+			memInfo.selectOn = 10;
+			embeds.length = 1;
+			topRow.spliceComponents(3, 2);
+			deetsBtn.setStyle('SECONDARY');
 
+			await updateSelect(embeds);
+			return await interaction.update({ embeds, components });
+		}
+
+		// different button clicked
+		embeds[1] = detailEmbed;
+		deetsBtn.setStyle('PRIMARY');
+
+		// if owner/admin
+		if (isAbleToModify) {
+			const { components: currComp } = topRow;
+			currComp.length = 3;
+			topRow.addComponents(modify, delCard);
+		}
+		// old buttons removed if any
+		else {
+			topRow.spliceComponents(3, 2);
+		}
+
+		// set buttons to default state
+		btns.forEach(btn => {
+			if (btn !== deetsBtn) {
+				btn.setStyle('SECONDARY');
+			}
+		});
+
+		await updateSelect(embeds);
 		return await interaction.update({ embeds, components });
 	}
+
+	// show details of selection
+	memInfo.details = true;
+	embeds.push(detailEmbed);
+	deetsBtn.setStyle('PRIMARY');
+	if (isAbleToModify) topRow.addComponents(modify, delCard);
+
+	await updateSelect(embeds);
+	return await interaction.update({ embeds, components });
 };
 
 module.exports = {

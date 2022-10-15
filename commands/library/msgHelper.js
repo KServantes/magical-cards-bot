@@ -12,11 +12,21 @@ const setPageInfo = cacheObject => {
 		const end = page * 10;
 		const start = end / 10;
 		const pageCards = cards.slice(start, end);
-		memInfo.pageInfo = pageCards;
+		const paged = pageCards.reduce((acc, card) => {
+			const { id, name } = card;
+
+			return acc.push({ id, name });
+		}, []);
+		memInfo.pageInfo = paged;
 	}
 	else {
 		const fpage = cards.slice(0, 10);
-		memInfo.pageInfo = fpage;
+		const paged = fpage.reduce((acc, card) => {
+			const { id, name } = card;
+
+			return acc.concat({ id, name });
+		}, []);
+		memInfo.pageInfo = paged;
 	}
 };
 
@@ -43,7 +53,7 @@ const getEmbedMsg = async cacheObject => {
 
 	const desc = descStrings.reduce((acc, str, i) => {
 		let format = `[${i + 1}] | ` + str;
-		if ((i + 1) === select) {
+		if (i === select) {
 			format = `**${format}**`;
 		}
 
