@@ -42,7 +42,7 @@ module.exports = {
 					.setTitle('Library')
 					.setDescription(msg)
 					.setThumbnail('https://i.imgur.com/ebtLbkK.png')
-					.setFooter({ text: `Page 1 of ${maxPage}`, iconURL: url });
+					.setFooter({ text: `Page ${page} of ${maxPage}`, iconURL: url });
 
 				const prevPage = new MessageButton()
 					.setCustomId('lib prev page')
@@ -61,21 +61,9 @@ module.exports = {
 					.setStyle('SUCCESS');
 
 				const row = new MessageActionRow().addComponents(prevPage, nextPage, exportCards);
+				const srows = Helper.getButtonRows(memInfo.pageInfo.length);
 
-				const buttons = new Array(10);
-				for (const index of buttons.keys()) {
-					buttons[index] = new MessageButton()
-						.setCustomId(`card ${index}`)
-						.setLabel(`${ 1 + index }`)
-						.setStyle('SECONDARY');
-				}
-
-				const btop = buttons.slice(0, 5);
-				const bsec = buttons.slice(5);
-				const srow1 = new MessageActionRow().addComponents(btop);
-				const srow2 = new MessageActionRow().addComponents(bsec);
-
-				return await interaction.reply({ embeds: [cardsEmbed], components: [row, srow1, srow2] });
+				return await interaction.reply({ embeds: [cardsEmbed], components: [row, ...srows] });
 			}
 			catch (err) {
 				console.log({ err });

@@ -5,11 +5,9 @@ const path = require('node:path');
 
 const Cache = require('./cache');
 const Helper = require('./msgHelper');
-const { getMemCards, getCard, getCardAuthor, getMember } = require('../../data/models');
-const { MessageEmbed, MessageButton } = require('discord.js');
+const Cards = require('../../data/models');
+const { MessageEmbed, MessageButton, MessageActionRow } = require('discord.js');
 const { getCardExtra, addCardExtra } = require('../../data/cards/extraModels');
-
-const { Types, Attributes, Races, Archetypes } = require('../../commands/create/constants');
 
 
 const defaultConfig = member => {
@@ -68,7 +66,7 @@ const bcExportCards = async interaction => {
 		const dbNew = await require(`../../data/cards/${member}/cdbConfig`);
 		await dbNew.migrate.latest();
 		const { id: memberId } = userOp ? userOp : interaction.member;
-		const cards = await getMemCards(memberId);
+		const cards = await Cards.getMemCards(memberId);
 		// console.log(cards);
 		cards.forEach(async card => {
 			const newCard = { id: card.id, name: card.name, desc: card.desc };
@@ -114,102 +112,28 @@ const bcDetails = async interaction => {
 
 	const memInfo = Cache.getMemberInfo(cache, member);
 	memInfo.selectOn = parseInt(customId.at(-1));
+	const { page } = memInfo;
 	if (!memInfo.cardInfo) return await defaultError(interaction);
 	const { id: card_id } = memInfo.cardInfo;
 
-	const card = await getCard(card_id);
-	const owner = await getCardAuthor(card_id);
+	const card = await Cards.getCard(card_id);
+	const owner = await Cards.getCardAuthor(card_id);
 
 	const memberName = await (async () => {
 		if (!owner) return '??????';
-		const { name } = await getMember(owner.member_id);
+		const { name } = await Cards.getMember(owner.member_id);
 
 		return name;
 	})();
 
-	const {
-		id,
-		name,
-		desc,
-		type: types,
-		attribute: att,
-		level,
-		race,
-		atk,
-		def,
-		setcode,
-	} = card;
-
-
-	// extract lvl and scales
-	const extractLVLScales = val => {
-		let truLvl = 0;
-		const hex = parseInt(val).toString(16);
-		truLvl = parseInt(hex.slice(-1), 16);
-		const lscale = parseInt(hex.at(0), 16);
-		const rscale = parseInt(hex.at(2), 16);
-		return {
-			level: truLvl,
-			pendulum: {
-				lscale,
-				rscale,
-			},
-		};
-	};
-
-	// Type
-	const tcoll = Types.reverse();
-	const tStr = tcoll.reduce((acc, v, t) => {
-		if ((types & v).toString(16) != 0) {
-			return acc.concat(t + ' ');
-		}
-		return acc;
-	}, '').replace(/\s\b/g, ' / ');
-
-	const isType = type => {
-		return tStr.includes(type);
-	};
-	// Attribute
-	const attStr = Attributes.findKey(v => v === att);
-	// Race
-	const raceStr = Races.findKey(v => v === race);
-	// Rating/Rank/Level
-	let lvlType = isType('Xyz') ? 'Rank' : 'Level';
-	lvlType = isType('Link') ? 'LINK' : lvlType;
-	// Level
-	let lvlActual = level;
-	let lscale = null;
-	let rscale = null;
-	if (isType('Pendulum')) {
-		const { level: lvl, pendulum: pendy } = extractLVLScales(level);
-		lvlActual = lvl;
-		lscale = pendy.lscale;
-		rscale = pendy.rscale;
-	}
-	// Archetypes
-	let arcsStr = '';
-	if (setcode) {
-		const arc = Archetypes.findKey(v => v === setcode);
-		if (arc) arcsStr = arc;
-	}
-	// Pendulum
-	const pendyInfo = `**Left Scale**: ${lscale} | **Right Scale**: ${rscale}`;
-	// Extra Info
-	let placeholder = '';
-	if (rscale) placeholder += `${pendyInfo}` + '\n';
-	if (arcsStr) placeholder += `**Archetypes**: ${arcsStr}` + '\n';
+	const msgDesc = Helper.getCardDesc(card);
 
 	const url = user.displayAvatarURL();
 	const detailEmbed = new MessageEmbed()
 		.setColor('#7ec460')
 		.setThumbnail('https://i.imgur.com/Rbx9Li0.png')
-		.setTitle(name)
-		.setDescription(`>>> **Type**: ${tStr}
-        **Attribute** ${attStr} | **${lvlType}**: ${lvlActual} | **Race**: ${raceStr}
-        **ATK** ${atk} ${isType('Link') ? '' : `**DEF** ${def}`}
-        ${placeholder}
-        ${desc}
-        **${id}**`)
+		.setTitle(card.name)
+		.setDescription(msgDesc)
 		.setFields([
 			{
 				name: 'Creator',
@@ -231,7 +155,7 @@ const bcDetails = async interaction => {
 
 	// if creator / admin
 	const modify = new MessageButton()
-		.setCustomId('server cards')
+		.setCustomId('card modify')
 		.setLabel('Modify')
 		.setStyle('SECONDARY');
 	const delCard = new MessageButton()
@@ -246,9 +170,9 @@ const bcDetails = async interaction => {
 	const bbtnRow = components[2];
 
 	const { components: tbtns } = tbtnRow;
-	const { components: bbtns } = bbtnRow;
+	const bbtns = bbtnRow?.components;
 
-	const btns = [ ...tbtns, ...bbtns];
+	const btns = bbtnRow ? [ ...tbtns, ...bbtns] : tbtns;
 	const [deetsBtn] = btns.filter(btn => btn.customId === customId);
 
 	// check owner/admin
@@ -261,7 +185,7 @@ const bcDetails = async interaction => {
 		const infoEmbed = embedsArray[0];
 		infoEmbed
 			.setDescription(msg)
-			.setFooter({ text: `Page 1 of ${maxPage}`, iconURL: url });
+			.setFooter({ text: `Page ${page} of ${maxPage}`, iconURL: url });
 	};
 
 	if (memInfo.details) {
@@ -314,7 +238,86 @@ const bcDetails = async interaction => {
 	return await interaction.update({ embeds, components });
 };
 
+const updateControlRow = (row, p, maxP) => {
+	const { components: buttons } = row;
+	for (const index of buttons.keys()) {
+		const button = buttons[index];
+		const { label } = button;
+		if (label === '>>') button.setDisabled(p === maxP ? true : false);
+		if (label === '<<') button.setDisabled(p === 1 ? true : false);
+	}
+	// 3 default buttons
+	// removes modify/delete
+	buttons.length = 3;
+};
+
+const bcNextPage = async interaction => {
+	const { member, message, client, user } = interaction;
+	const { cache } = client;
+
+	const memInfo = Cache.getMemberInfo(cache, member);
+	memInfo.page = 2;
+	const { page } = memInfo;
+	const cards = await Cards.getAllCards();
+
+	Helper.setPageInfo({ cache, member, cards });
+
+	const { maxPage, msg } = await Helper.getEmbedMsg({ cache, member });
+	const url = user.displayAvatarURL();
+
+	const cardsEmbed = new MessageEmbed()
+		.setColor('#7ec460')
+		.setTitle('Library')
+		.setDescription(msg)
+		.setThumbnail('https://i.imgur.com/ebtLbkK.png')
+		.setFooter({ text: `Page ${page} of ${maxPage}`, iconURL: url });
+
+	const cardCount = memInfo.pageInfo.length;
+	const srows = Helper.getButtonRows(cardCount);
+
+	const { components: comp } = message;
+	const controlRow = comp[0];
+
+	updateControlRow(controlRow, page, maxPage);
+
+	return await interaction.update({ embeds: [cardsEmbed], components: [controlRow, ...srows] });
+};
+
+const bcPrevPage = async interaction => {
+	const { member, message, client, user } = interaction;
+	const { cache } = client;
+
+	const memInfo = Cache.getMemberInfo(cache, member);
+	memInfo.page = 1;
+	const { page } = memInfo;
+	const cards = await Cards.getAllCards();
+
+	Helper.setPageInfo({ cache, member, cards });
+
+	const { maxPage, msg } = await Helper.getEmbedMsg({ cache, member });
+	const url = user.displayAvatarURL();
+
+	const cardsEmbed = new MessageEmbed()
+		.setColor('#7ec460')
+		.setTitle('Library')
+		.setDescription(msg)
+		.setThumbnail('https://i.imgur.com/ebtLbkK.png')
+		.setFooter({ text: `Page ${page} of ${maxPage}`, iconURL: url });
+
+	const cardCount = memInfo.pageInfo.length;
+	const srows = Helper.getButtonRows(cardCount);
+
+	const { components: comp } = message;
+	const controlRow = comp[0];
+
+	updateControlRow(controlRow, page, maxPage);
+
+	return await interaction.update({ embeds: [cardsEmbed], components: [controlRow, ...srows] });
+};
+
 module.exports = {
 	bcExportCards,
+	bcNextPage,
+	bcPrevPage,
 	bcDetails,
 };
