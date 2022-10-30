@@ -29,6 +29,12 @@ const setMemberInfo = (cache, member) => {
 		get cardInfo() {
 			return this.pageInfo[this.select];
 		},
+		set npage(n) {
+			this.page = this.page + n;
+		},
+		set ppage(n) {
+			this.page = this.page - n;
+		},
 	};
 
 	const libraryCache = getLibraryCache(cache, member);
