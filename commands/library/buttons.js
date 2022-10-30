@@ -112,7 +112,7 @@ const bcNextPage = async interaction => {
 	const memInfo = Cache.getMemberInfo(cache, member);
 	memInfo.npage = 1;
 
-	return await Helper.updateMSGInteraction(interaction);
+	return await Helper.updateEmbedMsg(interaction);
 };
 
 const bcPrevPage = async interaction => {
@@ -122,7 +122,7 @@ const bcPrevPage = async interaction => {
 	const memInfo = Cache.getMemberInfo(cache, member);
 	memInfo.ppage = 1;
 
-	return await Helper.updateMSGInteraction(interaction);
+	return await Helper.updateEmbedMsg(interaction);
 };
 
 module.exports = {

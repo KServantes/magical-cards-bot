@@ -179,7 +179,7 @@ const updateControlRow = (row, p, maxP) => {
 	buttons.length = 3;
 };
 
-const updateMSGInteraction = async interaction => {
+const updateEmbedMsg = async interaction => {
 	const { member, message, client, user } = interaction;
 	const { cache } = client;
 
@@ -364,5 +364,5 @@ module.exports = {
 	getButtonRows,
 	showDetails,
 	defaultError,
-	updateMSGInteraction,
+	updateEmbedMsg,
 };
