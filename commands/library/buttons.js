@@ -110,7 +110,8 @@ const bcNextPage = async interaction => {
 	const { cache } = client;
 
 	const memInfo = Cache.getMemberInfo(cache, member);
-	memInfo.npage = 1;
+	memInfo.newPage = 1;
+	memInfo.selectOn = 10;
 
 	return await Helper.updateEmbedMsg(interaction);
 };
@@ -120,7 +121,8 @@ const bcPrevPage = async interaction => {
 	const { cache } = client;
 
 	const memInfo = Cache.getMemberInfo(cache, member);
-	memInfo.ppage = 1;
+	memInfo.newPage = -1;
+	memInfo.selectOn = 10;
 
 	return await Helper.updateEmbedMsg(interaction);
 };

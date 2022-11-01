@@ -168,8 +168,7 @@ const getButtonRows = count => {
 
 const updateControlRow = (row, p, maxP) => {
 	const { components: buttons } = row;
-	for (const index of buttons.keys()) {
-		const button = buttons[index];
+	for (const button of buttons) {
 		const { label } = button;
 		if (label === '>>') button.setDisabled(p === maxP ? true : false);
 		if (label === '<<') button.setDisabled(p === 1 ? true : false);
