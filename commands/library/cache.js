@@ -17,7 +17,10 @@ const getLibraryCache = cache => {
 const setMemberInfo = (cache, member) => {
 	const memberInfo = {
 		page: 1,
-		pageInfo: [],
+		pageInfo: {
+			slice: [],
+			cards: [],
+		},
 		select: 10,
 		details: false,
 		/**
@@ -27,7 +30,7 @@ const setMemberInfo = (cache, member) => {
 			this.select = n;
 		},
 		get cardInfo() {
-			return this.pageInfo[this.select];
+			return this.pageInfo.slice[this.select];
 		},
 		/**
 		 * @param {number} n

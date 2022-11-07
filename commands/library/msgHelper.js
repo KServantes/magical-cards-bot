@@ -9,6 +9,8 @@ const setPageInfo = cacheObject => {
 	const { cache, member, cards } = cacheObject;
 
 	const memInfo = Cache.getMemberInfo(cache, member);
+	memInfo.pageInfo.cards = cards;
+
 	const { page } = memInfo;
 
 	if (memInfo && page !== 1) {
@@ -20,36 +22,37 @@ const setPageInfo = cacheObject => {
 
 			return acc.concat({ id, name });
 		}, []);
-		memInfo.pageInfo = paged;
+		memInfo.pageInfo.slice = paged;
 	}
 	else {
+
 		const fpage = cards.slice(0, 10);
 		const paged = fpage.reduce((acc, card) => {
 			const { id, name } = card;
 
 			return acc.concat({ id, name });
 		}, []);
-		memInfo.pageInfo = paged;
+		memInfo.pageInfo.slice = paged;
 	}
 };
 
 const getEmbedMsg = async cacheObject => {
-	const { cache, member } = cacheObject;
+	const { cache, member, cards: nextCards } = cacheObject;
 
-	const cards = await Cards.getAllCards();
+	// eslint-disable-next-line no-inline-comments
+	const cards = nextCards ?? []; // await Cards.getAllCards();
 	const servers = await Cards.getAllServers();
-
-	const cardCount = cards.length;
 	const servCount = servers.length;
-	const maxPage = Math.ceil(cards.length / 10);
-
+	const cardCount = cards.length;
+	const math = Math.ceil(cards.length / 10);
+	const maxPage = math === 0 ? 1 : math;
 	const memInfo = Cache.getMemberInfo(cache, member);
 	const { select } = memInfo;
 
 	const extraS = count => count > 1 ? 's' : '';
 	const msg = `I have a total of ${cardCount} card${extraS(cardCount)} in ${servCount} server${extraS(servCount)}.`;
 
-	const descStrings = memInfo.pageInfo.reduce((acc, card) => {
+	const descStrings = memInfo.pageInfo.slice.reduce((acc, card) => {
 		const stringAs = `[${card.id}] - ${card.name} `;
 		return acc.concat(stringAs);
 	}, []);
@@ -166,6 +169,100 @@ const getButtonRows = count => {
 	return rows;
 };
 
+
+const ViewCards = async args => {
+	const { member, client, user, options } = args;
+	const userOp = options?.userOption;
+
+	const allC = await (async () => {
+		const allCards = await Cards.getAllCards();
+		const trim = allCards.reduce((acc, card) => {
+			const { id, name } = card;
+
+			return acc.concat({ id, name });
+		}, []);
+
+		return trim;
+	})();
+
+	const memC = await (async () => {
+		// get cards for specific member
+		if (!userOp) return undefined;
+		const { id: memberID } = userOp;
+		const memCards = await Cards.getMemCards(memberID);
+
+		// trim mem cards down
+		const trim = memCards.reduce((acc, card) => {
+			const { id, name } = card;
+
+			return acc.concat({ id, name });
+		}, []);
+
+		return trim;
+	})();
+
+	// all or member's cards above
+	const cards = memC && memC.length ? memC : allC;
+
+
+	const { cache } = client;
+	setPageInfo({ cache, member, cards });
+
+	const memInfo = Cache.getMemberInfo(cache, member);
+
+	// check no cards in db
+	if (cards.length >= 1) {
+		try {
+			const { msg, maxPage } = await getEmbedMsg({ cache, member, cards });
+			const url = user.displayAvatarURL();
+			const username = userOp?.username;
+			const headsUp = `**${username}** does not have any cards index within the Library\n\n`;
+
+			const cardsEmbed = new MessageEmbed()
+				.setColor('#7ec460')
+				.setTitle('Library')
+				.setDescription(`${userOp && memC.length === 0 ? headsUp : '' } ${msg}`)
+				.setThumbnail('https://i.imgur.com/ebtLbkK.png')
+				.setFooter({ text: `Page 1 of ${maxPage}`, iconURL: url });
+
+			const prevPage = new MessageButton()
+				.setCustomId('lib prev page')
+				.setLabel('<<')
+				.setDisabled(true)
+				.setStyle('PRIMARY');
+			const nextPage = new MessageButton()
+				.setCustomId('lib next page')
+				.setLabel('>>')
+				.setDisabled(maxPage === 1 ? true : false)
+				.setStyle('PRIMARY');
+			const exportCards = new MessageButton()
+				.setCustomId('export cards')
+				.setLabel('Export')
+				.setDisabled(true)
+				.setStyle('SUCCESS');
+
+			const row = new MessageActionRow().addComponents(prevPage, nextPage, exportCards);
+			const srows = getButtonRows(memInfo.pageInfo.slice.length);
+
+			return { embeds: [cardsEmbed], components: [row, ...srows] };
+		}
+		catch (err) {
+			return { error: { content: 'Something went wrong.' } };
+		}
+	}
+	else {
+		const msg = 'I\'m  afraid I don\'t have any cards ';
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Library')
+			.setDescription(msg)
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+
+		return { error: { embeds: [embed] } };
+	}
+};
+
+// next pages
 const updateControlRow = (row, p, maxP) => {
 	const { components: buttons } = row;
 	for (const button of buttons) {
@@ -183,13 +280,16 @@ const updateEmbedMsg = async interaction => {
 	const { cache } = client;
 
 	const memInfo = Cache.getMemberInfo(cache, member);
+	const { pageInfo } = memInfo;
 
 	const { page } = memInfo;
-	const cards = await Cards.getAllCards();
+	const cards = pageInfo &&
+		pageInfo.cards ? pageInfo.cards :
+		await Cards.getAllCards();
 
 	setPageInfo({ cache, member, cards });
 
-	const { maxPage, msg } = await getEmbedMsg({ cache, member });
+	const { maxPage, msg } = await getEmbedMsg({ cache, member, cards });
 	const url = user.displayAvatarURL();
 
 	const cardsEmbed = new MessageEmbed()
@@ -199,7 +299,7 @@ const updateEmbedMsg = async interaction => {
 		.setThumbnail('https://i.imgur.com/ebtLbkK.png')
 		.setFooter({ text: `Page ${page} of ${maxPage}`, iconURL: url });
 
-	const cardCount = memInfo.pageInfo.length;
+	const cardCount = memInfo.pageInfo.slice.length;
 	const srows = getButtonRows(cardCount);
 
 	const { components: comp } = message;
@@ -229,10 +329,15 @@ const showDetails = async interaction => {
 	const { cache } = client;
 
 	const memInfo = Cache.getMemberInfo(cache, member);
-	const { page } = memInfo;
-	if (!memInfo.cardInfo) return { embeds: [], components: [], error: 1 };
-	const { id: card_id } = memInfo.cardInfo;
+	const { page, pageInfo, cardInfo } = memInfo;
 
+	// checks if cards
+	// checks if mismatch card count in embed
+	const { cards } = pageInfo;
+	const con = embeds[0].description.match(/\d[^\W]/)[0];
+	if (!memInfo.cardInfo || con != cards.length) return { embeds: [], components: [], error: 1 };
+
+	const { id: card_id } = cardInfo;
 	const card = await Cards.getCard(card_id);
 	const owner = await Cards.getCardAuthor(card_id);
 
@@ -297,7 +402,7 @@ const showDetails = async interaction => {
 
 	const updateSelect = async embedsArray => {
 		// update embed msg
-		const { maxPage, msg } = await getEmbedMsg({ cache, member });
+		const { maxPage, msg } = await getEmbedMsg({ cache, member, cards });
 
 		const infoEmbed = embedsArray[0];
 		infoEmbed
@@ -364,4 +469,5 @@ module.exports = {
 	showDetails,
 	defaultError,
 	updateEmbedMsg,
+	ViewCards,
 };
