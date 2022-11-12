@@ -322,7 +322,8 @@ const ExportCards = async args => {
 	// Export cards to database
 	// Creates new dir for new members
 	const { user: userOp } = options;
-	console.log(userOp);
+	// fix userOp doesn't have display name
+	// elitalianoverde v keddy
 	const member = userOp ? userOp.username : memC.displayName;
 
 	try {

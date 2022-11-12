@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Helper = require('./library/msgHelper');
-const wait = require('node:timers/promises').setTimeout;
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -34,7 +33,7 @@ module.exports = {
 				.addBooleanOption(option =>
 					option
 						.setName('public')
-						.setDescription('Make the cdb file public download.')
+						.setDescription('Make the cdb file public download.'),
 				),
 		),
 	async execute(interaction) {
