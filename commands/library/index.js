@@ -1,9 +1,8 @@
 const { Collection } = require('discord.js');
-const { bcExportCards, bcDetails, bcNextPage, bcPrevPage } = require('./buttons');
+const { bcDetails, bcNextPage, bcPrevPage } = require('./buttons');
 
 
 const interactButton = new Collection([
-	['export_cards', bcExportCards],
 	['card 0', bcDetails],
 	['card 1', bcDetails],
 	['card 2', bcDetails],

@@ -1,10 +1,17 @@
 const Cards = require('../../data/models');
 const Cache = require('./cache');
+const CardsEx = require('../../data/cards/extraModels');
+
+const path = require('node:path');
+const fs = require('node:fs/promises');
+const { constants } = require('node:fs');
 const wait = require('node:timers/promises').setTimeout;
+
 const { MessageEmbed, MessageButton, MessageActionRow } = require('discord.js');
 const { Archetypes, Types, Races, Attributes } = require('../../commands/create/constants');
 
 
+// view cards
 const setPageInfo = cacheObject => {
 	const { cache, member, cards } = cacheObject;
 
@@ -169,10 +176,9 @@ const getButtonRows = count => {
 	return rows;
 };
 
-
 const ViewCards = async args => {
 	const { member, client, user, options } = args;
-	const userOp = options?.userOption;
+	const userOp = options?.user;
 
 	const allC = await (async () => {
 		const allCards = await Cards.getAllCards();
@@ -262,6 +268,105 @@ const ViewCards = async args => {
 	}
 };
 
+
+// export cards
+const defaultConfig = member => {
+	const str = `const knex = require('knex');
+
+module.exports = knex({
+	client: 'better-sqlite3',
+	useNullAsDefault: true,
+	migrations: { directory: './data/cards/migrations' },
+	connection: {
+		filename: './data/cards/${member}/cards.cdb',
+	},
+});`;
+	return str;
+};
+
+const makeDir = async p => {
+	try {
+		// check directory
+		await fs.access(p, constants.F_OK);
+	}
+	catch {
+		// make directory
+		await fs.mkdir(p);
+	}
+};
+
+const makeConfig = async (p, member) => {
+	try {
+		// check db config file
+		await fs.access(p, constants.F_OK);
+	}
+	catch {
+		// make db config file
+		await fs.writeFile(p, defaultConfig(member));
+	}
+};
+
+const errorHandler = async (interaction, error) => {
+	const msg = {};
+	for (const prop in error) {
+		msg[prop] = error[prop];
+	}
+
+	await interaction.reply(msg);
+	await wait(4000);
+	return interaction.deleteReply();
+};
+
+const ExportCards = async args => {
+	const { member: memC, options } = args;
+	// Export cards to database
+	// Creates new dir for new members
+	const { user: userOp } = options;
+	console.log(userOp);
+	const member = userOp ? userOp.username : memC.displayName;
+
+	try {
+		// make/check dir
+		const dirPath = path.join(__dirname, `../../data/cards/${member}`);
+		await makeDir(dirPath);
+
+		// make/check config file
+		const fileDir = path.join(dirPath, 'cdbConfig.js');
+		await makeConfig(fileDir, member);
+
+		// connect and migrate new db
+		await wait(1000);
+		const dbNew = await require(`../../data/cards/${member}/cdbConfig`);
+		await dbNew.migrate.latest();
+
+		const { id: memberId } = userOp ? userOp : memC;
+		const cards = await Cards.getMemCards(memberId);
+		cards.forEach(async card => {
+			const oldCard = await CardsEx.checkCard({
+				db: dbNew,
+				id: card.id,
+				newCard: card,
+			});
+			if (!oldCard) await CardsEx.addCard(dbNew, card);
+		});
+
+		const dbFile = path.join(dirPath, 'cards.cdb');
+
+		return {
+			components: [],
+			embeds: [],
+			files: [{
+				attachment: dbFile,
+				name: `${member}.cdb`,
+				description: `${member}'s card database.`,
+			}],
+		};
+	}
+	catch (err) {
+		return ({ components: [], embeds: [], error: { content: 'there was a failure.' } });
+	}
+};
+
 // next pages
 const updateControlRow = (row, p, maxP) => {
 	const { components: buttons } = row;
@@ -334,7 +439,7 @@ const showDetails = async interaction => {
 	// checks if cards
 	// checks if mismatch card count in embed
 	const { cards } = pageInfo;
-	const con = embeds[0].description.match(/\d[^\W]/)[0];
+	const con = embeds[0].description.match(/\d{1,5}/)[0];
 	if (!memInfo.cardInfo || con != cards.length) return { embeds: [], components: [], error: 1 };
 
 	const { id: card_id } = cardInfo;
@@ -464,10 +569,12 @@ const showDetails = async interaction => {
 module.exports = {
 	getCardDesc,
 	setPageInfo,
+	errorHandler,
 	getEmbedMsg,
 	getButtonRows,
 	showDetails,
 	defaultError,
 	updateEmbedMsg,
 	ViewCards,
+	ExportCards,
 };

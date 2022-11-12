@@ -30,6 +30,11 @@ module.exports = {
 					option
 						.setName('duelist')
 						.setDescription('Export a duelists cards.'),
+				)
+				.addBooleanOption(option =>
+					option
+						.setName('public')
+						.setDescription('Make the cdb file public download.')
 				),
 		),
 	async execute(interaction) {
@@ -38,18 +43,16 @@ module.exports = {
 		const command = options.getSubcommand();
 
 		if (command === 'view') {
-			const { embeds, components, error } = await Helper.ViewCards({ member, client, user, options: { userOption } });
-			if (error) {
-				const msg = {};
-				for (const prop in error) {
-					msg[prop] = error[prop];
-				}
-
-				await interaction.reply(msg);
-				await wait(4000);
-				return await interaction.deleteReply();
-			}
+			const { embeds, components, error } = await Helper.ViewCards({ member, client, user, options: { user: userOption } });
+			if (error) return await Helper.errorHandler(interaction, error);
 			return interaction.reply({ embeds, components });
+		}
+		if (command === 'export') {
+			await interaction.deferReply();
+
+			const { embeds, components, files, error } = await Helper.ExportCards({ member, client, user, options: { user: userOption } });
+			if (error) return await Helper.errorHandler(interaction, error);
+			return interaction.editReply({ embeds, components, files });
 		}
 	},
 };

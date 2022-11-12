@@ -3,7 +3,6 @@ require('dotenv').config();
 const { Client, Intents, MessageEmbed } = require('discord.js');
 const { addCollections } = require('./utility');
 const { GUILDS, GUILD_MESSAGES, GUILD_MESSAGE_REACTIONS } = Intents.FLAGS;
-const wait = require('node:timers/promises').setTimeout;
 
 const client = new Client({
 	intents:  [GUILDS, GUILD_MESSAGES, GUILD_MESSAGE_REACTIONS],
@@ -39,7 +38,6 @@ client.on('messageCreate', async message => {
 	const botID = client.user.id;
 
 	if (message.mentions.has(botID)) {
-		console.log('yes it\'s a me');
 
 		const embed = new MessageEmbed()
 			.setTitle('Hello')
@@ -50,9 +48,16 @@ client.on('messageCreate', async message => {
 Cards
 \`/ create\` - Create a new card to add to the library.
 \`/ create image\` - Create a new card image. Uploaded to Imgur.
-\`/ library\` - Review cards in the library.
-\`/ library duelist\` - Review cards made by that creator.
-\`/ library card\` - Review a certain card.
+
+Library
+\`/ library view\` - Review cards in the library.
+\`/ library view duelist\` - Review cards made by that creator.
+\`/ library view card\` - Review a certain card.
+
+\`/ library export\` - Export your cards from the main cdb.
+\`/ library export duelist\` - Export a duelists card's from the cdb.
+(If Magic Card Bot selected, gets all the cards.)
+\`/ library export public\` - Allows cdb file to be seen by all (default: false);
 
 Misc
 \`/ avatar\` - Displays your avatar URL.

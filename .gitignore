@@ -1,3 +1,7 @@
 node_modules
 .env
 data/magicbot.cdb
+cards/
+
+!extraModels/
+!migrations/
