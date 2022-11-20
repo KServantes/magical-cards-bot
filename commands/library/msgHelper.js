@@ -207,14 +207,23 @@ const ViewCards = async args => {
 		return trim;
 	})();
 
-	// all or member's cards above
-	const cards = memC && memC.length ? memC : allC;
+	const searchCard = options?.search;
+	const card = await Cards.getCardName(searchCard);
 
+	// all or member's cards above
+	const cards = searchCard ? [card] : memC && memC.length ? memC : allC;
 
 	const { cache } = client;
 	setPageInfo({ cache, member, cards });
 
 	const memInfo = Cache.getMemberInfo(cache, member);
+	const { pageInfo } = memInfo;
+	const { cards: scards } = pageInfo;
+
+	// show single card with details
+	if (searchCard && cards.length) {
+		return await showSingleDetails({ card: scards[0], user });
+	}
 
 	// check no cards in db
 	if (cards.length >= 1) {
@@ -321,12 +330,17 @@ const ExportCards = async args => {
 	const { member: memC, options } = args;
 	// Export cards to database
 	// Creates new dir for new members
-	const { user: userOp } = options;
-	// fix userOp doesn't have display name
-	// elitalianoverde v keddy
-	const member = userOp ? userOp.username : memC.displayName;
+	const { duelist: userOp } = options;
 
 	try {
+		const { id: memberId } = userOp ? userOp : memC;
+		const cards = await Cards.getMemCards(parseInt(memberId));
+
+		if (cards.length == 0) throw new Error('No cards');
+
+		const { name: memName } = await Cards.getMember(memberId);
+		const member = userOp ? memName : memC.displayName;
+
 		// make/check dir
 		const dirPath = path.join(__dirname, `../../data/cards/${member}`);
 		await makeDir(dirPath);
@@ -340,8 +354,6 @@ const ExportCards = async args => {
 		const dbNew = await require(`../../data/cards/${member}/cdbConfig`);
 		await dbNew.migrate.latest();
 
-		const { id: memberId } = userOp ? userOp : memC;
-		const cards = await Cards.getMemCards(memberId);
 		cards.forEach(async card => {
 			const oldCard = await CardsEx.checkCard({
 				db: dbNew,
@@ -364,7 +376,18 @@ const ExportCards = async args => {
 		};
 	}
 	catch (err) {
-		return ({ components: [], embeds: [], error: { content: 'there was a failure.' } });
+		const emmsg = 'I\'m  afraid I don\'t have any cards indexed for this duelist!';
+		const demsg = 'There was an error.\n Try again.';
+		const { message } = err;
+
+		const msg = message === 'No cards' ? emmsg : demsg;
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Library')
+			.setDescription(msg)
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+
+		return { error: { embeds: [embed] } };
 	}
 };
 
@@ -429,6 +452,68 @@ const defaultError = async interaction => {
 	return await interaction.deleteReply();
 };
 
+const showSingleDetails = async detailsObject => {
+	const { card, user } = detailsObject;
+
+	const msgDesc = getCardDesc(card);
+
+	const owner = await Cards.getCardAuthor(card.id);
+	const memberName = await (async () => {
+		if (!owner) return '??????';
+		const { name } = await Cards.getMember(owner.member_id);
+
+		return name;
+	})();
+
+	const url = user.displayAvatarURL();
+	const detailEmbed = new MessageEmbed()
+		.setColor('#7ec460')
+		.setThumbnail('https://i.imgur.com/Rbx9Li0.png')
+		.setTitle(card.name)
+		.setDescription(msgDesc)
+		.setFields([
+			{
+				name: 'Creator',
+				value: memberName,
+				inline: true,
+			},
+			{
+				name: 'Indexed in',
+				value: 'Kedy\'s Kafé\n9/22/22',
+				inline: true,
+			},
+			{
+				name: 'Card Sets',
+				value: 'Reborn Pepe\nKedy Zombie Support',
+				inline: true,
+			},
+		])
+		.setFooter({ iconURL: url, text: '' });
+
+	const scriptBtn = new MessageButton()
+		.setCustomId('card script')
+		.setLabel('Script')
+		.setStyle('SUCCESS');
+	const imgBtn = new MessageButton()
+		.setCustomId('card image')
+		.setLabel('Image')
+		.setStyle('SUCCESS');
+	const modify = new MessageButton()
+		.setCustomId('card modify')
+		.setLabel('Modify')
+		.setStyle('PRIMARY');
+	const delCard = new MessageButton()
+		.setCustomId('card delete')
+		.setLabel('Delete')
+		.setStyle('DANGER');
+
+	const row = new MessageActionRow().addComponents([scriptBtn, imgBtn, modify, delCard]);
+
+	return { embeds: [detailEmbed], components: [row] };
+};
+
+// todo
+// add script/img button
 const showDetails = async interaction => {
 	const { member, message, client, user, customId } = interaction;
 	const { embeds } = message;

@@ -6,13 +6,19 @@ const isAutocomplete = interaction => {
 
 const interactionAutocomplete = async interaction => {
 	if (interaction.commandName === 'library') {
-		const focus = interaction.options.getFocused();
+		const { options } = interaction;
+		const focus = options.getFocused();
+		const userOption = options.get('duelist')?.value ?? 0;
 		const servID = interaction.guild.id;
 		const dbCards = await Cards.getServerCards(servID);
 
 		const cards = dbCards.reduce((acc, card) => {
-			const { name } = card;
-			return acc.concat(name);
+			const { name, member_id } = card;
+			if (!userOption) return acc.concat(name);
+			if (member_id == userOption) {
+				return acc.concat(name);
+			}
+			return acc;
 		}, []);
 
 		const rem = cards.filter(choice => choice.startsWith(focus));
