@@ -43,25 +43,29 @@ client.on('messageCreate', async message => {
 			.setTitle('Hello')
 			.setDescription(`My name is Magical Cards Bot! I'm a Custom Card Creation Bot.
 			
->>> Commands
+>>> **Commands**
 
-Cards
-\`/ create\` - Create a new card to add to the library.
+**Cards**
+\`/ create card\` - Create a new card to add to the library.
 \`/ create image\` - Create a new card image. Uploaded to Imgur.
 
-Library
+**Library**
 \`/ library view\` - Review cards in the library.
-\`/ library view duelist\` - Review cards made by that creator.
-\`/ library view card\` - Review a certain card.
+	- \`duelist\` - Review cards made by this duelist.
+	- \`card\` - Review a certain card.
+	- \`public\` - True. Set to false to privatize.
+	*(e.g. '/library view duelist card public: false)*
+	*'View card from this duelist in private message.'*
 
 \`/ library export\` - Export your cards from the main cdb.
-\`/ library export duelist\` - Export a duelists card's from the cdb.
-(If Magic Card Bot selected, gets all the cards.)
-\`/ library export public\` - Allows cdb file to be seen by all (default: false);
+	- \`duelist\` - Export a duelists card's from the cdb.
+	- \`public\` - Allows cdb file to be seen by all (default: false);
+	*(e.g. '/library export duelist: Magical Cards Bot public: True')*
+	*'Export all the cards in the library.'*
 
-Misc
+**Misc**
 \`/ avatar\` - Displays your avatar URL.
-\`/ avatar member\` - Displays another member's avatar URL.
+		- member - Displays another member's avatar URL.
 \`/ ping heartbeat\` - Test the websocket connection.
 \`/ ping roundtrip\` - Test the latency of the full API roundtrip.`)
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
