@@ -1,6 +1,7 @@
 const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 const db = require('../../../data/models');
 const Helper = require('../cache');
+const Canvas = require('../canvas');
 
 const { BOT_DEFAULT_PASS } = db;
 const {
@@ -39,10 +40,13 @@ ${cardPEff}
 [Card Text]
 ${cardDesc}`;
 
+		// current card image
+		const cardImage = await Canvas.createCard();
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Thank You')
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
+			.setImage('attachment://temp.png')
 			.setDescription(`
 				*Card Recorded as:*
 
@@ -69,7 +73,7 @@ ${cardDesc}`;
 		const { cache } = client;
 
 		Helper.setDataCache({ member, cache, args: currentCard, step: STEP_NO });
-		await interaction.update({ embeds: [embed], components: [row] });
+		await interaction.update({ embeds: [embed], components: [row], files: [cardImage] });
 	}
 	catch (error) {
 		console.log(error);

@@ -47,7 +47,6 @@ client.on('messageCreate', async message => {
 
 **Cards**
 \`/ create card\` - Create a new card to add to the library.
-\`/ create image\` - Create a new card image. Uploaded to Imgur.
 
 **Library**
 \`/ library view\` - Review cards in the library.

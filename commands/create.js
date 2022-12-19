@@ -2,59 +2,44 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 const { UID_START, UID_HALT } = require('./create/constants');
 const Helper = require('../commands/create/cache');
+const Canvas = require('./create/canvas');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('create')
-		.setDescription('Create cards, images, and databases for YGOPRO.')
-		.addSubcommand(command =>
-			command
-				.setName('card')
-				.setDescription('Enter card data to index a new card in the Library.'),
-		)
-		.addSubcommand(command =>
-			command
-				.setName('image')
-				.setDescription('Enter card and image data to create a custom card image.'),
-		),
+		.setDescription('Create cards, images, and databases for YGOPRO.'),
 	async execute(interaction) {
-		// temp cache for
-		// grab member info
-		const { member, client, options } = interaction;
+		const { member, client } = interaction;
 		const { cache } = client;
-		const command = options.getSubcommand();
 
-		if (command === 'card') {
+		const memInfo = Helper.getMemberInfo(cache, member);
+		const { apps, name } = memInfo;
 
-			const memInfo = Helper.getMemberInfo(cache, member);
-			const { apps, name } = memInfo;
-
-			if (apps.size > 0) {
+		if (apps.size > 0) {
 			// new embeds and such
 			// to continue unfinished cards
-			}
-
-			const start = new MessageButton()
-				.setCustomId(UID_START)
-				.setLabel('Ready')
-				.setStyle('SUCCESS');
-			const abort = new MessageButton()
-				.setCustomId(UID_HALT)
-				.setLabel('Not yet')
-				.setStyle('DANGER');
-
-			const greeting = '>>> Hello! I\'m Magical Card\'s Bot!\nI\'ll take you through the steps to make a card.\n\nAre you ready?';
-
-			const embed = new MessageEmbed()
-				.setColor('#0099ff')
-				.setTitle(`Welcome ${name}`)
-				.setDescription(greeting)
-				.setFooter({ text: '‌‌  \n\n' + member.id })
-				.setThumbnail('https://i.imgur.com/ebtLbkK.png');
-
-			const row = new MessageActionRow().addComponents(abort, start);
-
-			return interaction.reply({ content: null, components: [row], embeds: [embed] });
 		}
+
+		const start = new MessageButton()
+			.setCustomId(UID_START)
+			.setLabel('Ready')
+			.setStyle('SUCCESS');
+		const abort = new MessageButton()
+			.setCustomId(UID_HALT)
+			.setLabel('Not yet')
+			.setStyle('DANGER');
+
+		const greeting = '>>> Hello! I\'m Magical Card\'s Bot!\nI\'ll take you through the steps to make a card.\n\nAre you ready?';
+
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle(`Welcome ${name}`)
+			.setDescription(greeting)
+			.setFooter({ text: '‌‌  \n\n' + member.id })
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
+
+		const row = new MessageActionRow().addComponents(abort, start);
+
+		return interaction.reply({ content: null, components: [row], embeds: [embed] });
 	},
 };

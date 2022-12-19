@@ -144,7 +144,7 @@ const bcNext = async interaction => {
 		.setDescription('Please select this card\'s Race | Type | Attribute')
 		.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
-	return await interaction.update({ components: [raceRow, typeRow, attributeRow], embeds: [embed] });
+	return await interaction.update({ components: [raceRow, typeRow, attributeRow], embeds: [embed], files: [] });
 };
 
 const bcEdit = async interaction => {
