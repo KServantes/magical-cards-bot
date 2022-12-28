@@ -155,7 +155,7 @@ const bcEdit = async interaction => {
 			.setTitle('Editing Card')
 			.setDescription('Please wait...')
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
-		return await interaction.message.edit({ embeds: [embed], components: [] });
+		return await interaction.message.edit({ embeds: [embed], components: [], files: [] });
 	}
 	catch (error) {
 		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });

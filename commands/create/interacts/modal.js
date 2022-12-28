@@ -40,8 +40,6 @@ ${cardPEff}
 [Card Text]
 ${cardDesc}`;
 
-		// current card image
-		const cardImage = await Canvas.createCard();
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
 			.setTitle('Thank You')
@@ -71,8 +69,10 @@ ${cardDesc}`;
 		const currentCard = { cardName, cardPEff, cardDesc, cardCode };
 		const { member, client } = interaction;
 		const { cache } = client;
-
 		Helper.setDataCache({ member, cache, args: currentCard, step: STEP_NO });
+		// current card image
+		const cardImage = await Canvas.createCard({ member, cache, step: STEP_NO });
+
 		await interaction.update({ embeds: [embed], components: [row], files: [cardImage] });
 	}
 	catch (error) {

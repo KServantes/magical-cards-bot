@@ -88,6 +88,16 @@ const createMemberInfo = member => {
 	return memberInfo;
 };
 
+const getMemberCache = cache => {
+	if (!cache.get(CACHE_MEMBER)) {
+		const Members = new Collection();
+
+		return cache.set(CACHE_MEMBER, Members);
+	}
+
+	return cache.get(CACHE_MEMBER);
+};
+
 const getMemberInfo = (cache, member) => {
 	const memberCache = getMemberCache(cache);
 	const info = memberCache.get(member.id);
@@ -133,17 +143,6 @@ const setAppCache = (cache, member) => {
 		page: pageInfo,
 	};
 };
-
-const getMemberCache = cache => {
-	if (!cache.get(CACHE_MEMBER)) {
-		const Members = new Collection();
-
-		return cache.set(CACHE_MEMBER, Members);
-	}
-
-	return cache.get(CACHE_MEMBER);
-};
-
 
 // memory cache
 const infoData = (_cache, card, step) => {

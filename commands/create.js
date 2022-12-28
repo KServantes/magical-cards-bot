@@ -2,7 +2,6 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 const { UID_START, UID_HALT } = require('./create/constants');
 const Helper = require('../commands/create/cache');
-const Canvas = require('./create/canvas');
 
 module.exports = {
 	data: new SlashCommandBuilder()
