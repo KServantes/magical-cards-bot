@@ -1,4 +1,4 @@
-const Cards = require('../data/models');
+const Cards = require('../../data/models');
 
 const isAutocomplete = interaction => {
 	return interaction.isAutocomplete();

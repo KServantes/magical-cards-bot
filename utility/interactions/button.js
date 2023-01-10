@@ -1,5 +1,5 @@
-const Create = require('../commands/create/index');
-const Library = require('../commands/library/index');
+const Create = require('../../commands/create/index');
+const Library = require('../../commands/library/index');
 
 const isButton = interaction => {
 	return interaction.isButton();

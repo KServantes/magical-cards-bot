@@ -7,6 +7,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Collection } = require('discord.js');
 
+
 const addCollections = client => {
 	client.commands = new Collection();
 	client.interactions = new Collection();
@@ -20,7 +21,7 @@ const addCollections = client => {
 		client.commands.set(command.data.name, command);
 	}
 
-	const interactPath = path.join(__dirname, '../interactions');
+	const interactPath = path.join(__dirname, './interactions');
 	const interactFiles = fs.readdirSync(interactPath).filter(file => file.endsWith('.js'));
 
 	for (const file of interactFiles) {

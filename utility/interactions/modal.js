@@ -1,4 +1,4 @@
-const Create = require('../commands/create/index');
+const Create = require('../../commands/create/index');
 
 const isModalSubmit = interaction => {
 	return interaction.isModalSubmit();
