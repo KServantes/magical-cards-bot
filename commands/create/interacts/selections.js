@@ -1,5 +1,6 @@
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const Helper = require('../cache');
+const Canvas = require('../canvas');
 const {
 	UID_CARD_TYPE,
 	UID_CARD_RACE,
@@ -7,7 +8,6 @@ const {
 	UID_EDIT_STEP2,
 	UID_NEXT_STEP3,
 	Archetypes,
-
 } = require('../constants');
 
 const getRestArray = (components, uid) => {
@@ -23,9 +23,6 @@ const getRestArray = (components, uid) => {
 };
 
 const addButtonRow = rest => {
-	// buttons needed
-	// to start next step
-	// or edit the input
 	const row = new MessageActionRow()
 		.addComponents(
 			new MessageButton()
@@ -64,6 +61,7 @@ const getEmbed = (fields, finish) => {
 			.setDescription('Final Selection')
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
 			.addFields(fields)
+			.setImage('attachment://temp.png')
 			.setFooter({
 				'text': 'Cannot process the types you entered.\nPlease edit them.',
 				'iconURL': 'https://i.imgur.com/ebtLbkK.png',
@@ -81,7 +79,7 @@ const selection = async (interaction, type, value, uid) => {
 	const msgEmbFields = msgEmbed[0].fields;
 	const newField = {
 		name: type,
-		value: value,
+		value,
 		inline: true,
 	};
 
@@ -99,7 +97,12 @@ const selection = async (interaction, type, value, uid) => {
 
 	// message update
 	const embed = getEmbed([...msgEmbFields, newField], isEmptyRest);
-	return await interaction.update({ embeds: [embed], components: rest });
+	const msg = { embeds: [embed], components: rest };
+	if (rest[0]?.components[0]?.type === 'BUTTON') {
+		const cardImage = await Canvas.createCard({ member, cache, step: 2 });
+		msg.files = [cardImage];
+	}
+	return await interaction.update(msg);
 };
 
 const selectionRace = async interaction => {
@@ -146,6 +149,8 @@ const selectionArch = async interaction => {
 
 
 		let mergedFields = [...msgEmbFields, ...fields];
+
+		// remove if duplicate
 		for (const f of fields) {
 			const { name } = f;
 			if (msgEmbFields.some(field => field.name === name)) {

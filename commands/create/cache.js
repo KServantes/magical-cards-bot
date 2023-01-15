@@ -341,7 +341,7 @@ const setDataCache = cacheObject => {
 
 	const stepCache = cacheCan ? getStepCache({ cache, member, step }) : cacheCan;
 	const data = dataSteps.get(step)(stepCache, args, step);
-
+	console.log('data', data);
 	if (!cacheCan) {
 		setAppCache(cache, member);
 

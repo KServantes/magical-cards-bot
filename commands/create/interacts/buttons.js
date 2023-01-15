@@ -188,7 +188,7 @@ const bcNext3 = async interaction => {
 			.setDescription('Step 3 of 6...')
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 		await Form.stats(interaction);
-		return await interaction.message.edit({ embeds: [embed], components: [] });
+		return await interaction.message.edit({ embeds: [embed], components: [], files: [] });
 	}
 	catch (error) {
 		console.log(error);
@@ -206,7 +206,7 @@ const bcEdit3 = async interaction => {
 			.setDescription('Step 3 of 6...')
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 		await Form.stats(interaction);
-		return await interaction.message.edit({ embeds: [embed], components: [] });
+		return await interaction.message.edit({ embeds: [embed], components: [], files: [] });
 	}
 	catch (error) {
 		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });

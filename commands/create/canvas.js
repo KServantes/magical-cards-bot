@@ -2,25 +2,35 @@ const { createCanvas, loadImage, GlobalFonts } = require('@napi-rs/canvas');
 const { MessageAttachment, Collection } = require('discord.js');
 const CardCache = require('./cache');
 const { join } = require('path');
+const { Attributes, Types } = require('./constants');
 
 // assets
-const templates = new Collection([
+const Templates = new Collection([
 	['Normal', 'assets/card-normal.png'],
 	['Pendulum', 'assets/card-normal-pendulum.png'],
 ]);
 
-const registerFonts = () => {
+const AttArt = new Collection([
+	['DARK', 'assets/dark.png'],
+]);
+
+const registerFonts = bool => {
 	const path = join(__dirname, '../../', 'assets/fonts', 'Yu-Gi-Oh! Matrix Book.ttf');
 	GlobalFonts.registerFromPath(path, 'YugiBook');
 
-	const list = [];
-	// eslint-disable-next-line no-unused-vars
-	for (const [ _, fontObject] of GlobalFonts.families.entries()) {
-		const { family } = fontObject;
-		list.push(family);
-	}
+	const logFonts = () => {
+		const list = [];
+		// eslint-disable-next-line no-unused-vars
+		for (const [ _, fontObject] of GlobalFonts.families.entries()) {
+			const { family } = fontObject;
+			list.push(family);
+		}
 
-	return list;
+		return list;
+	};
+
+	if (bool) return logFonts();
+	return 'No Logs On';
 };
 
 const newCanvas = params => {
@@ -29,7 +39,7 @@ const newCanvas = params => {
 		y: params?.y ?? 614,
 	};
 
-	const fontList = registerFonts();
+	registerFonts(false);
 	// console.log(fontList);
 	const canvas = createCanvas(size.x, size.y);
 	const context = canvas.getContext('2d');
@@ -37,78 +47,110 @@ const newCanvas = params => {
 	return [canvas, context];
 };
 
-const getEffect = (context, cardData) => {
-	const { temp } = cardData;
+const addEffect = (context, cardData) => {
+	const [data, card] = cardData;
+	const { temp } = data?.step === 1 ? data : card;
 	context.font = '15px YugiBook';
 	context.fillStyle = '#000';
 	context.fillText(`${temp.cardDesc}`, 30, 490);
-	// todo text wrap
-	// console.log(context.measureText(`${temp.cardDesc}`));
 };
 
-const getPendulumEffect = (context, cardData) => {
-	const { temp } = cardData;
+const addPendulumEffect = (context, cardData) => {
+	const [data, card] = cardData;
+	const { temp } = data?.step === 1 ? data : card;
 	context.font = '15px YugiBook';
 	context.fillStyle = '#000';
 	context.fillText(`${temp.cardPEff}`, 65, 400);
 };
 
 const addPasscode = (context, cardData) => {
-	const { id } = cardData;
+	const [data, card] = cardData;
+	const { id } = data?.step === 1 ? data : card;
 	context.font = '13px Stone Serif';
 	context.fillStyle = '#000';
 	context.fillText(`${id}`, 16, 597);
 };
 
-const getAttribute = async (context) => {
-	const attImg = await loadImage('assets/dark.png');
-	context.drawImage(attImg, 353, 28, 39, 39);
+const addAttribute = async (context, cardData) => {
+	const [data, card] = cardData;
+	const { step } = data;
+	const { attribute: att } = step === 1 ? { attribute: 32 } : card.attribute;
+	const attKey = Attributes.findKey(v => v === att);
+	const attTemplate = AttArt.at(attKey);
 
-	return context;
+	try {
+		const attImg = await loadImage(attTemplate);
+		context.drawImage(attImg, 353, 28, 39, 39);
+
+		return context;
+	}
+	catch (err) {
+		console.log('Canvas Attribute Error: ', err.message);
+	}
 };
 
-const getATKDEF = (context) => {
+const addATKDEF = (context, cardData) => {
+	const [_,card] = cardData;
+	const { atk, def } = card;
+
 	context.font = 'small-caps 20px Matrix';
 	context.fillStyle = '#000000';
 	// def / atk
-	context.fillText('2200', 348, 573);
-	context.fillText('2100', 263, 573);
+	context.fillText(`${atk}`, 348, 573);
+	context.fillText(`${def}`, 263, 573);
 
 	return context;
 };
 
-const getTypes = (context) => {
+const addTypes = (context, cardData) => {
+	const [data, card] = cardData;
+	const { step } = data;
+
+	const typeText = (() => {
+		if (step === 1) return 'Zombie / Normal';
+
+		// data returned in step 2
+		// data { ..., type: [int, bool] }
+		const type = step === 2 ? data?.type[0] : card?.type;
+		const tStr = Types.reduce((acc, v, t) => {
+			if ((type & v).toString(16) != 0) {
+				return acc.concat(t + ' ');
+			}
+			return acc;
+		}, '').replace(/\s\b/g, ' / ');
+
+		return tStr;
+	})();
+
 	context.font = 'small-caps bold 13px ITC Stone Serif';
 	context.fillStyle = '#000000';
-	context.fillText('[NORMAL / PENDULUM]', 31, 475);
+	context.fillText(`[${typeText}]`, 31, 475);
 
 	return context;
 };
 
-const getTemplate = async (canvas, context, cardData) => {
+const addTemplate = async (canvas, context, cardData) => {
 	const { width, height } = canvas;
-	const { step } = cardData;
-	let cardBG;
-	if (step === 1) {
-		const { temp } = cardData;
-		if (temp.cardPEff.length === 0) cardBG = 'Normal';
-		else cardBG = 'Pendulum';
-	}
+	const [data, card] = cardData;
+	const { step } = data;
+	const { temp } = step === 1 ? data : card;
+	const isPendy = temp?.cardPEff != 0 || temp?.isPendy;
+	const cardBG = isPendy ? 'Pendulum' : 'Normal';
 
 	try {
-		const template = templates.get(cardBG);
+		const template = Templates.get(cardBG);
 		const cardImage = await loadImage(template);
 
 		context.drawImage(cardImage, 0, 0, width, height);
-		return cardBG;
 	}
 	catch (err) {
-		console.log('There was an error: ', err.message);
+		console.log('Canvas Template Error: ', err.message);
 	}
 };
 
-const getName = (context, cardData) => {
-	const { name } = cardData;
+const addName = (context, cardData) => {
+	const [data, card] = cardData;
+	const { name } = data?.step === 1 ? data : card;
 	// Select the font size and type from one of the natively available fonts
 	context.font = '45px MatrixRegularSmallCaps';
 
@@ -122,17 +164,27 @@ const getName = (context, cardData) => {
 const createCard = async cacheObject => {
 	const { cache, member, step } = cacheObject;
 	const [canvas, context] = newCanvas();
-	const data = CardCache.getStepCache({ cache, member, step: 1 });
+	const data = CardCache.getStepCache({ cache, member, step });
+	const card = CardCache.getCardCache(cache, member);
+	const cardData = [data, card];
 
-	if (step === 1) {
-		const template = await getTemplate(canvas, context, data);
-		if (template === 'Pendulum') getPendulumEffect(context, data);
-		// todo effects on other cards
-		getEffect(context, data);
-		getName(context, data);
-		addPasscode(context, data);
-		getTypes(context);
-	}
+	await addTemplate(canvas, context, cardData);
+	addPendulumEffect(context, cardData);
+	addEffect(context, cardData);
+	await addAttribute(context, cardData);
+	addName(context, cardData);
+	addPasscode(context, cardData);
+	addTypes(context, cardData);
+	addATKDEF(context, cardData);
+
+	// todo
+	// step 3 (atk, def, lvl, lscale, rscale)
+
+	// todo
+	// step 4 (link arrows)
+
+	// todo
+	// last step (finish)
 
 	const canvasImage = await canvas.encode('png');
 	const attach = new MessageAttachment(canvasImage, 'temp.png');
