@@ -56,9 +56,9 @@ const UID_NEW_SET = 'new arch';
 
 // step 6 (strings)
 
-
 // finish line
 const UID_FINISH_LINE = 'finish';
+
 
 // card stat maps
 const Races = new Collection([
@@ -662,12 +662,25 @@ const Archetypes = new Collection([
 	['True Draco|True King', 0xf9],
 ]);
 
+
+// assets
+const Templates = new Collection([
+	['Normal', 'assets/card-normal.png'],
+	['Pendulum', 'assets/card-normal-pendulum.png'],
+]);
+
+const PNG_Attributes = new Collection([
+	['DARK', 'assets/dark.png'],
+]);
+
 module.exports = {
 	Races,
 	Types,
 	Attributes,
 	Archetypes,
 	LinkMarkers,
+	Templates,
+	PNG_Attributes,
 	UID_START,
 	UID_HALT,
 	UID_CARD_INFO,

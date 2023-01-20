@@ -1,18 +1,12 @@
 const { createCanvas, loadImage, GlobalFonts } = require('@napi-rs/canvas');
-const { MessageAttachment, Collection } = require('discord.js');
+const { MessageAttachment } = require('discord.js');
 const CardCache = require('./cache');
 const { join } = require('path');
-const { Attributes, Types } = require('./constants');
-
-// assets
-const Templates = new Collection([
-	['Normal', 'assets/card-normal.png'],
-	['Pendulum', 'assets/card-normal-pendulum.png'],
-]);
-
-const AttArt = new Collection([
-	['DARK', 'assets/dark.png'],
-]);
+const {
+	Types,
+	Templates,
+	Attributes,
+	PNG_Attributes: AttColl } = require('./constants');
 
 const registerFonts = bool => {
 	const path = join(__dirname, '../../', 'assets/fonts', 'Yu-Gi-Oh! Matrix Book.ttf');
@@ -76,7 +70,7 @@ const addAttribute = async (context, cardData) => {
 	const { step } = data;
 	const { attribute: att } = step === 1 ? { attribute: 32 } : card.attribute;
 	const attKey = Attributes.findKey(v => v === att);
-	const attTemplate = AttArt.at(attKey);
+	const attTemplate = AttColl.at(attKey);
 
 	try {
 		const attImg = await loadImage(attTemplate);
@@ -90,7 +84,7 @@ const addAttribute = async (context, cardData) => {
 };
 
 const addATKDEF = (context, cardData) => {
-	const [_,card] = cardData;
+	const [, card] = cardData;
 	const { atk, def } = card;
 
 	context.font = 'small-caps 20px Matrix';
