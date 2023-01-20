@@ -31,7 +31,7 @@ const getAllCards = () => {
 	return db('cards').select('*');
 };
 
-const checkCard = () => {
+const checkDefaultCards = () => {
 	return db('cards')
 		.whereBetween('id',
 			[BOT_DEFAULT_PASS, BOT_DEFAULT_RNG],
@@ -159,7 +159,7 @@ module.exports = {
 	getAllCards,
 	getMemCards,
 	getMember,
-	checkCard,
+	checkDefaultCards,
 	getCard,
 	BOT_DEFAULT_PASS,
 };

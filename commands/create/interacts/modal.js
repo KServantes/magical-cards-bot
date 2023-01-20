@@ -11,28 +11,66 @@ const {
 	UID_NEXT_STEP4,
 } = require('../constants');
 
-const STEP_NO = 1;
+const STEP_ONE = 1;
+const STEP_THREE = 3;
+
+const checkOldCard = async card_id => {
+	const exists = await db.getCard(card_id);
+	if (exists) {
+		const embed = new MessageEmbed()
+			.setColor('#0099ff')
+			.setTitle('Card Exists Already')
+			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
+			.setDescription(`>>> I'm afraid ${card_id} already exists!\n
+Please enter a different card id`);
+
+		const editButton = new MessageButton()
+			.setCustomId(UID_EDIT_STEP1)
+			.setLabel('Edit')
+			.setStyle('SECONDARY');
+		const row = new MessageActionRow().addComponents(editButton);
+
+		return { error: true,
+			msg: { embeds: [embed], components: [row], files: [] },
+		};
+	}
+
+	return { error: false };
+};
+
+const checkConvertType = async card_id => {
+	let cardCode = card_id;
+	if (isNaN(cardCode)) {
+		const botCards = await db.checkDefaultCards(BOT_DEFAULT_PASS);
+		const botCardCt = botCards.length;
+		const nextId = botCardCt + BOT_DEFAULT_PASS;
+		botCardCt < 1 ?
+			cardCode = BOT_DEFAULT_PASS :
+			cardCode = nextId;
+	}
+
+	return cardCode;
+};
 
 const cardInfoSubmit = async interaction => {
+	const { member, client, fields } = interaction;
+	const { cache } = client;
+
+	const getInputVal = input => fields.getTextInputValue(input);
+
 	try {
-		// const checkCard = interaction.client.cache.get('curr card');
-
-		const cardName = interaction.fields.getTextInputValue('nameInput');
-		const cardPEff = interaction.fields.getTextInputValue('pendInput');
-		const cardDesc = interaction.fields.getTextInputValue('effectInput');
-		let cardCode = interaction.fields.getTextInputValue('idInput');
-
-		// some type of validation
-		// defaults to next in range
+		const cardName = getInputVal('nameInput');
+		const cardPEff = getInputVal('pendInput');
+		const cardDesc = getInputVal('effectInput');
+		let cardCode = getInputVal('idInput');
 		cardCode = parseInt(cardCode);
-		if (isNaN(cardCode)) {
-			const botCards = await db.checkCard(BOT_DEFAULT_PASS);
-			const botCardCt = botCards.length;
-			const nextId = botCardCt + BOT_DEFAULT_PASS;
-			botCardCt < 1 ?
-				cardCode = BOT_DEFAULT_PASS :
-				cardCode = nextId;
-		}
+
+		// if 'bad' string
+		// replace with default rng
+		cardCode = await checkConvertType(cardCode);
+
+		// Check Card Exists
+		const errorMessage = await checkOldCard(cardCode);
 
 		const formatText = `[Pendulum Effect]
 ${cardPEff}
@@ -45,33 +83,36 @@ ${cardDesc}`;
 			.setTitle('Thank You')
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
 			.setImage('attachment://temp.png')
-			.setDescription(`
+			.setDescription(`>>> 
 				*Card Recorded as:*
 
 				**${cardName}**
 				${!cardPEff ? cardDesc : formatText}
 				${cardCode}`);
 
-		const row = new MessageActionRow()
-			.addComponents(
-				new MessageButton()
-					.setCustomId(UID_EDIT_STEP1)
-					.setLabel('Edit')
-					.setStyle('SECONDARY'),
-			)
-			.addComponents(
-				new MessageButton()
-					.setCustomId(UID_NEXT_STEP2)
-					.setLabel('Next')
-					.setStyle('PRIMARY'),
-			);
+		const editButton = new MessageButton()
+			.setCustomId(UID_EDIT_STEP1)
+			.setLabel('Edit')
+			.setStyle('SECONDARY');
 
+		const nextButton = new MessageButton()
+			.setCustomId(UID_NEXT_STEP2)
+			.setLabel('Next')
+			.setStyle('PRIMARY');
+
+		const row = new MessageActionRow().addComponents(editButton, nextButton);
+
+		// cache actions
 		const currentCard = { cardName, cardPEff, cardDesc, cardCode };
-		const { member, client } = interaction;
-		const { cache } = client;
-		Helper.setDataCache({ member, cache, args: currentCard, step: STEP_NO });
+		Helper.setDataCache({ member, cache, args: currentCard, step: STEP_ONE });
+
 		// current card image
-		const cardImage = await Canvas.createCard({ member, cache, step: STEP_NO });
+		// todo: 'disable card img preview'
+		const cardImage = await Canvas.createCard({ member, cache, step: STEP_ONE });
+
+		if (errorMessage.error) {
+			return await interaction.update(errorMessage.msg);
+		}
 
 		await interaction.update({ embeds: [embed], components: [row], files: [cardImage] });
 	}
@@ -186,7 +227,7 @@ const cardStatsSubmit = async interaction => {
 		}
 
 		// set card data - step 3
-		Helper.setDataCache({ member, cache, args: fields, step: 3 });
+		Helper.setDataCache({ member, cache, args: fields, step: STEP_THREE });
 
 		// message update
 		const embed = mkEmbed(fields);
