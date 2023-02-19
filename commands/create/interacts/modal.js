@@ -84,11 +84,11 @@ ${cardDesc}`;
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
 			.setImage('attachment://temp.png')
 			.setDescription(`>>> 
-				*Card Recorded as:*
+*Card Recorded as:*
 
-				**${cardName}**
-				${!cardPEff ? cardDesc : formatText}
-				${cardCode}`);
+**${cardName}**
+${!cardPEff ? cardDesc : formatText}
+${cardCode}`);
 
 		const editButton = new MessageButton()
 			.setCustomId(UID_EDIT_STEP1)

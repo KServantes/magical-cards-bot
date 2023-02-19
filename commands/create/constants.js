@@ -51,7 +51,7 @@ const UID_NEXT_STEP6 = 'step6';
 const UID_PREV_PAGE = 'prev page';
 const UID_NEXT_PAGE = 'next page';
 const UID_CLEAR = 'clear arcs';
-const UID_ANITOM = 'anitom';
+const UID_ANIME = 'anime';
 const UID_NEW_SET = 'new arch';
 
 // step 6 (strings)
@@ -701,7 +701,7 @@ module.exports = {
 	UID_ARCH_ROW2,
 	UID_ARCH_ROW3,
 	UID_ARCH_ROW4,
-	UID_ANITOM,
+	UID_ANIME,
 	UID_NEW_SET,
 	UID_PREV_PAGE,
 	UID_NEXT_PAGE,

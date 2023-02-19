@@ -1,5 +1,4 @@
 const { MessageActionRow, MessageSelectMenu, MessageEmbed, MessageButton, Collection } = require('discord.js');
-const wait = require('node:timers/promises').setTimeout;
 const Helper = require('../cache');
 const Form = require('../forms');
 const { addCardToBase } = require('../../../data/models');
@@ -17,72 +16,13 @@ const {
 	UID_PREV_PAGE,
 	UID_NEXT_PAGE,
 	UID_NEXT_STEP6,
-	UID_ANITOM,
+	UID_ANIME,
 	// UID_NEW_SET,
 	UID_CLEAR,
 } = require('../constants');
 
-// error embed
-const CheckOwner = async interaction => {
-	const { member, message } = interaction;
-	const { footer } = message.embeds[0];
-
-	if (!footer.text.includes(member.id)) {
-		const embed = new MessageEmbed()
-			.setColor('#dd0f0f')
-			.setTitle('Trap Card, Activate!')
-			.setDescription('>>> Sorry. You didn\'t type this command.\nPlease type the /create command to make a card of your own.')
-			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
-
-		await interaction.reply({ embeds: [embed], components: [], ephemeral: true });
-
-		return false;
-	}
-
-	return true;
-};
-
-// start
-// modal (name, peff, desc, id)
-const bcStart = async interaction => {
-	try {
-		const { message } = interaction;
-		const { footer } = message.embeds[0];
-
-		const check = await CheckOwner(interaction);
-		if (!check) return ;
-
-		const embed = new MessageEmbed()
-			.setColor('#0099ff')
-			.setTitle('Creating')
-			.setDescription('> Please wait...')
-			.setFooter(footer)
-			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
-
-		await Form.info(interaction);
-
-		return await interaction.message.edit({ embeds: [embed], components: [] });
-	}
-	catch (error) {
-		console.log(error);
-		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
-	}
-};
-
-const bcHalt = async interaction => {
-	try {
-		const check = await CheckOwner(interaction);
-		if (!check) return ;
-
-		await interaction.update({ content: 'Okay. See you!', components: [], embeds: [] });
-		await wait(4000);
-		return await interaction.message.delete();
-	}
-	catch (error) {
-		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
-	}
-};
-
+// initial reply choices
+const { bcStart, bcHalt } = require('./buttons/step00');
 
 // step 1 => step 2
 // selections (race, att, type)
@@ -140,7 +80,7 @@ const bcNext = async interaction => {
 
 	const embed = new MessageEmbed()
 		.setColor('#0099ff')
-		.setTitle('Select this Card\'s Stats')
+		.setTitle('Select this Card\'s  ')
 		.setDescription('Please select this card\'s Race | Type | Attribute')
 		.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
@@ -585,8 +525,8 @@ const bcNext5 = async interaction => {
 			.setStyle('PRIMARY');
 
 		// customs & anime page
-		const animtom = new MessageButton()
-			.setCustomId(UID_ANITOM)
+		const anime = new MessageButton()
+			.setCustomId(UID_ANIME)
 			.setLabel('Anime/Custom')
 			.setDisabled(true)
 			.setStyle('PRIMARY');
@@ -597,7 +537,7 @@ const bcNext5 = async interaction => {
 			.setLabel('Clear')
 			.setDisabled(false)
 			.setStyle('DANGER');
-		const row5 = new MessageActionRow().addComponents(prev, next, nextStep, animtom, clear);
+		const row5 = new MessageActionRow().addComponents(prev, next, nextStep, anime, clear);
 
 		// if any row is empty
 		// lack of entries
@@ -630,7 +570,10 @@ const bcNext5 = async interaction => {
 		const isOldFields = eFields.length > 0 && eFields[0].name != 'Selection';
 		// if has fields from last step
 		// in state of wiping the fields
-		const fields = isOldFields ? (!wipe ? eFields : []) : [];
+		const fields = isOldFields ?
+			(!wipe ? eFields : [])
+			:
+			[];
 		if (wipe) pageInfo.wipe = false;
 
 		if (card && !preFill) {

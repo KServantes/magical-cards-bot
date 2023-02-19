@@ -1,8 +1,10 @@
 {
     "cSpell.words": [
+        "ATKDEF",
         "Cyberse",
         "datas",
         "discordjs",
+        "Ignister",
         "knexfile",
         "lscale",
         "magicbot",
@@ -12,8 +14,10 @@
         "Pyro",
         "Quickplay",
         "rscale",
+        "setcard",
         "setcode",
         "Spellcaster",
+        "SPSUMMON",
         "Toon",
         "Wyrm"
     ]
