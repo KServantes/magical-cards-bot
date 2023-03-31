@@ -1,8 +1,10 @@
 /* eslint-disable no-inline-comments */
-const { Collection } = require('discord.js');
+// eslint-disable-next-line no-unused-vars
+const { Collection, GuildMember } = require('discord.js');
 const { Races, Types, Attributes, Archetypes, LinkMarkers } = require('./constants');
 
 const CACHE_MEMBER = 'member cache';
+
 
 // general structure of the
 // card object injected into db
@@ -57,14 +59,22 @@ const pageInfo = {
 	},
 };
 
-// app cache
+/**
+ * app cache
+ *
+ * Create member info object.
+ *
+ * @param {GuildMember} member
+ */
 const createMemberInfo = member => {
 	const { nickname, user } = member;
 	const { username, avatar } = user;
 
+
 	const memberInfo = {
 		name: nickname ?? username,
 		avatar,
+		iconURL: user.displayAvatarURL({ dynamic: true }),
 		username,
 		apps: new Collection(),
 		current: 1,
@@ -88,6 +98,10 @@ const createMemberInfo = member => {
 	return memberInfo;
 };
 
+/**
+ * @param {Collection} cache
+ * @returns {Collection}
+ */
 const getMemberCache = cache => {
 	if (!cache.get(CACHE_MEMBER)) {
 		const Members = new Collection();
@@ -98,6 +112,11 @@ const getMemberCache = cache => {
 	return cache.get(CACHE_MEMBER);
 };
 
+/**
+ * @param {Collection} cache
+ * @param {GuildMember} member
+ * @returns {object}
+ */
 const getMemberInfo = (cache, member) => {
 	const memberCache = getMemberCache(cache);
 	const info = memberCache.get(member.id);
@@ -111,6 +130,11 @@ const getMemberInfo = (cache, member) => {
 	return info;
 };
 
+/**
+ * @param {Collection} cache
+ * @param {GuildMember} member
+ * @returns {object}
+ */
 const setMemberInfo = (cache, member) => {
 	const memberInfo = createMemberInfo(member);
 
@@ -122,6 +146,10 @@ const setMemberInfo = (cache, member) => {
 	return memInfo;
 };
 
+/**
+ * @param {Collection} cache
+ * @param {GuildMember} member
+ */
 const setAppCache = (cache, member) => {
 	const { id, name, icon, preferredLocale: locale } = member.guild;
 
@@ -145,6 +173,11 @@ const setAppCache = (cache, member) => {
 };
 
 // memory cache
+/**
+ * @param {Collection} [_cache]
+ * @param {object} card
+ * @param {number} step
+ */
 const infoData = (_cache, card, step) => {
 	const { cardName, cardCode, cardPEff, cardDesc } = card;
 
@@ -204,6 +237,12 @@ const attVal = (field) => {
 	return val;
 };
 
+/**
+ * @param {object} cacheCan recursive data object
+ * @param {string} field
+ * @param {number} step
+ * @returns {object}
+ */
 const typeData = (cacheCan, field, step) => {
 	const stepCache = cacheCan ?? { step };
 
@@ -314,6 +353,13 @@ const dataSteps = new Collection([
 	// [6, strData], // strings
 ]);
 
+/**
+ * Gets the "current" application info from the member's collection.
+ *
+ * @param {Collection} cache
+ * @param {GuildMember} member
+ * @returns {Collection}
+ */
 const getDataCache = (cache, member) => {
 	const memInfo = getMemberInfo(cache, member);
 	const app = memInfo.appInfo;
@@ -506,6 +552,7 @@ const getPageInfo = (cache, member) => {
 
 module.exports = {
 	setDataCache,
+	getDataCache,
 	getStepCache,
 	setCardCache,
 	getCardCache,

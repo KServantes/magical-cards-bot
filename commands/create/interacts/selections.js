@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageActionRowComponent } = require('discord.js');
 const Helper = require('../cache');
 const Canvas = require('../canvas');
 const {
@@ -10,6 +10,12 @@ const {
 	Archetypes,
 } = require('../constants');
 
+/**
+ * 
+ * @param {MessageActionRowComponent} components
+ * @param {string} uid
+ * @returns {MessageActionRowComponent}
+ */
 const getRestArray = (components, uid) => {
 	// refers to what left
 	// the rest of the array
@@ -71,6 +77,13 @@ const getEmbed = (fields, finish) => {
 	return embed;
 };
 
+/**
+ * @param {SelectMenuInteraction} interaction
+ * @param {string} type
+ * @param {string} value
+ * @param {string} uid
+ * @returns {Promise<APIMessage | Message<boolean>>}
+ */
 const selection = async (interaction, type, value, uid) => {
 	const { member } = interaction;
 	const { components } = interaction.message;
@@ -96,6 +109,7 @@ const selection = async (interaction, type, value, uid) => {
 	Helper.setDataCache({ member, cache, args: newField, step: 2 });
 
 	// message update
+	// add member in to set footer data
 	const embed = getEmbed([...msgEmbFields, newField], isEmptyRest);
 	const msg = { embeds: [embed], components: rest };
 	if (rest[0]?.components[0]?.type === 'BUTTON') {

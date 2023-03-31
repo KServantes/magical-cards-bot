@@ -5,6 +5,9 @@
 
 const { Collection } = require('discord.js');
 
+// bot thumbnail url
+const BOT_IMG_URL = 'https://i.imgur.com/ebtLbkK.png';
+
 // buttons
 // start
 const UID_START = 'start';
@@ -681,6 +684,7 @@ module.exports = {
 	LinkMarkers,
 	Templates,
 	PNG_Attributes,
+	BOT_IMG_URL,
 	UID_START,
 	UID_HALT,
 	UID_CARD_INFO,

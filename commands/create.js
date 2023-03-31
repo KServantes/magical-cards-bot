@@ -12,7 +12,7 @@ module.exports = {
 		const { cache } = client;
 
 		const memInfo = Helper.getMemberInfo(cache, member);
-		const { apps, name } = memInfo;
+		const { apps, name, iconURL } = memInfo;
 
 		if (apps.size > 0) {
 			// new embeds and such
@@ -32,9 +32,10 @@ module.exports = {
 
 		const embed = new MessageEmbed()
 			.setColor('#0099ff')
-			.setTitle(`Welcome ${name}`)
+			.setTitle('Welcome')
 			.setDescription(greeting)
-			.setFooter({ text: '‌‌  \n\n' + member.id })
+			.setFooter({ text: name, iconURL })
+			// .setFooter({ text: '‌‌  \n\n' + member.id })
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
 		const row = new MessageActionRow().addComponents(abort, start);

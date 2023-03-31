@@ -83,6 +83,7 @@ ${cardDesc}`;
 			.setTitle('Thank You')
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
 			.setImage('attachment://temp.png')
+			.setFooter({ text: member.nickname, iconURL: member.user.displayAvatarURL() })
 			.setDescription(`>>> 
 *Card Recorded as:*
 

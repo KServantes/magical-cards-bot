@@ -1,4 +1,4 @@
-const { MessageActionRow, MessageSelectMenu, MessageEmbed, MessageButton, Collection } = require('discord.js');
+const { MessageActionRow, MessageSelectMenu, MessageEmbed, Message, MessageButton, Collection, MessageComponentInteraction } = require('discord.js');
 const Helper = require('../cache');
 const Form = require('../forms');
 const { addCardToBase } = require('../../../data/models');
@@ -7,9 +7,6 @@ const {
 	Types,
 	Attributes,
 	Archetypes,
-	UID_CARD_ATT,
-	UID_CARD_RACE,
-	UID_CARD_TYPE,
 	UID_SKIP,
 	UID_NEXT_STEP5,
 	UID_FINISH_LINE,
@@ -23,88 +20,14 @@ const {
 
 // initial reply choices
 const { bcStart, bcHalt } = require('./buttons/step00');
-
-// step 1 => step 2
-// selections (race, att, type)
-const bcNext = async interaction => {
-
-	const { cache } = interaction.client;
-	const { member } = interaction;
-	const cardRec = Helper.setCardCache(cache, member);
-	console.log(member.user.username, ' Recorded Card as: ', cardRec);
-
-	const getOptions = coll => {
-		const options = coll.reduce((acc, _, r) => {
-			const option = {
-				label: r,
-				value: r,
-			};
-
-			return acc.concat(option);
-		}, []);
-
-		return options;
-	};
-
-	const raceOptions = getOptions(Races);
-	const raceRow = new MessageActionRow()
-		.addComponents(
-			new MessageSelectMenu()
-				.setCustomId(UID_CARD_RACE)
-				.setPlaceholder('Zombie')
-				.addOptions(raceOptions),
-		);
-
-
-	const typeOptions = getOptions(Types);
-	const typeRow = new MessageActionRow()
-		.addComponents(
-			new MessageSelectMenu()
-				.setCustomId(UID_CARD_TYPE)
-				.setPlaceholder('Monster')
-				.setMinValues(2)
-				// .setMaxValues(6)
-				.addOptions(typeOptions),
-		);
-
-
-	const attOptions = getOptions(Attributes);
-	const attributeRow = new MessageActionRow()
-		.addComponents(
-			new MessageSelectMenu()
-				.setCustomId(UID_CARD_ATT)
-				.setPlaceholder('DARK')
-				.setMinValues(1)
-				.addOptions(attOptions),
-		);
-
-	const embed = new MessageEmbed()
-		.setColor('#0099ff')
-		.setTitle('Select this Card\'s  ')
-		.setDescription('Please select this card\'s Race | Type | Attribute')
-		.setThumbnail('https://i.imgur.com/ebtLbkK.png');
-
-	return await interaction.update({ components: [raceRow, typeRow, attributeRow], embeds: [embed], files: [] });
-};
-
-const bcEdit = async interaction => {
-	try {
-		await Form.info(interaction);
-		const embed = new MessageEmbed()
-			.setColor('#0099ff')
-			.setTitle('Editing Card')
-			.setDescription('Please wait...')
-			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
-		return await interaction.message.edit({ embeds: [embed], components: [], files: [] });
-	}
-	catch (error) {
-		return await interaction.reply({ content: 'There was an error executing this.', ephemeral: true });
-	}
-};
-
+const { bcNext, bcEdit } = require('./buttons/step01');
 
 // step 2 => step 3
 // redo selections
+/**
+ * @param {MessageComponentInteraction} interaction
+ * @returns {Promise<void>}
+ */
 const bcEdit2 = async interaction => {
 	try {
 		return await bcNext(interaction);
@@ -114,6 +37,10 @@ const bcEdit2 = async interaction => {
 	}
 };
 // modal (atk, def, lvl, lscale, rscale)
+/**
+ * @param {MessageComponentInteraction} interaction
+ * @returns {Promise<Message>|Promise<void>}
+ */
 const bcNext3 = async interaction => {
 	try {
 
@@ -138,6 +65,11 @@ const bcNext3 = async interaction => {
 
 
 // step 3 => step 4
+/**
+ * 
+ * @param {MessageComponentInteraction} interaction
+ * @returns {Promise<Message>|Promise<void>}
+ */
 const bcEdit3 = async interaction => {
 	try {
 		const embed = new MessageEmbed()
@@ -153,52 +85,33 @@ const bcEdit3 = async interaction => {
 	}
 };
 
+/**
+ * @typedef {Object} LinkButtonObject
+ * @property {MessageButton[]} top
+ * @property {MessageButton[]} center
+ * @property {MessageButton[]} pie
+ */
+
+/**
+ * @returns {LinkButtonObject}
+ */
 const createLinkButtons = () => {
-	const tLBtn = new MessageButton()
-		.setCustomId('↖️')
-		.setLabel('↖️')
-		.setStyle('SECONDARY');
-	const tMBtn = new MessageButton()
-		.setCustomId('⬆️')
-		.setLabel('⬆️')
-		.setStyle('SECONDARY');
-	const tRBtn = new MessageButton()
-		.setCustomId('↗️')
-		.setLabel('↗️')
-		.setStyle('SECONDARY');
+	const arrows = ['↖️', '⬆️', '↗️', '⬅️', '🔵', '➡️', '↙️', '⬇️', '↘️'];
 
-	const lMBtn = new MessageButton()
-		.setCustomId('⬅️')
-		.setLabel('⬅️')
-		.setStyle('SECONDARY');
-	const mMBtn = new MessageButton()
-		.setCustomId('🔵')
-		.setLabel('🔵')
-		.setStyle('SECONDARY')
-		.setDisabled(true);
-	const rMBtn = new MessageButton()
-		.setCustomId('➡️')
-		.setLabel('➡️')
-		.setStyle('SECONDARY');
+	const buttons = arrows.reduce((acc, arrow) => {
+		const newButton = new MessageButton()
+			.setCustomId(arrow)
+			.setLabel(arrow)
+			.setStyle('SECONDARY');
 
-	const pLBtn = new MessageButton()
-		.setCustomId('↙️')
-		.setLabel('↙️')
-		.setStyle('SECONDARY');
-	const pMBtn = new MessageButton()
-		.setCustomId('⬇️')
-		.setLabel('⬇️')
-		.setStyle('SECONDARY');
-	const pRBtn = new MessageButton()
-		.setCustomId('↘️')
-		.setLabel('↘️')
-		.setStyle('SECONDARY');
+		return acc.concat(newButton);
+	}, []);
 
-	return {
-		top: [ tLBtn, tMBtn, tRBtn ],
-		center: [ lMBtn, mMBtn, rMBtn ],
-		pie: [ pLBtn, pMBtn, pRBtn ],
-	};
+	const top = buttons.slice(0, 3);
+	const center = buttons.slice(3, 6);
+	const pie = buttons.slice(6, 9);
+
+	return { top, center, pie };
 };
 
 const bcNext4 = async interaction => {
