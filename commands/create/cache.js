@@ -60,6 +60,20 @@ const pageInfo = {
 };
 
 /**
+ * @typedef {Object} MemberInfo
+ * @property {string} name
+ * @property {string} avatar
+ * @property {string} iconURL
+ * @property {string} username
+ * @property {boolean} preview
+ * @property {Collection.<number,object>} apps
+ * @property {number} current
+ * @property {number} currentOf
+ * @property {Collection.<number,object} newApp
+ * @property {object} appInfo
+ */
+
+/**
  * app cache
  *
  * Create member info object.
@@ -70,12 +84,15 @@ const createMemberInfo = member => {
 	const { nickname, user } = member;
 	const { username, avatar } = user;
 
-
+	/**
+	 * @type {MemberInfo}
+	 */
 	const memberInfo = {
 		name: nickname ?? username,
 		avatar,
 		iconURL: user.displayAvatarURL({ dynamic: true }),
 		username,
+		preview: true,
 		apps: new Collection(),
 		current: 1,
 		/**
@@ -115,7 +132,7 @@ const getMemberCache = cache => {
 /**
  * @param {Collection} cache
  * @param {GuildMember} member
- * @returns {object}
+ * @returns {MemberInfo}
  */
 const getMemberInfo = (cache, member) => {
 	const memberCache = getMemberCache(cache);
@@ -225,21 +242,22 @@ const typeVal = (field) => {
 };
 
 const attVal = (field) => {
-	let val = 0;
+	const { value: att } = field;
+	let attrVal = 0;
 
 	Attributes.forEach((v, a) => {
-		if (field.value === a) {
-			return val += v;
+		if (a.includes(att)) {
+			return attrVal += v;
 		}
 	});
 
-	if (val === 0) return 777;
-	return val;
+	if (attrVal === 0) return 777;
+	return attrVal;
 };
 
 /**
  * @param {object} cacheCan recursive data object
- * @param {string} field
+ * @param {object} field
  * @param {number} step
  * @returns {object}
  */

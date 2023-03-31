@@ -1,80 +1,63 @@
-const { MessageEmbed, MessageActionRow, MessageButton, SelectMenuInteraction, MessageActionRowComponent } = require('discord.js');
+/* eslint-disable no-unused-vars */
 const Helper = require('../cache');
 const Canvas = require('../canvas');
+const {
+	MessageEmbed,
+	MessageActionRow,
+	MessageButton,
+	EmbedField,
+	SelectMenuInteraction,
+	MessageActionRowComponent,
+} = require('discord.js');
 const {
 	UID_CARD_TYPE,
 	UID_CARD_RACE,
 	UID_CARD_ATT,
 	UID_EDIT_STEP2,
 	UID_NEXT_STEP3,
+	BOT_IMG_URL,
 	Archetypes,
 } = require('../constants');
 
 /**
- * 
- * @param {MessageActionRowComponent} components
- * @param {string} uid
- * @returns {MessageActionRowComponent}
+ * Checks for legal values
+ *
+ * @param {EmbedField[]} fields
+ * @param {Helper.MemberInfo} memberInfo
+ * @returns {MessageEmbed}
  */
-const getRestArray = (components, uid) => {
-	// refers to what left
-	// the rest of the array
-	const rest = components.filter(actionRow => {
-		// ass of v13 actionRow can only have 1 SelectMenuBuilder
-		const selectMenu = actionRow.components[0];
-		return selectMenu.customId != uid;
-	});
-
-	return rest;
-};
-
-const addButtonRow = rest => {
-	const row = new MessageActionRow()
-		.addComponents(
-			new MessageButton()
-				.setCustomId(UID_EDIT_STEP2)
-				.setLabel('Edit')
-				.setStyle('SECONDARY'),
-		)
-		.addComponents(
-			new MessageButton()
-				.setCustomId(UID_NEXT_STEP3)
-				.setLabel('Next')
-				.setStyle('PRIMARY'),
-		);
-
-	rest.push(row);
-
-	return rest;
-};
-
-const getEmbed = (fields, finish) => {
-
-	let embed = new MessageEmbed()
+const checkTypes = (fields, memberInfo) => {
+	const { name, iconURL } = memberInfo;
+	const finishEmbed = new MessageEmbed()
 		.setColor('#0099ff')
-		.setTitle('Selections')
-		.setDescription('Current Selection')
-		.setThumbnail('https://i.imgur.com/ebtLbkK.png')
-		.addFields(fields);
+		.setTitle('Selections Complete')
+		.setDescription('Final Selection')
+		.setThumbnail(BOT_IMG_URL)
+		.addFields(fields)
+		.setImage('attachment://temp.png')
+		.setFooter({ text: name, iconURL });
+	// todo
+	// if (bad) {
+	// 	// if bad types
+	// 	// changes color
+	// 	// add footer 'error'
 
-	if (finish) {
-		// if bad types
-		// changes color
-		// add footer 'error'
-		embed = new MessageEmbed()
-			.setColor('#dd0f0f')
-			.setTitle('Selections Complete')
-			.setDescription('Final Selection')
-			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
-			.addFields(fields)
-			.setImage('attachment://temp.png')
-			.setFooter({
-				'text': 'Cannot process the types you entered.\nPlease edit them.',
-				'iconURL': 'https://i.imgur.com/ebtLbkK.png',
-			});
-	}
+	// 	const errorEmbed = new MessageEmbed()
+	// 		.setColor('#dd0f0f')
+	// 		.setTitle('Selections Complete')
+	// 		.setDescription('Final Selection')
+	// 		.setThumbnail(BOT_IMG_URL)
+	// 		.addFields(fields)
+	// 		.setImage('attachment://temp.png')
+	// 		.setFooter({
+	// 			iconURL,
+	// 			text: 'Cannot process the types you entered.\nPlease edit them.',
+	// 		});
 
-	return embed;
+	// 	return errorEmbed;
+	// }
+
+	return finishEmbed;
 };
 
 /**
@@ -82,40 +65,70 @@ const getEmbed = (fields, finish) => {
  * @param {string} type
  * @param {string} value
  * @param {string} uid
- * @returns {Promise<APIMessage | Message<boolean>>}
+ * @returns {Promise<void>}
  */
 const selection = async (interaction, type, value, uid) => {
-	const { member } = interaction;
-	const { components } = interaction.message;
-
-	const { embeds: msgEmbed } = interaction.message;
+	const { member, message } = interaction;
+	const { components, embeds: msgEmbed } = message;
 	const msgEmbFields = msgEmbed[0].fields;
+	/**
+	 * @type {EmbedField}
+	 */
 	const newField = {
 		name: type,
 		value,
 		inline: true,
 	};
 
-	// last selection to make
+	// remove select menu row from message
+	const rest = components.filter(actionRow => {
+		// ass of v13 actionRow can only have 1 SelectMenuBuilder
+		const selectMenu = actionRow.components[0];
+		return selectMenu.customId != uid;
+	});
+
 	// add buttons for next step
-	const rest = getRestArray(components, uid);
 	const isEmptyRest = rest.length === 0;
 	if (isEmptyRest) {
-		addButtonRow(rest);
+		const editBtn = new MessageButton()
+			.setCustomId(UID_EDIT_STEP2)
+			.setLabel('Edit')
+			.setStyle('SECONDARY');
+		const nextBtn = new MessageButton()
+			.setCustomId(UID_NEXT_STEP3)
+			.setLabel('Next')
+			.setStyle('PRIMARY');
+
+		const row = new MessageActionRow().addComponents(editBtn, nextBtn);
+		rest.push(row);
 	}
 
 	// set in cache
 	const { cache } = interaction.client;
 	Helper.setDataCache({ member, cache, args: newField, step: 2 });
 
-	// message update
-	// add member in to set footer data
-	const embed = getEmbed([...msgEmbFields, newField], isEmptyRest);
-	const msg = { embeds: [embed], components: rest };
-	if (rest[0]?.components[0]?.type === 'BUTTON') {
+	// message embed
+	const currentEmbed = new MessageEmbed()
+		.setColor('#0099ff')
+		.setTitle('Selections')
+		.setDescription('Current Selection')
+		.setThumbnail(BOT_IMG_URL)
+		.addFields([...msgEmbFields, newField]);
+
+	const memberInfo = Helper.getMemberInfo(cache, member);
+	const embeds = isEmptyRest ?
+		[checkTypes([...msgEmbFields, newField], memberInfo)]
+		: [currentEmbed];
+
+	// final msg object
+	const msg = { embeds, components: rest };
+
+	// draw results
+	if (rest[0]?.components[0]?.type === 'BUTTON' && memberInfo.preview) {
 		const cardImage = await Canvas.createCard({ member, cache, step: 2 });
 		msg.files = [cardImage];
 	}
+
 	return await interaction.update(msg);
 };
 
