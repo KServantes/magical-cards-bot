@@ -3,7 +3,7 @@ const { cardInfoSubmit, cardStatsSubmit } = require('./interacts/modal');
 const { selectionType, selectionRace, selectionAtt, selectionArch } = require('./interacts/selections');
 const { bcStart, bcHalt, bcEdit, bcNext, bcEdit2,
 	bcNext3, bcEdit3, bcNext4, LinkButtons, bcNext5,
-	nextPage, prevPage, bcNext6, Strings, bcFinish, clearFields,
+	nextPage, prevPage, bcNext6, Strings, bcFinish, clearFields, bcPreview,
 } = require('./interacts/buttons');
 
 
@@ -20,6 +20,7 @@ const interactButton = new Collection([
 	// start
 	[UID_START, bcStart],
 	[UID_HALT, bcHalt],
+	['preview', bcPreview],
 
 	// step 1
 	[UID_EDIT_STEP1, bcEdit],

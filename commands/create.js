@@ -27,6 +27,10 @@ module.exports = {
 			.setCustomId(UID_HALT)
 			.setLabel('Not yet')
 			.setStyle('DANGER');
+		const preview = new MessageButton()
+			.setCustomId('preview')
+			.setLabel('Preview: ON')
+			.setStyle('SECONDARY');
 
 		const greeting = '>>> Hello! I\'m Magical Card\'s Bot!\nI\'ll take you through the steps to make a card.\n\nAre you ready?';
 
@@ -38,7 +42,7 @@ module.exports = {
 			// .setFooter({ text: '‌‌  \n\n' + member.id })
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
-		const row = new MessageActionRow().addComponents(abort, start);
+		const row = new MessageActionRow().addComponents(preview, abort, start);
 
 		return interaction.reply({ content: null, components: [row], embeds: [embed] });
 	},

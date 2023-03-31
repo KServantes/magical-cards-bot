@@ -19,7 +19,7 @@ const {
 } = require('../constants');
 
 // initial reply choices
-const { bcStart, bcHalt } = require('./buttons/step00');
+const { bcStart, bcHalt, bcPreview } = require('./buttons/step00');
 const { bcNext, bcEdit } = require('./buttons/step01');
 
 // step 2 => step 3
@@ -812,6 +812,7 @@ module.exports = {
 	bcHalt,
 	bcEdit,
 	bcNext,
+	bcPreview,
 	bcEdit2,
 	bcNext3,
 	bcEdit3,

@@ -69,6 +69,7 @@ const pageInfo = {
  * @property {Collection.<number,object>} apps
  * @property {number} current
  * @property {number} currentOf
+ * @property {boolean} showPreview
  * @property {Collection.<number,object} newApp
  * @property {object} appInfo
  */
@@ -100,6 +101,12 @@ const createMemberInfo = member => {
 		 */
 		set currentOf(x) {
 			this.current = x;
+		},
+		/**
+		 * @param {boolean} bool
+		 */
+		set showPreview(bool) {
+			this.preview = bool
 		},
 		/**
 		 * @param {object} data
