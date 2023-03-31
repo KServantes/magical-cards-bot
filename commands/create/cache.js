@@ -106,7 +106,7 @@ const createMemberInfo = member => {
 		 * @param {boolean} bool
 		 */
 		set showPreview(bool) {
-			this.preview = bool
+			this.preview = bool;
 		},
 		/**
 		 * @param {object} data

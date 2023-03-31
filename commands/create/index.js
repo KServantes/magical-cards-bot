@@ -1,9 +1,9 @@
 const { Collection } = require('discord.js');
 const { cardInfoSubmit, cardStatsSubmit } = require('./interacts/modal');
 const { selectionType, selectionRace, selectionAtt, selectionArch } = require('./interacts/selections');
-const { bcStart, bcHalt, bcEdit, bcNext, bcEdit2,
+const { BCStart, BCHalt, bcEdit, bcNext, bcEdit2,
 	bcNext3, bcEdit3, bcNext4, LinkButtons, bcNext5,
-	nextPage, prevPage, bcNext6, Strings, bcFinish, clearFields, bcPreview,
+	nextPage, prevPage, bcNext6, Strings, bcFinish, clearFields, BCPreview,
 } = require('./interacts/buttons');
 
 
@@ -13,14 +13,14 @@ const { UID_START, UID_HALT, UID_CARD_INFO, UID_EDIT_STEP1,
 	UID_NEXT_STEP4, UID_NEXT_STEP5, UID_ANIME, UID_ARCH_ROW1,
 	UID_ARCH_ROW2, UID_ARCH_ROW3, UID_ARCH_ROW4, UID_NEW_SET,
 	UID_NEXT_PAGE, UID_NEXT_STEP6, UID_PREV_PAGE, UID_SKIP, UID_FINISH_LINE,
-	UID_CLEAR,
+	UID_CLEAR, UID_VISTA,
 } = require('./constants');
 
 const interactButton = new Collection([
 	// start
-	[UID_START, bcStart],
-	[UID_HALT, bcHalt],
-	['preview', bcPreview],
+	[UID_START, BCStart],
+	[UID_HALT, BCHalt],
+	[UID_VISTA, BCPreview],
 
 	// step 1
 	[UID_EDIT_STEP1, bcEdit],
@@ -89,7 +89,6 @@ const interactSelectMenu = new Collection([
 	[UID_ARCH_ROW3, selectionArch],
 	[UID_ARCH_ROW4, selectionArch],
 ]);
-
 
 module.exports = {
 	button: interactButton,

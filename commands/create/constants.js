@@ -12,6 +12,7 @@ const BOT_IMG_URL = 'https://i.imgur.com/ebtLbkK.png';
 // start
 const UID_START = 'start';
 const UID_HALT = 'halt';
+const UID_VISTA = 'preview';
 
 // modal / buttons
 // step 1
@@ -687,6 +688,7 @@ module.exports = {
 	BOT_IMG_URL,
 	UID_START,
 	UID_HALT,
+	UID_VISTA,
 	UID_CARD_INFO,
 	UID_CARD_STATS,
 	UID_EDIT_STEP1,

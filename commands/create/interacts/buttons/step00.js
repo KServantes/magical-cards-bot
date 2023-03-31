@@ -1,7 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 const { MessageEmbed, ButtonInteraction, CommandInteraction, Message } = require('discord.js');
 const { BOT_IMG_URL } = require('../../constants');
-const { MiddleWrapper } = require('../../utils');
 const Form = require('./../../forms/index');
 const Cache = require('../../cache');
 const wait = require('node:timers/promises').setTimeout;
@@ -14,7 +13,7 @@ const wait = require('node:timers/promises').setTimeout;
  * @param {ButtonInteraction} interaction
  * @returns {Promise<Message>}
  */
-const Start = async interaction => {
+const bcStart = async interaction => {
 	const { message } = interaction;
 	const { footer } = message.embeds[0];
 
@@ -36,7 +35,7 @@ const Start = async interaction => {
  * @param {ButtonInteraction} interaction
  * @returns {Promise<Message>}
  */
-const Halt = async interaction => {
+const bcHalt = async interaction => {
 	const { footer } = interaction.message.embeds[0];
 
 	const embed = new MessageEmbed()
@@ -56,7 +55,7 @@ const Halt = async interaction => {
  * @param {ButtonInteraction} interaction
  * @returns {Promise<Message>}
  */
-const Preview = async interaction => {
+const bcPreview = async interaction => {
 	const { message, client, member } = interaction;
 	const actionRow = message.components[0];
 	const prevBtn = actionRow.components[0];
@@ -73,8 +72,4 @@ const Preview = async interaction => {
 	return await interaction.update({ embeds: message.embeds, components: message.components });
 };
 
-module.exports = {
-	bcStart: MiddleWrapper(Start),
-	bcHalt: MiddleWrapper(Halt),
-	bcPreview: MiddleWrapper(Preview),
-};
+module.exports = { bcStart, bcHalt, bcPreview };

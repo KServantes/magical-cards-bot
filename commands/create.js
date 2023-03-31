@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
-const { UID_START, UID_HALT } = require('./create/constants');
+const { UID_START, UID_HALT, UID_VISTA } = require('./create/constants');
 const Helper = require('../commands/create/cache');
 
 module.exports = {
@@ -28,7 +28,7 @@ module.exports = {
 			.setLabel('Not yet')
 			.setStyle('DANGER');
 		const preview = new MessageButton()
-			.setCustomId('preview')
+			.setCustomId(UID_VISTA)
 			.setLabel('Preview: ON')
 			.setStyle('SECONDARY');
 

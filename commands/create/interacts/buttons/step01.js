@@ -11,7 +11,7 @@ const { Races, Types, Attributes,
  * Then brings up the Select Menus
  * (Race, Type, Attribute)
  */
-const bcNext = Utils.MiddleWrapper(async interaction => {
+const bcNext = async interaction => {
 
 	const { cache } = interaction.client;
 	const { member } = interaction;
@@ -69,12 +69,12 @@ const bcNext = Utils.MiddleWrapper(async interaction => {
 		.setThumbnail(BOT_IMG_URL);
 
 	return await interaction.update({ components: [raceRow, typeRow, attributeRow], embeds: [embed], files: [] });
-});
+};
 
 /**
  * Brings up the Info Form again
  */
-const bcEdit = Utils.MiddleWrapper(async interaction => {
+const bcEdit = async interaction => {
 	await Form.info(interaction);
 	const embed = new MessageEmbed()
 		.setColor('#0099ff')
@@ -82,6 +82,9 @@ const bcEdit = Utils.MiddleWrapper(async interaction => {
 		.setDescription('Please wait...')
 		.setThumbnail(BOT_IMG_URL);
 	return await interaction.message.edit({ embeds: [embed], components: [], files: [] });
-});
+};
 
-module.exports = { bcEdit, bcNext };
+module.exports = {
+	bcEdit,
+	bcNext,
+};

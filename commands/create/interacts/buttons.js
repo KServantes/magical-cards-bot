@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 const { MessageActionRow, MessageSelectMenu, MessageEmbed, Message, MessageButton, Collection, MessageComponentInteraction } = require('discord.js');
 const Helper = require('../cache');
 const Form = require('../forms');
@@ -21,6 +22,7 @@ const {
 // initial reply choices
 const { bcStart, bcHalt, bcPreview } = require('./buttons/step00');
 const { bcNext, bcEdit } = require('./buttons/step01');
+const { MiddleWrapper } = require('../utils');
 
 // step 2 => step 3
 // redo selections
@@ -66,7 +68,7 @@ const bcNext3 = async interaction => {
 
 // step 3 => step 4
 /**
- * 
+ *
  * @param {MessageComponentInteraction} interaction
  * @returns {Promise<Message>|Promise<void>}
  */
@@ -807,12 +809,17 @@ ${des}`;
 	}
 };
 
+// middleware
+const BCStart = MiddleWrapper(bcStart);
+const BCHalt = MiddleWrapper(bcHalt);
+const BCPreview = MiddleWrapper(bcPreview);
+
 module.exports = {
-	bcStart,
-	bcHalt,
+	BCStart,
+	BCHalt,
 	bcEdit,
 	bcNext,
-	bcPreview,
+	BCPreview,
 	bcEdit2,
 	bcNext3,
 	bcEdit3,
