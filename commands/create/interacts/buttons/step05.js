@@ -1,7 +1,7 @@
 const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
-const Helper = require('../../cache');
+const Helper = require('../../utils/cache');
 const Form = require('../../forms');
-const { BOT_IMG_URL, UID_FINISH_LINE } = require('../../constants');
+const { BOT_IMG_URL, UID_FINISH_LINE } = require('../../utils/constants');
 
 // step 6
 // strings modals ()

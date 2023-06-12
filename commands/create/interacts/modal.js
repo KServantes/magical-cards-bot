@@ -1,7 +1,7 @@
 const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 const db = require('../../../data/models');
-const Helper = require('../cache');
-const Canvas = require('../canvas');
+const Helper = require('../utils/cache');
+const Canvas = require('../utils/canvas');
 
 const { BOT_DEFAULT_PASS } = db;
 const {
@@ -9,7 +9,7 @@ const {
 	UID_NEXT_STEP2,
 	UID_EDIT_STEP3,
 	UID_NEXT_STEP4,
-} = require('../constants');
+} = require('../utils/constants');
 
 const STEP_ONE = 1;
 const STEP_THREE = 3;

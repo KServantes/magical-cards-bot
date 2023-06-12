@@ -1,9 +1,9 @@
 // eslint-disable-next-line no-unused-vars
 const { MessageEmbed, MessageButton, MessageActionRow, MessageComponentInteraction, ButtonInteraction } = require('discord.js')
 const Form = require('../../forms');
-const Helper = require('../../cache');
+const Helper = require('../../utils/cache');
 const Utils = require('../../utils');
-const { UID_NEXT_STEP5, UID_SKIP, BOT_IMG_URL } = require('../../constants');
+const { UID_NEXT_STEP5, UID_SKIP, BOT_IMG_URL } = require('../../utils/constants');
 
 
 // step 3 => step 4

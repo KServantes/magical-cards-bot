@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
-const { UID_START, UID_HALT, UID_VISTA } = require('./create/constants');
-const Helper = require('../commands/create/cache');
+const { UID_START, UID_HALT, UID_VISTA } = require('./create/utils/constants');
+const Helper = require('./create/utils/cache');
 
 module.exports = {
 	data: new SlashCommandBuilder()

@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
-const Helper = require('../cache');
-const Canvas = require('../canvas');
+const Helper = require('../utils/cache');
+const Canvas = require('../utils/canvas');
 const {
 	MessageEmbed,
 	MessageActionRow,
@@ -17,7 +17,7 @@ const {
 	UID_NEXT_STEP3,
 	BOT_IMG_URL,
 	Archetypes,
-} = require('../constants');
+} = require('../utils/constants');
 
 /**
  * Checks for legal values

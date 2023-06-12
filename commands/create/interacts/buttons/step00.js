@@ -1,8 +1,8 @@
 // eslint-disable-next-line no-unused-vars
 const { MessageEmbed, ButtonInteraction, Message } = require('discord.js');
-const { BOT_IMG_URL } = require('../../constants');
+const { BOT_IMG_URL } = require('../../utils/constants');
 const Form = require('./../../forms/index');
-const Cache = require('../../cache');
+const Cache = require('../../utils/cache');
 const wait = require('node:timers/promises').setTimeout;
 
 

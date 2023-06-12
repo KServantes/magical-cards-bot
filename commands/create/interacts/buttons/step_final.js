@@ -1,7 +1,7 @@
 const { MessageEmbed } = require('discord.js');
-const Helper = require('../../cache');
+const Helper = require('../../utils/cache');
 const { addCardToBase } = require('../../../../data/models');
-const { Archetypes, Races, Types, Attributes, BOT_IMG_URL } = require('../../constants');
+const { Archetypes, Races, Types, Attributes, BOT_IMG_URL } = require('../../utils/constants');
 
 const bcFinish = async interaction => {
 	const { cache } = interaction.client;

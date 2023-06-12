@@ -8,7 +8,7 @@ const { constants } = require('node:fs');
 const wait = require('node:timers/promises').setTimeout;
 
 const { MessageEmbed, MessageButton, MessageActionRow } = require('discord.js');
-const { Archetypes, Types, Races, Attributes } = require('../../commands/create/constants');
+const { Archetypes, Types, Races, Attributes } = require('../../commands/create/utils/constants');
 
 
 // view cards

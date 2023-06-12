@@ -3,7 +3,7 @@ const Form = require('../../forms');
 const Utils = require('../../utils');
 const { Races, Types, Attributes,
 	BOT_IMG_URL, UID_CARD_ATT, UID_CARD_RACE, UID_CARD_TYPE,
-} = require('../../constants');
+} = require('../../utils/constants');
 
 
 /**

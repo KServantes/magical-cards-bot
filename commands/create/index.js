@@ -16,7 +16,7 @@ const { UID_START, UID_HALT, UID_CARD_INFO, UID_EDIT_STEP1,
 	UID_ARCH_ROW2, UID_ARCH_ROW3, UID_ARCH_ROW4, UID_NEW_SET,
 	UID_NEXT_PAGE, UID_NEXT_STEP6, UID_PREV_PAGE, UID_SKIP, UID_FINISH_LINE,
 	UID_CLEAR, UID_VISTA,
-} = require('./constants');
+} = require('./utils/constants');
 
 const interactButton = new Collection([
 	// start

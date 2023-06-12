@@ -1,6 +1,6 @@
-const { MessageEmbed, Collection, MessageActionRow, MessageSelectMenu, MessageButton, ButtonInteraction,  } = require('discord.js');
-const { UID_ANIME, UID_CLEAR, UID_NEXT_PAGE, UID_NEXT_STEP6, UID_PREV_PAGE } = require('../../constants');
-const Helper = require('../../cache');
+const { MessageEmbed, Collection, MessageActionRow, MessageSelectMenu, MessageButton} = require('discord.js');
+const { UID_ANIME, UID_CLEAR, UID_NEXT_PAGE, UID_NEXT_STEP6, UID_PREV_PAGE } = require('../../utils/constants');
+const Helper = require('../../utils/cache');
 
 // step 4 => step 5
 // or from no Link Step 3

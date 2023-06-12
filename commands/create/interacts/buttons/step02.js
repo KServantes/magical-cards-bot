@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js');
-const Helper = require('../../cache');
+const Helper = require('../../utils/cache');
 const Form = require('../../forms');
 
 // modal (atk, def, lvl, lscale, rscale)

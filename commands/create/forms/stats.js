@@ -1,6 +1,6 @@
 const { Modal, TextInputComponent, MessageActionRow } = require('discord.js');
-const { UID_CARD_STATS } = require('../constants');
-const { getCardCache } = require('../cache');
+const { UID_CARD_STATS } = require('../utils/constants');
+const { getCardCache } = require('../utils/cache');
 
 const statsForm = async (interaction) => {
 	const { cache } = interaction.client;
