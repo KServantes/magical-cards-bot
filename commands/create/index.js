@@ -1,11 +1,13 @@
 const { Collection } = require('discord.js');
+const { ModularWrapper } = require('./utils');
 const { cardInfoSubmit, cardStatsSubmit } = require('./interacts/modal');
-const { selectionType, selectionRace, selectionAtt, selectionArch } = require('./interacts/selections');
-const { BCStart, BCHalt, bcEdit, bcNext, bcEdit2,
-	bcNext3, bcEdit3, bcNext4, LinkButtons, bcNext5,
-	nextPage, prevPage, bcNext6, Strings, bcFinish, clearFields, BCPreview,
-} = require('./interacts/buttons');
 
+const { selectionType, selectionRace, selectionAtt, selectionArch } = require('./interacts/selections');
+
+const { bcStart, bcHalt, bcEdit, bcNext, bcEdit2,
+	bcNext3, bcEdit3, bcNext4, LinkButtons, bcNext5,
+	nextPage, prevPage, bcNext6, Strings, bcFinish, clearFields, bcPreview,
+} = ModularWrapper(require('./interacts/buttons'));
 
 const { UID_START, UID_HALT, UID_CARD_INFO, UID_EDIT_STEP1,
 	UID_NEXT_STEP2, UID_EDIT_STEP2, UID_NEXT_STEP3, UID_CARD_STATS,
@@ -18,9 +20,9 @@ const { UID_START, UID_HALT, UID_CARD_INFO, UID_EDIT_STEP1,
 
 const interactButton = new Collection([
 	// start
-	[UID_START, BCStart],
-	[UID_HALT, BCHalt],
-	[UID_VISTA, BCPreview],
+	[UID_START, bcStart],
+	[UID_HALT, bcHalt],
+	[UID_VISTA, bcPreview],
 
 	// step 1
 	[UID_EDIT_STEP1, bcEdit],

@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-const { MessageEmbed, ButtonInteraction, CommandInteraction, Message } = require('discord.js');
+const { MessageEmbed, ButtonInteraction, Message } = require('discord.js');
 const { BOT_IMG_URL } = require('../../constants');
 const Form = require('./../../forms/index');
 const Cache = require('../../cache');
@@ -11,7 +11,7 @@ const wait = require('node:timers/promises').setTimeout;
  * Brings up Info Form
  *
  * @param {ButtonInteraction} interaction
- * @returns {Promise<Message>}
+ * @returns {Promise<Message<boolean>>}
  */
 const bcStart = async interaction => {
 	const { message } = interaction;

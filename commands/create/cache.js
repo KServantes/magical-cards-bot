@@ -1,13 +1,43 @@
 /* eslint-disable no-inline-comments */
 // eslint-disable-next-line no-unused-vars
-const { Collection, GuildMember } = require('discord.js');
-const { Races, Types, Attributes, Archetypes, LinkMarkers } = require('./constants');
+const { Collection, GuildMember, Guild, MessageEmbed } = require('discord.js');
+const { Races, Types, Attributes, Archetypes, LinkMarkers, BOT_IMG_URL } = require('./constants');
 
 const CACHE_MEMBER = 'member cache';
 
+/**
+ * @typedef {Object} TempObject
+ * @property {string} cardPEff
+ * @property {string} cardDesc
+ * @property {boolean} isPendy
+ * @property {boolean} isLink
+ * @property {boolean} isTrell
+ * @property {number} stepNo
+ */
+
+/**
+ * @typedef {Object} CardCache
+ * @property {number} id
+ * @property {number} ot
+ * @property {number} alias
+ * @property {number} setcode
+ * @property {number} type
+ * @property {number} atk
+ * @property {number} def
+ * @property {number} level
+ * @property {number} race
+ * @property {number} attribute
+ * @property {number} category
+ * @property {string} name
+ * @property {string} desc
+ * @property {TempObject} temp
+ */
 
 // general structure of the
 // card object injected into db
+/**
+ * @type {CardCache}
+ */
 const cardInitial = {
 	// card info
 	id: 0,
@@ -39,6 +69,19 @@ const cardInitial = {
 
 const setColl = new Collection([ ['tcg', Archetypes] ]);
 
+/**
+ * @typedef {Object} PageInfo
+ * @property {number} page
+ * @property {Collection} set
+ * @property {boolean} prefill
+ * @property {boolean} wipe
+ * @property {Collection} switchSet
+ * @property {number} pageOf
+ */
+
+/**
+ * @type {PageInfo}
+ */
 const pageInfo = {
 	page: 1,
 	set: Archetypes,
@@ -169,6 +212,15 @@ const setMemberInfo = (cache, member) => {
 
 	return memInfo;
 };
+
+/**
+ * @typedef {Object} AppInfo
+ * @property {Collection} data
+ * @property {CardCache} card
+ * @property {object} server
+ * @property {PageInfo} page
+ */
+
 
 /**
  * @param {Collection} cache
@@ -392,6 +444,10 @@ const getDataCache = (cache, member) => {
 	return app?.data;
 };
 
+/**
+ * @param {object} cacheObject
+ * @returns {object|undefined}
+ */
 const getStepCache = cacheObject => {
 	const { member, cache, step } = cacheObject;
 	// return value
@@ -530,6 +586,11 @@ const cacheSteps = new Collection([
 	// [6, regStrs],
 ]);
 
+/**
+ * @param {Collection} cache
+ * @param {GuildMember} member
+ * @returns {CardCache}
+ */
 const getCardCache = (cache, member) => {
 	const memInfo = getMemberInfo(cache, member);
 	const app = memInfo.appInfo;
@@ -537,6 +598,11 @@ const getCardCache = (cache, member) => {
 	return app?.card;
 };
 
+/**
+ * @param {Collection} cache
+ * @param {GuildMember} member
+ * @returns {CardCache}
+ */
 const setCardCache = (cache, member) => {
 	const cardCache = getCardCache(cache, member);
 	const coll = getDataCache(cache, member);
