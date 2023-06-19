@@ -1,8 +1,11 @@
 // eslint-disable-next-line no-unused-vars
-const { MessageEmbed, MessageComponentInteraction, Message, GuildMember, Collection } = require('discord.js');
+const { Message, Collection, GuildMember, MessageEmbed, ButtonInteraction, 
+	MessageComponentInteraction } = require('discord.js');
 const { BOT_IMG_URL } = require('./constants');
 const wait = require('node:timers/promises').setTimeout;
 const Cache = require('./cache');
+
+const { ClientCache, CacheObject, DefaultError } = require('./types');
 
 
 /**
@@ -10,10 +13,10 @@ const Cache = require('./cache');
  * that is interacting with the current embeds/buttons is the same
  * member that is working on their card.
  *
- * Prevents other members from interfering with other's cards making process.
- *
- * @param {MessageComponentInteraction} interaction
- * @returns {Error|boolean}
+ * Prevents other members from interfering with others' card making process.
+ * @param {MessageComponentInteraction} interaction Interaction to be checked
+ * @throws {Error&DefaultError}
+ * @returns {boolean} Either a pass (true) or throws an error with embedded message.
  */
 const CheckOwner = interaction => {
 	const { member, message } = interaction;
@@ -41,8 +44,8 @@ const CheckOwner = interaction => {
 
 /**
  * Prints the error name, trace, and time of the error to stdout
- * @param {Error} error
- * @returns {void}
+ * @param {Error} error Error object
+ * @returns {void} console.log()
  */
 const LogDefault = error => {
 	const traceStr = (() => {
@@ -69,15 +72,7 @@ const LogDefault = error => {
 };
 
 /**
- * @typedef {Object} CacheObject
- * @property {Collection} cache
- * @property {GuildMember} member
- * @property {object} args
- * @property {number} step
- */
-
-/**
- * @param {CacheObject} cacheObject
+ * @param {CacheObject} cacheObject Object sent to be cached.
  * @returns {void}
  */
 const RegisterCacheData = cacheObject => {
@@ -86,8 +81,9 @@ const RegisterCacheData = cacheObject => {
 };
 
 /**
- * @param {Collection} cache
- * @param {GuildMember} member
+ * @param {ClientCache} cache Global cache collection from client.
+ * @param {GuildMember} member Member object in the guild.
+ * @returns {void}
  */
 const RegisterCacheCard = (cache, member) => {
 	const { nickname, user } = member;
@@ -120,14 +116,14 @@ const RegisterCacheCard = (cache, member) => {
 };
 
 /**
- * @param {MessageComponentInteraction} interaction
- * @param {Error} error
- * @returns {Promise<void>}
+ * @param {MessageComponentInteraction} interaction Interaction to reply or update.
+ * @param {Error&DefaultError} error Error object.
+ * @returns {Promise<void>|Promise<Message<boolean>>} Either replies with a generic error or with the specific error message.
  */
 const ErrorReplyDefault = async (interaction, error) => {
-	const { user } = interaction;
+	const { user, message } = interaction;
 	const displayAvatarURL = options => user.displayAvatarURL(options);
-	const errorType = error?.name ?? 'Hand Traps';
+	const errorType = error.name ?? 'Hand Traps';
 
 	const errorEmbed = new MessageEmbed()
 		.setColor('#c61717')
@@ -150,7 +146,7 @@ Please retry executing the command.`)
 	const { errorMsg } = error;
 	await interaction.update(errorMsg);
 	await wait(4000);
-	return await interaction.message.delete();
+	return await message.delete();
 };
 
 /**
@@ -158,21 +154,24 @@ Please retry executing the command.`)
  *
  * 1. Checks the origin of the message owner
  * 2. Try catch function wrapper
- *
- * @param {Promise<Message>} buttonChoice
+ * @param {Promise<Message>} buttonChoice Function for the button option.
+ * @returns {Promise<Message<boolean>>} Function for the button wrapped in checker functions.
  */
 const MiddleWrapper = buttonChoice => {
 
 	// check owner first
+	/**
+	 *	Function wrap for checking the "owner" of the app.
+	 *  @param {ButtonInteraction} args Interaction for the button
+	 */
+	// Re-add when all functions are up-to-date.
+	// eslint-disable-next-line no-unused-vars
 	function checker(...args) {
 		CheckOwner(...args);
 	}
 
-	// todo update avatar/icon url cache if different
-	/**
-	 * @param {ButtonInteraction} args
-	 * @returns {Promise<Message<boolean>>}
-	 */
+	// TODO update avatar/icon url cache if different
+
 	return async (...args) => {
 		try {
 			// checker(...args);
@@ -186,13 +185,13 @@ const MiddleWrapper = buttonChoice => {
 };
 
 /**
- * @typedef {Object.<string, Promise<Message>} Module
+ * @typedef {[key:string, value:Promise<Message>]} Module
  */
 
 /**
  * Applies the wrapper middleware
- * @param {Module} module
- * @returns {Module}
+ * @param {Module} module module exports object.
+ * @returns {Module} same object but with check functions in each exported function
  */
 const ModularWrapper = module => {
 	const newModule = Object.create(module);

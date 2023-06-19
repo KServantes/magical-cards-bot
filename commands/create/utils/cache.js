@@ -1,7 +1,10 @@
 /* eslint-disable no-inline-comments */
-const { Collection, GuildMember, Guild, MessageEmbed } = require('discord.js');
+const { Collection, GuildMember, EmbedField, Guild, MessageEmbed, Client } = require('discord.js');
 const { Races, Types, Attributes, Archetypes, LinkMarkers } = require('./constants');
-const { CardCache, MemberInfo, PageInfo } = require('./types');
+const { CardCache, MemberInfo, PageInfo, ServerInfo, CardApp, StepData,
+	ClientCache, MemberCache, StepsColl, InfoFormData, StepDataInfo, StepDataType,
+	StepDataStats, CacheObject,
+} = require('./types');
 
 
 const CACHE_MEMBER = 'member cache';
@@ -52,13 +55,13 @@ const pageInfo = {
 	wipe: false,
 	// sets: ['tcg', 'anime', 'custom'],
 	/**
-		 * @param {string} set
-		 */
+	 * @param {string} set Set name in collection to use (e.g. 'tcg', 'anime', 'custom')
+	 */
 	set switchSet(set) {
 		this.set = setColl.get(set);
 	},
 	/**
-	 * @param {number} p
+	 * @param {number} p Number of the page to set
 	 */
 	set pageOf(p) {
 		this.page = p;
@@ -66,11 +69,9 @@ const pageInfo = {
 };
 
 /**
- * app cache
- *
  * Create member info object.
- *
- * @param {GuildMember} member
+ * @param {GuildMember} member Member to be cached.
+ * @returns {MemberInfo} Member object.
  */
 const createMemberInfo = member => {
 	const { nickname, user } = member;
@@ -88,23 +89,27 @@ const createMemberInfo = member => {
 		apps: new Collection(),
 		current: 1,
 		/**
-		 * @param {number} x
+		 * @param {number} x Current app index.
 		 */
 		set currentOf(x) {
 			this.current = x;
 		},
 		/**
-		 * @param {boolean} bool
+		 * @param {boolean} bool Show card preview or not.
 		 */
 		set showPreview(bool) {
 			this.preview = bool;
 		},
 		/**
-		 * @param {object} data
+		 * @param {CardApp} data App info for the current card
 		 */
 		set newApp(data) {
 			this.apps.set(this.current, data);
 		},
+		/**
+		 * @readonly
+		 * @returns {CardApp} App info for the current card
+		 */
 		get appInfo() {
 			return this.apps.get(this.current);
 		},
@@ -114,23 +119,27 @@ const createMemberInfo = member => {
 };
 
 /**
- * @param {Collection} cache
- * @returns {Collection}
+ * @param {ClientCache} cache Global cache collection
+ * @returns {MemberCache} Member cache collection
  */
 const getMemberCache = cache => {
 	if (!cache.get(CACHE_MEMBER)) {
+		/**
+		 * @type {MemberCache}
+		 */
 		const Members = new Collection();
 
-		return cache.set(CACHE_MEMBER, Members);
+		const memCache = cache.set(CACHE_MEMBER, Members);
+		return memCache;
 	}
 
 	return cache.get(CACHE_MEMBER);
 };
 
 /**
- * @param {Collection} cache
- * @param {GuildMember} member
- * @returns {MemberInfo}
+ * @param {ClientCache} cache Global cache collection
+ * @param {GuildMember} member Guild Member to be cached
+ * @returns {MemberInfo} Member's info object
  */
 const getMemberInfo = (cache, member) => {
 	const memberCache = getMemberCache(cache);
@@ -146,9 +155,9 @@ const getMemberInfo = (cache, member) => {
 };
 
 /**
- * @param {Collection} cache
- * @param {GuildMember} member
- * @returns {object}
+ * @param {ClientCache} cache Global cache collection
+ * @param {GuildMember} member Guild Member to be cached
+ * @returns {MemberInfo} Member's info object
  */
 const setMemberInfo = (cache, member) => {
 	const memberInfo = createMemberInfo(member);
@@ -162,22 +171,17 @@ const setMemberInfo = (cache, member) => {
 };
 
 /**
- * @typedef {Object} AppInfo
- * @property {Collection} data
- * @property {CardCache} card
- * @property {object} server
- * @property {PageInfo} page
+ * @param {ClientCache} cache Global cache collection
+ * @param {GuildMember} member Guild Member to be cached
+ * @returns {CardApp} Card app object
  */
-
-
-/**
- * @param {Collection} cache
- * @param {GuildMember} member
- */
-const setAppCache = (cache, member) => {
+const createCardApp = (cache, member) => {
 	const { id, name, icon, preferredLocale: locale } = member.guild;
 
 	const memInfo = getMemberInfo(cache, member);
+	/**
+	 * @type {ServerInfo}
+	 */
 	const serverInfo = {
 		id,
 		name,
@@ -186,6 +190,9 @@ const setAppCache = (cache, member) => {
 	};
 
 	const Data = new Collection();
+	/**
+	 * @type {StepsColl}
+	 */
 	const Steps = Data.set(0, { step: 0 });
 
 	return memInfo.newApp = {
@@ -198,9 +205,10 @@ const setAppCache = (cache, member) => {
 
 // memory cache
 /**
- * @param {Collection} [_cache]
- * @param {object} card
- * @param {number} step
+ * @param {ClientCache} [_cache] Global Cache Object
+ * @param {InfoFormData} card Member input data from the Info Form
+ * @param {number} step Current step number
+ * @returns {StepDataInfo} Step One Data Object
  */
 const infoData = (_cache, card, step) => {
 	const { cardName, cardCode, cardPEff, cardDesc } = card;
@@ -218,6 +226,10 @@ const infoData = (_cache, card, step) => {
 	return data;
 };
 // type functions (3)
+/**
+ * @param {EmbedField} field Race field
+ * @returns {number} Value from the embed field or 777 (if none)
+ */
 const raceVal = (field) => {
 	let val = 0;
 
@@ -230,7 +242,10 @@ const raceVal = (field) => {
 	if (val === 0) return 777;
 	return val;
 };
-
+/**
+ * @param {EmbedField} field Type field
+ * @returns {number} Value from the embed field or 777 (if none)
+ */
 const typeVal = (field) => {
 	let val = 0;
 
@@ -247,7 +262,10 @@ const typeVal = (field) => {
 	if (val === 0) return 777;
 	return [val, isLink];
 };
-
+/**
+ * @param {EmbedField} field Attribute field
+ * @returns {number} Value from the embed field or 777 (if none)
+ */
 const attVal = (field) => {
 	const { value: att } = field;
 	let attrVal = 0;
@@ -263,10 +281,10 @@ const attVal = (field) => {
 };
 
 /**
- * @param {object} cacheCan recursive data object
- * @param {object} field
- * @param {number} step
- * @returns {object}
+ * @param {undefined | StepDataType} cacheCan recursive data object
+ * @param {EmbedField} field Embed Field
+ * @param {number} step Current Step
+ * @returns {StepDataType} If any of the values collection evals to 0 it becomes 777 for an error :shrug:
  */
 const typeData = (cacheCan, field, step) => {
 	const stepCache = cacheCan ?? { step };
@@ -289,6 +307,17 @@ const typeData = (cacheCan, field, step) => {
 	return { ...stepCache, ...data };
 };
 
+/**
+ * Stats Data Function
+ *
+ * Converts Embed Field values to numbers
+ *
+ * Currently supports everything up to Links
+ * @param {ClientCache} cache Global Cache Collection
+ * @param {EmbedField[]} stats Stats array
+ * @param {number} step Current Step (3)
+ * @returns {StepDataStats} The appropriate values for the stats
+ */
 const statData = (cache, stats, step) => {
 	console.log('data step 3', cache);
 	const [ atk, lvl] = stats;
@@ -301,6 +330,10 @@ const statData = (cache, stats, step) => {
 		actDef = parseInt(def.value);
 	}
 
+	/**
+	 * @todo Needs support for "many" archetype codes
+	 * @example 0x2073 Xyz Dragon | 0x73 Xyz
+	 */
 	if (stats.length > 3) {
 		const [ ,,, lscale, rscale] = stats;
 
@@ -380,10 +413,9 @@ const dataSteps = new Collection([
 
 /**
  * Gets the "current" application info from the member's collection.
- *
- * @param {Collection} cache
- * @param {GuildMember} member
- * @returns {Collection}
+ * @param {ClientCache} cache Global Cache Collection
+ * @param {GuildMember} member Guild Member
+ * @returns {StepsColl} Steps Collection
  */
 const getDataCache = (cache, member) => {
 	const memInfo = getMemberInfo(cache, member);
@@ -393,8 +425,8 @@ const getDataCache = (cache, member) => {
 };
 
 /**
- * @param {object} cacheObject
- * @returns {object|undefined}
+ * @param {CacheObject} cacheObject User input object cache
+ * @returns {StepData|undefined} Step Data (or undefined, if not found)
  */
 const getStepCache = cacheObject => {
 	const { member, cache, step } = cacheObject;
@@ -410,15 +442,23 @@ const getStepCache = cacheObject => {
 	return undefined;
 };
 
+/**
+ * Registers member input "data" into the {@link StepsColl} Collection
+ *
+ * Returns the data back inside of the {@link StepData} object
+ * @param {CacheObject} cacheObject
+ * @returns {StepData|undefined}
+ */
 const setDataCache = cacheObject => {
 	const { member, cache, args, step } = cacheObject;
 	const cacheCan = getDataCache(cache, member);
 
+	// Checks that StepsColl is currently existing
 	const stepCache = cacheCan ? getStepCache({ cache, member, step }) : cacheCan;
 	const data = dataSteps.get(step)(stepCache, args, step);
 	console.log('data', data);
 	if (!cacheCan) {
-		setAppCache(cache, member);
+		createCardApp(cache, member);
 
 		const memInfo = getMemberInfo(cache, member);
 		const app = memInfo.appInfo;

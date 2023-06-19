@@ -1,4 +1,4 @@
-const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
+const { MessageActionRow, MessageButton, MessageEmbed, ModalSubmitInteraction } = require('discord.js');
 const db = require('../../../data/models');
 const Helper = require('../utils/cache');
 const Canvas = require('../utils/canvas');
@@ -10,6 +10,8 @@ const {
 	UID_EDIT_STEP3,
 	UID_NEXT_STEP4,
 } = require('../utils/constants');
+
+const { InfoFormData } = require('../utils/types');
 
 const STEP_ONE = 1;
 const STEP_THREE = 3;
@@ -52,6 +54,11 @@ const checkConvertType = async card_id => {
 	return cardCode;
 };
 
+/**
+ * Submit Function for the Info Modal Form
+ * @param {ModalSubmitInteraction} interaction Info Form Modal
+ * @returns {Promise<void>} Either updates message with confirm or error message
+ */
 const cardInfoSubmit = async interaction => {
 	const { member, client, fields } = interaction;
 	const { cache } = client;
@@ -104,18 +111,25 @@ ${cardCode}`);
 		const row = new MessageActionRow().addComponents(editButton, nextButton);
 
 		// cache actions
+		/**
+		 * @type {InfoFormData} Info from the info form
+		 */
 		const currentCard = { cardName, cardPEff, cardDesc, cardCode };
 		Helper.setDataCache({ member, cache, args: currentCard, step: STEP_ONE });
 
 		// current card image
-		// todo: 'disable card img preview'
-		const cardImage = await Canvas.createCard({ member, cache, step: STEP_ONE });
+		const memInfo = Helper.getMemberInfo(cache,member);
+		const messageFiles = [];
+		if (memInfo.preview) {
+			const cardImage = await Canvas.createCard({ member, cache, step: STEP_ONE });
+			messageFiles.push(cardImage);
+		}
 
 		if (errorMessage.error) {
 			return await interaction.update(errorMessage.msg);
 		}
 
-		await interaction.update({ embeds: [embed], components: [row], files: [cardImage] });
+		await interaction.update({ embeds: [embed], components: [row], files: messageFiles });
 	}
 	catch (error) {
 		console.log(error);

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
+const { MessageActionRow, MessageButton, MessageEmbed, CommandInteraction } = require('discord.js');
 const { UID_START, UID_HALT, UID_VISTA } = require('./create/utils/constants');
 const Helper = require('./create/utils/cache');
 
@@ -7,6 +7,11 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('create')
 		.setDescription('Create cards, images, and databases for YGOPRO.'),
+	/**
+	 * Creates a prompt to start following the card making process
+	 * @param {CommandInteraction} interaction Command interaction
+	 * @returns {Promise<void>} Replies to the interaction
+	 */
 	async execute(interaction) {
 		const { member, client } = interaction;
 		const { cache } = client;
