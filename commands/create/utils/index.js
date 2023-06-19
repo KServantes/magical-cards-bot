@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-const { Message, Collection, GuildMember, MessageEmbed, ButtonInteraction, 
+const { Message, Collection, GuildMember, MessageEmbed, ButtonInteraction,
 	MessageComponentInteraction } = require('discord.js');
 const { BOT_IMG_URL } = require('./constants');
 const wait = require('node:timers/promises').setTimeout;

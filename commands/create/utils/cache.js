@@ -1,5 +1,5 @@
 /* eslint-disable no-inline-comments */
-const { Collection, GuildMember, EmbedField, Guild, MessageEmbed, Client } = require('discord.js');
+const { Collection, GuildMember, EmbedField } = require('discord.js');
 const { Races, Types, Attributes, Archetypes, LinkMarkers } = require('./constants');
 const { CardCache, MemberInfo, PageInfo, ServerInfo, CardApp, StepData,
 	ClientCache, MemberCache, StepsColl, InfoFormData, StepDataInfo, StepDataType,
@@ -314,7 +314,7 @@ const typeData = (cacheCan, field, step) => {
  *
  * Currently supports everything up to Links
  * @param {ClientCache} cache Global Cache Collection
- * @param {EmbedField[]} stats Stats array
+ * @param {EmbedField[]} stats Stats array ordered: [atk, lvl, def, lscale, rscale]
  * @param {number} step Current Step (3)
  * @returns {StepDataStats} The appropriate values for the stats
  */
@@ -446,8 +446,8 @@ const getStepCache = cacheObject => {
  * Registers member input "data" into the {@link StepsColl} Collection
  *
  * Returns the data back inside of the {@link StepData} object
- * @param {CacheObject} cacheObject
- * @returns {StepData|undefined}
+ * @param {CacheObject} cacheObject cache object to be cached
+ * @returns {StepData|undefined} The current step's data object
  */
 const setDataCache = cacheObject => {
 	const { member, cache, args, step } = cacheObject;
@@ -575,9 +575,9 @@ const cacheSteps = new Collection([
 ]);
 
 /**
- * @param {Collection} cache
- * @param {GuildMember} member
- * @returns {CardCache}
+ * @param {ClientCache} cache Global Cache Collection
+ * @param {GuildMember} member Guild Member
+ * @returns {CardCache} The current card cache object
  */
 const getCardCache = (cache, member) => {
 	const memInfo = getMemberInfo(cache, member);
@@ -587,9 +587,9 @@ const getCardCache = (cache, member) => {
 };
 
 /**
- * @param {Collection} cache
- * @param {GuildMember} member
- * @returns {CardCache}
+ * @param {ClientCache} cache Global Cache Collection
+ * @param {GuildMember} member Guild Member
+ * @returns {CardCache} The current card cache object
  */
 const setCardCache = (cache, member) => {
 	const cardCache = getCardCache(cache, member);
