@@ -1,5 +1,4 @@
-const { Message, GuildMember, MessageEmbed, ButtonInteraction,
-	MessageComponentInteraction } = require('discord.js');
+const { Message, GuildMember, MessageEmbed, MessageComponentInteraction } = require('discord.js');
 const { BOT_IMG_URL } = require('./constants');
 const wait = require('node:timers/promises').setTimeout;
 const Cache = require('./cache');

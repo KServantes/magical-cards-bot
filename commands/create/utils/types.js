@@ -179,10 +179,12 @@ const { Collection, GuildMember, Message, MessageEmbed } = require('discord.js')
 
 /**
  * @typedef {object} StepDataType Recursively passed so may not have all or same props at the time
+ *
+ * It will have all props by the time it reaches regTypes
  * @property {number} step Current Step
- * @property {number} [race] Card's Race value in decimal
- * @property {number} [type] Card's Type value in decimal
- * @property {number} [attribute] Card's Attribute value in decimal
+ * @property {number} race Card's Race value in decimal
+ * @property {[number, boolean]} type Card's Type value in decimal
+ * @property {number} attribute Card's Attribute value in decimal
  */
 
 // === === === === === === ===

@@ -487,6 +487,11 @@ const setDataCache = cacheObject => {
 };
 
 // db cache
+/**
+ * @param {StepDataInfo} data Step Data Info
+ * @param {CardCache} current Current card cache object
+ * @returns {CardCache} The updated card cache object
+ */
 const regInfo = (data, current) => {
 	const { step, name, id, temp } = data;
 
@@ -509,6 +514,11 @@ const regInfo = (data, current) => {
 	return cardOne;
 };
 
+/**
+ * @param {StepDataType} data Step Data Types
+ * @param {CardCache} current Current card cache object
+ * @returns {CardCache} The updated card cache object
+ */
 const regTypes = (data, current) => {
 	const { step, race, type, attribute } = data;
 	const [truType, isLink] = type;
@@ -528,6 +538,11 @@ const regTypes = (data, current) => {
 	return cardTwo;
 };
 
+/**
+ * @param {StepDataStats} data Step Data Stats
+ * @param {CardCache} current Current card cache object
+ * @returns {CardCache} The updated card cache object
+ */
 const regStats = (data, current) => {
 	const { step, atk, def, level } = data;
 
@@ -545,6 +560,11 @@ const regStats = (data, current) => {
 	return cardThree;
 };
 
+/**
+ * @param {StepDataLink} data Step Data Link
+ * @param {CardCache} current Current card cache object
+ * @returns {CardCache} The updated card cache object
+ */
 const regMarkers = (data, current) => {
 	const { step, markers: def } = data;
 	console.log('registering markers', def);
@@ -561,6 +581,11 @@ const regMarkers = (data, current) => {
 	return cardFour;
 };
 
+/**
+ * @param {StepDataSets} data Step Data Sets
+ * @param {CardCache} current Current card cache object
+ * @returns {CardCache} The updated card cache object
+ */
 const regArcs = (data, current) => {
 	const { step, setcode } = data;
 
@@ -587,6 +612,7 @@ const cacheSteps = new Collection([
 ]);
 
 /**
+ * Get the current Card Cache Object from the Member's Collection
  * @param {ClientCache} cache Global Cache Collection
  * @param {GuildMember} member Guild Member
  * @returns {CardCache} The current card cache object
@@ -599,6 +625,7 @@ const getCardCache = (cache, member) => {
 };
 
 /**
+ * Register data into the card cache object
  * @param {ClientCache} cache Global Cache Collection
  * @param {GuildMember} member Guild Member
  * @returns {CardCache} The current card cache object
@@ -607,6 +634,11 @@ const setCardCache = (cache, member) => {
 	const cardCache = getCardCache(cache, member);
 	const coll = getDataCache(cache, member);
 
+	/**
+	 * @todo data can change when implementing
+	 * @todo revisiting from any step
+	 * @todo could use step from temp object of card cache
+	 */
 	const data = coll.last();
 	const card = cacheSteps.get(data.step)(data, cardCache);
 
@@ -619,21 +651,37 @@ const setCardCache = (cache, member) => {
 	return getCardCache(cache, member);
 };
 
+/**
+ * Delete's the "card cache object"
+ *
+ * Also deletes the card app as it's marked as finished.
+ * @param {ClientCache} cache Global Cache Collection
+ * @param {GuildMember} member Guild Member
+ * @returns {boolean} true if deleted successfully or false if never existed
+ */
 const clearCardCache = (cache, member) => {
 	const memInfo = getMemberInfo(cache, member);
 	const { apps, current } = memInfo;
 
 	if (current > 1) {
+		// Clears the card app currently being worked on from the collection
 		apps.delete(current);
 
 		const memberInfo = getMemberInfo(cache, member);
 		memberInfo.currentOf = memberInfo.apps.size;
 	}
 
+	// Clears the most recent card app from the collection
 	return apps.delete(current);
 };
 
 // cache page info
+/**
+ * Current card app's page info object
+ * @param {ClientCache} cache Global Cache Collection
+ * @param {GuildMember} member Guild Member
+ * @returns {PageInfo} Current card app's page info
+ */
 const getPageInfo = (cache, member) => {
 	const memInfo = getMemberInfo(cache, member);
 	const app = memInfo.appInfo;
