@@ -3,7 +3,7 @@ const { Collection, GuildMember, EmbedField } = require('discord.js');
 const { Races, Types, Attributes, Archetypes, LinkMarkers } = require('./constants');
 const { CardCache, MemberInfo, PageInfo, ServerInfo, CardApp, StepData,
 	ClientCache, MemberCache, StepsColl, InfoFormData, StepDataInfo, StepDataType,
-	StepDataStats, CacheObject,
+	StepDataStats, CacheObject, StepDataLink, StepDataSets,
 } = require('./types');
 
 
@@ -358,6 +358,12 @@ const statData = (cache, stats, step) => {
 	return data;
 };
 
+/**
+ * @param {ClientCache} _cache Global Cache Collection
+ * @param {EmbedField[]} mrks Embed Fields wih the Link Marker info
+ * @param {number} step Current Step (4)
+ * @returns {StepDataLink} Value of the aggregate Link Markers
+ */
 const linkData = (_cache, mrks, step) => {
 	const linkVal = mrks.reduce((acc, mrk) => {
 		const { value } = mrk;
@@ -371,6 +377,12 @@ const linkData = (_cache, mrks, step) => {
 	return { step, markers: linkVal };
 };
 
+/**
+ * @param {ClientCache} _cache Global Cache Collection
+ * @param {EmbedField[]} arcs Archetypes
+ * @param {number} step Current Step (5)
+ * @returns {StepDataSets} The Archetype's data for this card
+ */
 const setData = (_cache, arcs, step) => {
 	const temp = {
 		step,

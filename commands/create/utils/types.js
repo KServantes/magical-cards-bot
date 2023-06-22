@@ -197,4 +197,31 @@ const { Collection, GuildMember, Message, MessageEmbed } = require('discord.js')
  * @property {number} level Level/Pendulum Scale
  */
 
+// === === === === === === ===
+// = Step 04 (Link) Objects ==
+// === === === === === === ===
+
+/**
+ * @typedef {object} StepDataLink
+ * @property {number} step Current step
+ * @property {number} markers Link Marker's aggregate value
+ */
+
+// === === === === === === ===
+// = Step 05 (Sets) Objects ==
+// === === === === === === ===
+
+/**
+ * @typedef {object} SetDataSets
+ * @property {string[]} sets Archetype set names
+ * @property {string[]} codes Archetype set codes
+ */
+
+/**
+ * @typedef {object} StepDataSets
+ * @property {number} step Current Step
+ * @property {SetDataSets} archetypes Archetypes Object
+ * @property {number} setcode Aggregated setcode data for the db
+ */
+
 module.exports = {};
