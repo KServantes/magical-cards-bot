@@ -1,4 +1,4 @@
-const { Collection, GuildMember, MessageEmbed } = require('discord.js');
+const { Collection, GuildMember, Message, MessageEmbed } = require('discord.js');
 
 
 // Collections
@@ -122,7 +122,7 @@ const { Collection, GuildMember, MessageEmbed } = require('discord.js');
  */
 
 /**
- * @typedef {object} errorMessage
+ * @typedef {object} ErrorMessage
  * @property {MessageEmbed[]} embeds Embed message to go with the error handling
  * @property {[]} components Components will be wiped
  * @property {[]} files Files will be wiped
@@ -132,13 +132,20 @@ const { Collection, GuildMember, MessageEmbed } = require('discord.js');
 /**
  * Extended Error Object
  *
- * Extends the Error Constructor
- *
- * May have an errorMsg property for a specified error message
- * @typedef {object} DefaultError
- * @property {errorMessage} [errorMsg] Error Message to be passed into the ErrorReplyDefault function
+ * May have an embedMessage property for a specified error message
+ * @typedef {object} ExtraError
+ * @property {ErrorMessage} [embedMessage] Error Message to be passed into the ErrorReplyDefault function
  * @augments Error
  */
+
+/**
+ * @typedef {Error & ExtraError} DefaultError
+ */
+
+/**
+ * @typedef {{[key: string]: Promise<Message>}} Module
+ */
+
 
 // === === === === === === ===
 // == Step 01 (Info) Objects =

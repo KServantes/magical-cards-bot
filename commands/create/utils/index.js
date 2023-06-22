@@ -1,11 +1,10 @@
-// eslint-disable-next-line no-unused-vars
-const { Message, Collection, GuildMember, MessageEmbed, ButtonInteraction,
+const { Message, GuildMember, MessageEmbed, ButtonInteraction,
 	MessageComponentInteraction } = require('discord.js');
 const { BOT_IMG_URL } = require('./constants');
 const wait = require('node:timers/promises').setTimeout;
 const Cache = require('./cache');
 
-const { ClientCache, CacheObject, DefaultError } = require('./types');
+const { ClientCache, CacheObject, DefaultError, Module } = require('./types');
 
 
 /**
@@ -15,7 +14,7 @@ const { ClientCache, CacheObject, DefaultError } = require('./types');
  *
  * Prevents other members from interfering with others' card making process.
  * @param {MessageComponentInteraction} interaction Interaction to be checked
- * @throws {Error&DefaultError}
+ * @throws {DefaultError}
  * @returns {boolean} Either a pass (true) or throws an error with embedded message.
  */
 const CheckOwner = interaction => {
@@ -29,8 +28,8 @@ const CheckOwner = interaction => {
 			.setDescription('>>> Sorry. You didn\'t type this command.\nPlease type the /create command to make a card of your own.')
 			.setThumbnail(BOT_IMG_URL);
 
-		const newError = new Error('Impersonator Error');
-		newError.errorMsg = {
+		const newError = new Error('Member could not be verified');
+		newError.embedMessage = {
 			embeds: [embed],
 			components: [],
 			files: [],
@@ -44,7 +43,7 @@ const CheckOwner = interaction => {
 
 /**
  * Prints the error name, trace, and time of the error to stdout
- * @param {Error} error Error object
+ * @param {DefaultError} error Error object
  * @returns {void} console.log()
  */
 const LogDefault = error => {
@@ -65,7 +64,7 @@ const LogDefault = error => {
 	const timeStr = Intl.DateTimeFormat('en-us', { dateStyle: 'full', timeStyle: 'long' }).format(now);
 
 	return console.log({
-		error: `${error?.name}`,
+		error: `${error.message || error.name}`,
 		trace: traceStr,
 		time:  timeStr,
 	});
@@ -83,6 +82,7 @@ const RegisterCacheData = cacheObject => {
 /**
  * @param {ClientCache} cache Global cache collection from client.
  * @param {GuildMember} member Member object in the guild.
+ * @throws {DefaultError}
  * @returns {void}
  */
 const RegisterCacheCard = (cache, member) => {
@@ -92,7 +92,10 @@ const RegisterCacheCard = (cache, member) => {
 	// check if no entered info
 	const data = Cache.getDataCache(cache, member);
 	if (!data || data.size === 0) {
-		const cacheError = new Error();
+		/**
+		 * @type {DefaultError}
+		 */
+		const cacheError = new Error('Cache Error');
 		const embed = new MessageEmbed()
 			.setColor('RED')
 			.setTitle('Cache Data Error')
@@ -102,7 +105,7 @@ const RegisterCacheCard = (cache, member) => {
 			.setFooter({ text: 'Cache Error',
 				iconURL: member.user.displayAvatarURL({ dynamic: true }),
 			});
-		cacheError['errorMsg'] = { components: [], embeds: [embed], ephemeral: true, files: [] };
+		cacheError['embedMessage'] = { components: [], embeds: [embed], ephemeral: true, files: [] };
 		throw cacheError;
 	}
 
@@ -117,7 +120,7 @@ const RegisterCacheCard = (cache, member) => {
 
 /**
  * @param {MessageComponentInteraction} interaction Interaction to reply or update.
- * @param {Error&DefaultError} error Error object.
+ * @param {DefaultError} error Error object.
  * @returns {Promise<void>|Promise<Message<boolean>>} Either replies with a generic error or with the specific error message.
  */
 const ErrorReplyDefault = async (interaction, error) => {
@@ -138,13 +141,13 @@ Please retry executing the command.`)
 		.setThumbnail(BOT_IMG_URL);
 
 	// default behavior
-	if (error.errorMsg === undefined) {
+	if (error.embedMessage === undefined) {
 		const replyMsg = { embeds: [errorEmbed], ephemeral: true };
 		return await interaction.reply(replyMsg);
 	}
 
-	const { errorMsg } = error;
-	await interaction.update(errorMsg);
+	const { embedMessage } = error;
+	await interaction.update(embedMessage);
 	await wait(4000);
 	return await message.delete();
 };
@@ -158,23 +161,14 @@ Please retry executing the command.`)
  * @returns {Promise<Message<boolean>>} Function for the button wrapped in checker functions.
  */
 const MiddleWrapper = buttonChoice => {
-
-	// check owner first
-	/**
-	 *	Function wrap for checking the "owner" of the app.
-	 *  @param {ButtonInteraction} args Interaction for the button
-	 */
-	// Re-add when all functions are up-to-date.
-	// eslint-disable-next-line no-unused-vars
-	function checker(...args) {
-		CheckOwner(...args);
-	}
-
 	// TODO update avatar/icon url cache if different
 
 	return async (...args) => {
 		try {
-			// checker(...args);
+			/**
+			 * @todo add back in when function interacts are up-to-date
+			 */
+			// CheckOwner(...args);
 			return await buttonChoice(...args);
 		}
 		catch (error) {
@@ -184,9 +178,6 @@ const MiddleWrapper = buttonChoice => {
 	};
 };
 
-/**
- * @typedef {[key:string, value:Promise<Message>]} Module
- */
 
 /**
  * Applies the wrapper middleware

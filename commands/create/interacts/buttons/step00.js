@@ -1,17 +1,17 @@
 // eslint-disable-next-line no-unused-vars
-const { MessageEmbed, ButtonInteraction, Message } = require('discord.js');
+const { MessageEmbed, ButtonInteraction, Message, MessageButton } = require('discord.js');
 const { BOT_IMG_URL } = require('../../utils/constants');
-const Form = require('./../../forms/index');
+const Form = require('../../forms');
 const Cache = require('../../utils/cache');
 const wait = require('node:timers/promises').setTimeout;
 
 
 /**
  * Starts the card creation process
- * Brings up Info Form
  *
- * @param {ButtonInteraction} interaction
- * @returns {Promise<Message<boolean>>}
+ * Brings up Info Form
+ * @param {ButtonInteraction} interaction Button Interact
+ * @returns {Promise<Message<boolean>>} Edited message
  */
 const bcStart = async interaction => {
 	const { message } = interaction;
@@ -32,8 +32,8 @@ const bcStart = async interaction => {
 
 /**
  * Replies with farewell and deletes after 4 seconds.
- * @param {ButtonInteraction} interaction
- * @returns {Promise<Message>}
+ * @param {ButtonInteraction} interaction Button Interact
+ * @returns {Promise<Message>} Deleted message
  */
 const bcHalt = async interaction => {
 	const { footer } = interaction.message.embeds[0];
@@ -51,13 +51,18 @@ const bcHalt = async interaction => {
 };
 
 /**
- *
- * @param {ButtonInteraction} interaction
- * @returns {Promise<Message>}
+ * Toggle the card image preview
+ * @param {ButtonInteraction} interaction Button Interact
+ * @returns {Promise<Message>} Message with updated components
  */
 const bcPreview = async interaction => {
 	const { message, client, member } = interaction;
-	const actionRow = message.components[0];
+	const { embeds, components } = message;
+	const actionRow = components[0];
+	/**
+	 * First button in action row "Preview"
+	 * @type {MessageButton}
+	 */
 	const prevBtn = actionRow.components[0];
 
 	const { cache } = client;
@@ -69,7 +74,7 @@ const bcPreview = async interaction => {
 	prevBtn.setLabel('Preview: ' + label);
 	memberInfo.showPreview = !prev;
 
-	return await interaction.update({ embeds: message.embeds, components: message.components });
+	return await interaction.update({ embeds, components });
 };
 
 module.exports = { bcStart, bcHalt, bcPreview };
