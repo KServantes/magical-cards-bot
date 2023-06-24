@@ -144,7 +144,12 @@ Please retry executing the command.`)
 		const replyMsg = { embeds: [errorEmbed], ephemeral: true };
 		return await interaction.reply(replyMsg);
 	}
+	// if error made by someone else
+	if (error.message === 'Member could not be verified') {
+		return await interaction.reply(error.embedMessage);
+	}
 
+	// if error made by owner
 	const { embedMessage } = error;
 	await interaction.update(embedMessage);
 	await wait(4000);
@@ -167,7 +172,7 @@ const MiddleWrapper = buttonChoice => {
 			/**
 			 * @todo add back in when function interacts are up-to-date
 			 */
-			// CheckOwner(...args);
+			CheckOwner(...args);
 			return await buttonChoice(...args);
 		}
 		catch (error) {
