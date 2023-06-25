@@ -20,11 +20,19 @@ const CheckOwner = interaction => {
 	const { member, message } = interaction;
 	const { footer } = message.embeds[0];
 	const avatarString = member.user.displayAvatarURL({ dynamic: true });
+	/**
+	 * @todo add the rest of this validation stuffs
+	 * check footer, check footer icon, check member name, check against cache
+	 */
 	if (!footer || footer.iconURL !== avatarString) {
 		const embed = new MessageEmbed()
 			.setColor('#dd0f0f')
 			.setTitle('Trap Card, Activate!')
 			.setDescription('>>> Sorry. You didn\'t type this command.\nPlease type the /create command to make a card of your own.')
+			.setFooter({
+				text: member.displayName ?? member.user.username,
+				iconURL: avatarString,
+			})
 			.setThumbnail(BOT_IMG_URL);
 
 		const newError = new Error('Member could not be verified');
