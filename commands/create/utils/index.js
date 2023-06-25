@@ -23,6 +23,7 @@ const CheckOwner = interaction => {
 	/**
 	 * @todo add the rest of this validation stuffs
 	 * check footer, check footer icon, check member name, check against cache
+	 * if multiple errors start the rate limit
 	 */
 	if (!footer || footer.iconURL !== avatarString) {
 		const embed = new MessageEmbed()
@@ -70,7 +71,7 @@ const LogDefault = error => {
 	const now = new Date();
 	const timeStr = Intl.DateTimeFormat('en-us', { dateStyle: 'full', timeStyle: 'long' }).format(now);
 
-	return console.log({
+	return console.table({
 		error: `${error.message || error.name}`,
 		trace: traceStr,
 		time:  timeStr,

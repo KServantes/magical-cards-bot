@@ -244,7 +244,7 @@ const raceVal = (field) => {
 };
 /**
  * @param {EmbedField} field Type field
- * @returns {number} Value from the embed field or 777 (if none)
+ * @returns {[number,boolean]} Value from the embed field or 777 (if none)
  */
 const typeVal = (field) => {
 	let val = 0;
