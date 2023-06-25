@@ -35,7 +35,7 @@ const CheckOwner = interaction => {
 			})
 			.setThumbnail(BOT_IMG_URL);
 
-		const newError = new Error('Member could not be verified');
+		const newError = new Error(`Member '${embed.footer.text}' could not be verified`);
 		newError.embedMessage = {
 			embeds: [embed],
 			components: [],
@@ -153,7 +153,7 @@ Please retry executing the command.`)
 		return await interaction.reply(replyMsg);
 	}
 	// if error made by someone else
-	if (error.message === 'Member could not be verified') {
+	if (error.message.includes('could not be verified')) {
 		return await interaction.reply(error.embedMessage);
 	}
 
