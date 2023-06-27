@@ -64,12 +64,8 @@ const { Collection, GuildMember, Message, MessageEmbed } = require('discord.js')
  */
 
 /**
- * @typedef {object} StepData
- * @property {number} step Step number
- * @property {*} [prop_one] Data
- * @property {*} [prop_two] Data
- * @property {*} [prop_tres] Data
- * @property {*} [prop_four] Data
+ * @typedef {(StepDataInfo | StepDataType | StepDataStats
+ *  | StepDataSets | StepDataLink)} StepData
  */
 
 /**

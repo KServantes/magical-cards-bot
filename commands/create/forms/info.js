@@ -1,11 +1,24 @@
-const { Modal, TextInputComponent, MessageActionRow } = require('discord.js');
+const { Modal, TextInputComponent, MessageActionRow, ButtonInteraction } = require('discord.js');
 const { BOT_DEFAULT_PASS } = require('../../../data/models');
 const { UID_CARD_INFO } = require('../utils/constants');
+const { StepDataInfo } = require('../utils/types');
 const Helper = require('../utils/cache');
 
+/**
+ * #### Info Modal Function
+ *
+ * Takes info for name, pendulum effect, effect desc, and passcode
+ * The name and id is to be short with the id being limited to 10 characters.
+ * Upon validation the id will be converted to a number
+ * if the id exists or is not a number it will be exchanged for the next id in the list.
+ * @param {ButtonInteraction} interaction Button that called it
+ */
 const infoForm = async (interaction) => {
-	const { cache } = interaction.client;
-	const { member } = interaction;
+	const { member, client } = interaction;
+	const { cache } = client;
+	/**
+	 * @type {StepDataInfo}
+	 */
 	const prev = Helper.getStepCache({ cache, member, step: 1 });
 
 	const modal = new Modal()
