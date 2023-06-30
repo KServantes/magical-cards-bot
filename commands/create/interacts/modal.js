@@ -1,4 +1,4 @@
-const { MessageActionRow, MessageButton, MessageEmbed, ModalSubmitInteraction } = require('discord.js');
+const { MessageActionRow, MessageButton, MessageEmbed, ModalSubmitInteraction, Message } = require('discord.js');
 const db = require('../../../data/models');
 const Helper = require('../utils/cache');
 const Canvas = require('../utils/canvas');
@@ -16,6 +16,25 @@ const { InfoFormData } = require('../utils/types');
 const STEP_ONE = 1;
 const STEP_THREE = 3;
 
+/**
+ * @typedef {object} errorObjectMsg
+ * @property {MessageEmbed[]} embeds embeds to pass
+ * @property {MessageActionRow[]} components buttons to pass
+ * @property {[]} files files to be wiped
+ */
+
+/**
+ * @typedef {object} errorObject
+ * @property {boolean} error true if failed the check
+ * @property {errorObjectMsg} [msg] available if failed the check
+ */
+
+/**
+ * Checks if the card already exists and
+ * returns an error object with error message
+ * @param {number} card_id Card's passcode to check
+ * @returns {errorObject} an object with the results
+ */
 const checkOldCard = async card_id => {
 	const exists = await db.getCard(card_id);
 	if (exists) {
@@ -40,6 +59,12 @@ Please enter a different card id`);
 	return { error: false };
 };
 
+/**
+ * Checks if the string passed is a valid number
+ * If failed then auto picks a number from the bot default range
+ * @param {number|string} card_id card's passcode string to be checked/converted
+ * @returns {number} a new number id from default range
+ */
 const checkConvertType = async card_id => {
 	let cardCode = card_id;
 	if (isNaN(cardCode)) {
@@ -57,12 +82,16 @@ const checkConvertType = async card_id => {
 /**
  * Submit Function for the Info Modal Form
  * @param {ModalSubmitInteraction} interaction Info Form Modal
- * @returns {Promise<void>} Either updates message with confirm or error message
+ * @returns {Promise<void>|Promise<Message>} Either updates message with confirm or error message
  */
 const cardInfoSubmit = async interaction => {
 	const { member, client, fields } = interaction;
 	const { cache } = client;
 
+	/**
+	 * @param {string} input stringer
+	 * @returns {string} slightly shorter func name
+	 */
 	const getInputVal = input => fields.getTextInputValue(input);
 
 	try {
@@ -118,7 +147,7 @@ ${cardCode}`);
 		Helper.setDataCache({ member, cache, args: currentCard, step: STEP_ONE });
 
 		// current card image
-		const memInfo = Helper.getMemberInfo(cache,member);
+		const memInfo = Helper.getMemberInfo(cache, member);
 		const messageFiles = [];
 		if (memInfo.preview) {
 			const cardImage = await Canvas.createCard({ member, cache, step: STEP_ONE });
