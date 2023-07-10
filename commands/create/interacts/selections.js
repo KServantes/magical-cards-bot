@@ -19,11 +19,13 @@ const {
 	Archetypes,
 } = require('../utils/constants');
 
+const { MemberInfo } = require('../utils/types');
+
 /**
  * Checks for legal values
  *
  * @param {EmbedField[]} fields
- * @param {Helper.MemberInfo} memberInfo
+ * @param {MemberInfo} memberInfo
  * @returns {MessageEmbed}
  */
 const checkTypes = (fields, memberInfo) => {

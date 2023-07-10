@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageSelectMenu } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageSelectMenu, ButtonInteraction, MessageButton } = require('discord.js');
 const Form = require('../../forms');
 const Utils = require('../../utils');
 const { Races, Types, Attributes,
@@ -10,6 +10,8 @@ const { Races, Types, Attributes,
  * Registers Card Data
  * Then brings up the Select Menus
  * (Race, Type, Attribute)
+ * @param {ButtonInteraction} interaction Button Interaction
+ * @returns {Promise<void>} the interaction message updated
  */
 const bcNext = async interaction => {
 
@@ -30,37 +32,58 @@ const bcNext = async interaction => {
 		return options;
 	};
 
-	const raceOptions = getOptions(Races);
-	const raceRow = new MessageActionRow()
+	const selectRace =
+		new MessageSelectMenu()
+			.setCustomId(UID_CARD_RACE)
+			.setPlaceholder('Zombie');
+		// .addOptions(raceOptions);
+
+	const selectType =
+		new MessageSelectMenu()
+			.setCustomId(UID_CARD_TYPE)
+			.setPlaceholder('Monster')
+			.setMinValues(2);
+	// .setMaxValues(6);
+	// .addOptions(typeOptions);
+
+	const selectAtt =
+		new MessageSelectMenu()
+			.setCustomId(UID_CARD_ATT)
+			.setPlaceholder('DARK')
+			.setMinValues(1);
+		// .addOptions(attOptions);
+
+	const optionObject = {
+		Races: [Races, selectRace],
+		Types: [Types, selectType],
+		Attributes: [Attributes, selectAtt],
+	};
+
+	const buttonRow = new MessageActionRow()
 		.addComponents(
-			new MessageSelectMenu()
-				.setCustomId(UID_CARD_RACE)
-				.setPlaceholder('Zombie')
-				.addOptions(raceOptions),
+			new MessageButton()
+				.setCustomId('Spell|Trap')
+				.setLabel('Spell/Trap')
+				.setStyle('SECONDARY'),
+			new MessageButton()
+				.setCustomId('Monster')
+				.setLabel('Monsters')
+				.setStyle('SECONDARY'),
+			new MessageButton()
+				.setCustomId('Tokenize')
+				.setLabel('Token')
+				.setStyle('SECONDARY'),
 		);
 
+	const optionRows = [buttonRow];
 
-	const typeOptions = getOptions(Types);
-	const typeRow = new MessageActionRow()
-		.addComponents(
-			new MessageSelectMenu()
-				.setCustomId(UID_CARD_TYPE)
-				.setPlaceholder('Monster')
-				.setMinValues(2)
-				// .setMaxValues(6)
-				.addOptions(typeOptions),
-		);
-
-
-	const attOptions = getOptions(Attributes);
-	const attributeRow = new MessageActionRow()
-		.addComponents(
-			new MessageSelectMenu()
-				.setCustomId(UID_CARD_ATT)
-				.setPlaceholder('DARK')
-				.setMinValues(1)
-				.addOptions(attOptions),
-		);
+	Object.values(optionObject).forEach(optionArray => {
+		const [rowtype, selectmenu] = optionArray;
+		const options = getOptions(rowtype);
+		selectmenu.addOptions(options);
+		const newRow = new MessageActionRow().addComponents(selectmenu);
+		optionRows.push(newRow);
+	});
 
 	const embed = new MessageEmbed()
 		.setColor('#0099ff')
@@ -68,7 +91,7 @@ const bcNext = async interaction => {
 		.setDescription('Please select this card\'s Race | Type | Attribute')
 		.setThumbnail(BOT_IMG_URL);
 
-	return await interaction.update({ components: [raceRow, typeRow, attributeRow], embeds: [embed], files: [] });
+	return await interaction.update({ components: optionRows, embeds: [embed], files: [] });
 };
 
 /**
