@@ -1,10 +1,41 @@
-const { MessageEmbed, MessageActionRow, MessageSelectMenu, ButtonInteraction, MessageButton } = require('discord.js');
+const {
+	Message,
+	Collection,
+	MessageEmbed,
+	MessageButton,
+	MessageActionRow,
+	ButtonInteraction,
+	MessageSelectMenu,
+	MessageSelectOptionData,
+} = require('discord.js');
 const Form = require('../../forms');
 const Utils = require('../../utils');
 const { Races, Types, Attributes,
 	BOT_IMG_URL, UID_CARD_ATT, UID_CARD_RACE, UID_CARD_TYPE,
 } = require('../../utils/constants');
 
+
+/**
+ * Gets options array
+ * Filter to be added
+ * @param {Collection} coll option collection
+ * @returns {MessageSelectOptionData[]} options to be added
+ */
+const getOptions = coll => {
+	const options = coll.reduce((acc, _, r) => {
+		/**
+		 * @type {MessageSelectOptionData}
+		 */
+		const option = {
+			label: r,
+			value: r,
+		};
+
+		return acc.concat(option);
+	}, []);
+
+	return options;
+};
 
 /**
  * Registers Card Data
@@ -15,22 +46,11 @@ const { Races, Types, Attributes,
  */
 const bcNext = async interaction => {
 
-	const { cache } = interaction.client;
-	const { member } = interaction;
+	const { message, client, member } = interaction;
+	const { footer } = message.embeds[0];
+	const { cache } = client;
+
 	Utils.RegisterCacheCard(cache, member);
-
-	const getOptions = coll => {
-		const options = coll.reduce((acc, _, r) => {
-			const option = {
-				label: r,
-				value: r,
-			};
-
-			return acc.concat(option);
-		}, []);
-
-		return options;
-	};
 
 	const selectRace =
 		new MessageSelectMenu()
@@ -53,6 +73,16 @@ const bcNext = async interaction => {
 			.setMinValues(1);
 		// .addOptions(attOptions);
 
+	/**
+	 * @typedef {object} OptionsObject
+	 * @property {[Collection, MessageSelectMenu]} Races races array
+	 * @property {[Collection, MessageSelectMenu]} Types types array
+	 * @property {[Collection, MessageSelectMenu]} Attributes att array
+	 */
+
+	/**
+	 * @type {OptionsObject}
+	 */
 	const optionObject = {
 		Races: [Races, selectRace],
 		Types: [Types, selectType],
@@ -68,7 +98,7 @@ const bcNext = async interaction => {
 			new MessageButton()
 				.setCustomId('Monster')
 				.setLabel('Monsters')
-				.setStyle('SECONDARY'),
+				.setStyle('SUCCESS'),
 			new MessageButton()
 				.setCustomId('Tokenize')
 				.setLabel('Token')
@@ -85,10 +115,12 @@ const bcNext = async interaction => {
 		optionRows.push(newRow);
 	});
 
+	const fallbackFooter = { text: 'Magical Card\'s Bot', iconURL: BOT_IMG_URL};
 	const embed = new MessageEmbed()
 		.setColor('#0099ff')
 		.setTitle('Select this Card\'s  ')
 		.setDescription('Please select this card\'s Race | Type | Attribute')
+		.setFooter(footer ?? fallbackFooter)
 		.setThumbnail(BOT_IMG_URL);
 
 	return await interaction.update({ components: optionRows, embeds: [embed], files: [] });
@@ -96,6 +128,8 @@ const bcNext = async interaction => {
 
 /**
  * Brings up the Info Form again
+ * @param {ButtonInteraction} interaction button interaction
+ * @returns {Promise<Message>} the edited msg plus info form
  */
 const bcEdit = async interaction => {
 	await Form.info(interaction);
@@ -105,6 +139,50 @@ const bcEdit = async interaction => {
 		.setDescription('Please wait...')
 		.setThumbnail(BOT_IMG_URL);
 	return await interaction.message.edit({ embeds: [embed], components: [], files: [] });
+};
+
+/**
+ * Filters the types down to only
+ * @param {ButtonInteraction} interaction button interaction
+ * @returns {Promise<void>} the updated message
+ */
+const bcSpellTrap = async interaction => {
+	const { message } = interaction;
+	const { embeds, components } = message;
+	/**
+	 * @type {[MessageActionRow,MessageSelectMenu]}
+	 */
+	const [actionRow, ...selectMenus] = components;
+	/**
+	 * First button in action row "Preview"
+	 * @type {MessageButton[]}
+	 */
+	const buttons = actionRow.components;
+	// [spellBtn, monBtn, tokenBtn]
+
+	// select spell/trap btn
+	buttons.forEach(button => {
+		if (button.customId != 'Spell|Trap') {
+			button.setStyle('SECONDARY');
+		}
+		button.setStyle('SUCCESS');
+	});
+
+	/**
+	 * @type {MessageSelectMenu[]}
+	 */
+	const [typeMenu] = selectMenus.filter(menu => menu.customId === UID_CARD_TYPE);
+	const Spells = new Collection([
+		['Normal', 0x10],
+		['Quickplay', 0x10000],
+		['Continuous', 0x20000],
+		['Field', 0x80000],
+		['Counter', 0x100000],
+	]);
+	const spellOptions = getOptions(Spells);
+	typeMenu.setOptions(spellOptions);
+
+	return await interaction.update({ embeds, components });
 };
 
 module.exports = {
