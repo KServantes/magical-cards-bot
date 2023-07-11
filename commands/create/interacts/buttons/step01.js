@@ -188,4 +188,5 @@ const bcSpellTrap = async interaction => {
 module.exports = {
 	bcEdit,
 	bcNext,
+	bcSpellTrap,
 };
