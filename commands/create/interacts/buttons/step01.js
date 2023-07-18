@@ -3,6 +3,7 @@ const {
 	Collection,
 	MessageEmbed,
 	MessageButton,
+	EmbedFieldData,
 	MessageActionRow,
 	ButtonInteraction,
 	MessageSelectMenu,
@@ -18,11 +19,19 @@ const { Races, Types, Attributes,
 /**
  * Gets options array
  * Filter to be added
- * @param {Collection} coll option collection
+ * @param {Collection.<string, number>} coll option collection
+ * @param {Function} sf filter function
  * @returns {MessageSelectOptionData[]} options to be added
  */
-const getOptions = coll => {
-	const options = coll.reduce((acc, _, r) => {
+const getOptions = (coll, sf) => {
+	let startColl = coll;
+
+	// spell function filter
+	if (sf && typeof sf === 'function') {
+		startColl = coll.filter(sf);
+	}
+
+	const options = startColl.reduce((acc, _, r) => {
 		/**
 		 * @type {MessageSelectOptionData}
 		 */
@@ -115,7 +124,7 @@ const bcNext = async interaction => {
 		optionRows.push(newRow);
 	});
 
-	const fallbackFooter = { text: 'Magical Card\'s Bot', iconURL: BOT_IMG_URL};
+	const fallbackFooter = { text: 'Magical Card\'s Bot', iconURL: BOT_IMG_URL };
 	const embed = new MessageEmbed()
 		.setColor('#0099ff')
 		.setTitle('Select this Card\'s  ')
@@ -149,10 +158,15 @@ const bcEdit = async interaction => {
 const bcSpellTrap = async interaction => {
 	const { message } = interaction;
 	const { embeds, components } = message;
+
+	const msgEmbed = embeds[0];
+	const { fields } = msgEmbed;
+	if (fields.length > 0) msgEmbed.setFields([]);
+
 	/**
-	 * @type {[MessageActionRow,MessageSelectMenu]}
+	 * @type {MessageActionRow[]}
 	 */
-	const [actionRow, ...selectMenus] = components;
+	const [actionRow, ...selectRows] = components;
 	/**
 	 * First button in action row "Preview"
 	 * @type {MessageButton[]}
@@ -164,23 +178,52 @@ const bcSpellTrap = async interaction => {
 	buttons.forEach(button => {
 		if (button.customId != 'Spell|Trap') {
 			button.setStyle('SECONDARY');
+			return ;
 		}
 		button.setStyle('SUCCESS');
 	});
 
 	/**
+	 * @type {MessageActionRow[]}
+	 */
+	const [typeRow] = selectRows.filter(row => row.components[0]?.customId === UID_CARD_TYPE);
+	/**
 	 * @type {MessageSelectMenu[]}
 	 */
-	const [typeMenu] = selectMenus.filter(menu => menu.customId === UID_CARD_TYPE);
-	const Spells = new Collection([
+	const [typeMenu] = typeRow.components;
+
+	/**
+	 * @param {number} spellTypes combined spell types
+	 * @returns {Function} a filter function
+	 */
+	const filterFun = spellTypes => val => (val & spellTypes) != 0;
+
+	const TYPES_SPELL = new Collection([
 		['Normal', 0x10],
 		['Quickplay', 0x10000],
 		['Continuous', 0x20000],
 		['Field', 0x80000],
 		['Counter', 0x100000],
-	]);
-	const spellOptions = getOptions(Spells);
-	typeMenu.setOptions(spellOptions);
+	]).reduce((acc, num) => acc + num, 0);
+
+	const spellOptions = getOptions(Types, filterFun(TYPES_SPELL));
+
+	typeMenu.setPlaceholder('Quick-Play');
+	typeMenu.setMinValues(1);
+	typeMenu.setMaxValues(1);
+	typeMenu.spliceOptions(0, 24, spellOptions);
+
+	/**
+	 * @type {EmbedFieldData[]}
+	 */
+	const preFill = [
+		{
+			name: 'Type',
+			value: 'Spell',
+			inline: true,
+		},
+	];
+	msgEmbed.setFields(preFill);
 
 	return await interaction.update({ embeds, components });
 };

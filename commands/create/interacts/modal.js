@@ -85,7 +85,8 @@ const checkConvertType = async card_id => {
  * @returns {Promise<void>|Promise<Message>} Either updates message with confirm or error message
  */
 const cardInfoSubmit = async interaction => {
-	const { member, client, fields } = interaction;
+	const { message, member, client, fields } = interaction;
+	const { footer } = message.embeds[0];
 	const { cache } = client;
 
 	/**
@@ -119,7 +120,7 @@ ${cardDesc}`;
 			.setTitle('Thank You')
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png')
 			.setImage('attachment://temp.png')
-			.setFooter({ text: member.nickname, iconURL: member.user.displayAvatarURL() })
+			.setFooter(footer)
 			.setDescription(`>>> 
 *Card Recorded as:*
 

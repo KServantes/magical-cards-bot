@@ -1,12 +1,14 @@
-const { createCanvas, loadImage, GlobalFonts } = require('@napi-rs/canvas');
-const { MessageAttachment } = require('discord.js');
-const CardCache = require('./cache');
+const { createCanvas, loadImage, GlobalFonts, SKRSContext2D } = require('@napi-rs/canvas');
+const { MessageAttachment, GuildMember } = require('discord.js');
+const Cache = require('./cache');
 const { join } = require('path');
 const {
 	Types,
 	Templates,
 	Attributes,
 	PNG_Attributes: AttColl } = require('./constants');
+
+const { CardCache, StepDataType } = require('./types');
 
 const registerFonts = bool => {
 	const path = join(__dirname, '../../', 'assets/fonts', 'Yu-Gi-Oh! Matrix Book.ttf');
@@ -96,6 +98,12 @@ const addATKDEF = (context, cardData) => {
 	return context;
 };
 
+/**
+ * 
+ * @param {SKRSContext2D} context canvas context
+ * @param {[StepDataType, CardCache]} cardData data
+ * @returns {SKRSContext2D}
+ */
 const addTypes = (context, cardData) => {
 	const [data, card] = cardData;
 	const { step } = data;
@@ -105,7 +113,7 @@ const addTypes = (context, cardData) => {
 
 		// data returned in step 2
 		// data { ..., type: [int, bool] }
-		const type = step === 2 ? data?.type[0] : card?.type;
+		const type = step === 2 ? data.type[0] : card.type;
 		const tStr = Types.reduce((acc, v, t) => {
 			if ((type & v).toString(16) != 0) {
 				return acc.concat(t + ' ');
@@ -155,11 +163,24 @@ const addName = (context, cardData) => {
 	context.fillText(`${name}`, 30, 60);
 };
 
+/**
+ * @typedef {Object} stepObject
+ * @property {CardCache} cache global card cache
+ * @property {GuildMember} member member
+ * @property {number} step current step
+ */
+
+/**
+ * Creates a new message attachment to draw
+ * card images based on the current step
+ * @param {stepObject} cacheObject current step with cache
+ * @returns {MessageAttachment} drawn card image placeholder
+ */
 const createCard = async cacheObject => {
 	const { cache, member, step } = cacheObject;
 	const [canvas, context] = newCanvas();
-	const data = CardCache.getStepCache({ cache, member, step });
-	const card = CardCache.getCardCache(cache, member);
+	const data = Cache.getStepCache({ cache, member, step });
+	const card = Cache.getCardCache(cache, member);
 	const cardData = [data, card];
 
 	await addTemplate(canvas, context, cardData);

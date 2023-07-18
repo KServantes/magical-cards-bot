@@ -8,6 +8,7 @@ const {
 	EmbedField,
 	SelectMenuInteraction,
 	MessageActionRowComponent,
+	MessageSelectMenu,
 } = require('discord.js');
 const {
 	UID_CARD_TYPE,
@@ -70,7 +71,7 @@ const checkTypes = (fields, memberInfo) => {
  * @returns {Promise<void>}
  */
 const selection = async (interaction, type, value, uid) => {
-	const { member, message } = interaction;
+	const { client, member, message } = interaction;
 	const { components, embeds: msgEmbed } = message;
 	const msgEmbFields = msgEmbed[0].fields;
 	/**
@@ -83,6 +84,10 @@ const selection = async (interaction, type, value, uid) => {
 	};
 
 	// remove select menu row from message
+	// link to flow chart
+	/**
+	 * @type {MessageActionRow[]}
+	 */
 	const rest = components.filter(actionRow => {
 		// ass of v13 actionRow can only have 1 SelectMenuBuilder
 		const selectMenu = actionRow.components[0];
@@ -90,8 +95,9 @@ const selection = async (interaction, type, value, uid) => {
 	});
 
 	// add buttons for next step
-	const isEmptyRest = rest.length === 0;
-	if (isEmptyRest) {
+	const isLastRow = rest.length === 1;
+	if (isLastRow) {
+
 		const editBtn = new MessageButton()
 			.setCustomId(UID_EDIT_STEP2)
 			.setLabel('Edit')
@@ -106,7 +112,7 @@ const selection = async (interaction, type, value, uid) => {
 	}
 
 	// set in cache
-	const { cache } = interaction.client;
+	const { cache } = client;
 	Helper.setDataCache({ member, cache, args: newField, step: 2 });
 
 	// message embed
@@ -118,7 +124,7 @@ const selection = async (interaction, type, value, uid) => {
 		.addFields([...msgEmbFields, newField]);
 
 	const memberInfo = Helper.getMemberInfo(cache, member);
-	const embeds = isEmptyRest ?
+	const embeds = isLastRow ?
 		[checkTypes([...msgEmbFields, newField], memberInfo)]
 		: [currentEmbed];
 
@@ -126,7 +132,11 @@ const selection = async (interaction, type, value, uid) => {
 	const msg = { embeds, components: rest };
 
 	// draw results
-	if (rest[0]?.components[0]?.type === 'BUTTON' && memberInfo.preview) {
+	const button_row = rest[0];
+	const { components: buttons } = button_row;
+	const [first_button] = buttons;
+	const dataSet = memberInfo.appInfo.data.at(2);
+	if (first_button.label === 'Spell|Trap' && dataSet.step === 2 && memberInfo.preview) {
 		const cardImage = await Canvas.createCard({ member, cache, step: 2 });
 		msg.files = [cardImage];
 	}

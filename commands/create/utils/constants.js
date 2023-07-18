@@ -121,6 +121,19 @@ const Types = new Collection([
 	['Link', 0x4000000],
 ]);
 
+// 1769488
+// 0x1B0010
+const TYPES_SPELL = new Collection([
+	['Normal', 0x10],
+	['Quickplay', 0x10000],
+	['Continuous', 0x20000],
+	['Field', 0x80000],
+	['Counter', 0x100000],
+]);
+
+//
+const TYPES_TRAP = new Collection();
+
 const Attributes = new Collection([
 	['EARTH ', 0x01],
 	['WATER ', 0x02],
