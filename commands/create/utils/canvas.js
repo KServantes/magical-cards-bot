@@ -1,4 +1,4 @@
-const { createCanvas, loadImage, GlobalFonts, SKRSContext2D } = require('@napi-rs/canvas');
+const { createCanvas, loadImage, GlobalFonts, SKRSContext2D, Canvas } = require('@napi-rs/canvas');
 const { MessageAttachment, GuildMember } = require('discord.js');
 const Cache = require('./cache');
 const { join } = require('path');
@@ -8,7 +8,7 @@ const {
 	Attributes,
 	PNG_Attributes: AttColl } = require('./constants');
 
-const { CardCache, StepDataType } = require('./types');
+const { CardCache, StepData, StepDataType } = require('./types');
 
 const registerFonts = bool => {
 	const path = join(__dirname, '../../', 'assets/fonts', 'Yu-Gi-Oh! Matrix Book.ttf');
@@ -67,6 +67,12 @@ const addPasscode = (context, cardData) => {
 	context.fillText(`${id}`, 16, 597);
 };
 
+/**
+ * @async
+ * @param {SKRSContext2D} context context object
+ * @param {[StepDataType, CardCache]} cardData data
+ * @returns {Promise<SKRSContext2D>} attribute added to context
+ */
 const addAttribute = async (context, cardData) => {
 	const [data, card] = cardData;
 	const { step } = data;
@@ -99,10 +105,10 @@ const addATKDEF = (context, cardData) => {
 };
 
 /**
- * 
+ * Draw the card's types on the canvas
  * @param {SKRSContext2D} context canvas context
  * @param {[StepDataType, CardCache]} cardData data
- * @returns {SKRSContext2D}
+ * @returns {SKRSContext2D} context
  */
 const addTypes = (context, cardData) => {
 	const [data, card] = cardData;
@@ -131,6 +137,12 @@ const addTypes = (context, cardData) => {
 	return context;
 };
 
+/**
+ * @param {Canvas} canvas canvas object
+ * @param {SKRSContext2D} context context object
+ * @param {[StepData, CardCache]} cardData data
+ * @returns {void} card template in context
+ */
 const addTemplate = async (canvas, context, cardData) => {
 	const { width, height } = canvas;
 	const [data, card] = cardData;
@@ -150,6 +162,10 @@ const addTemplate = async (canvas, context, cardData) => {
 	}
 };
 
+/**
+ * @param {SKRSContext2D} context context object
+ * @param {[StepData, CardCache]} cardData data
+ */
 const addName = (context, cardData) => {
 	const [data, card] = cardData;
 	const { name } = data?.step === 1 ? data : card;
@@ -164,7 +180,7 @@ const addName = (context, cardData) => {
 };
 
 /**
- * @typedef {Object} stepObject
+ * @typedef {object} stepObject current step object
  * @property {CardCache} cache global card cache
  * @property {GuildMember} member member
  * @property {number} step current step
@@ -207,6 +223,4 @@ const createCard = async cacheObject => {
 	return attach;
 };
 
-module.exports = {
-	createCard,
-};
+module.exports = { createCard };

@@ -101,11 +101,15 @@ const bcNext = async interaction => {
 	const buttonRow = new MessageActionRow()
 		.addComponents(
 			new MessageButton()
-				.setCustomId('Spell|Trap')
-				.setLabel('Spell/Trap')
+				.setCustomId('Spell Fire')
+				.setLabel('Spell')
 				.setStyle('SECONDARY'),
 			new MessageButton()
-				.setCustomId('Monster')
+				.setCustomId('Trap Activate')
+				.setLabel('Trap')
+				.setStyle('SECONDARY'),
+			new MessageButton()
+				.setCustomId('Monster Summon')
 				.setLabel('Monsters')
 				.setStyle('SUCCESS'),
 			new MessageButton()
