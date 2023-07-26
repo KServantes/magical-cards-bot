@@ -30,6 +30,11 @@ const UID_CARD_ATT = 'card att';
 const UID_EDIT_STEP2 = 'edit2';
 const UID_NEXT_STEP3 = 'step3';
 
+const UID_SPELL_FIRE = 'spell fire';
+const UID_TRAP_ACTIVATE = 'trap activate';
+const UID_MONSTER_SUMMON = 'monster summon';
+const UID_CARD_TOKENIZE = 'tokenize';
+
 // modal / buttons
 // step 3
 const UID_CARD_STATS = 'card stats';
@@ -125,14 +130,21 @@ const Types = new Collection([
 // 0x1B0010
 const TYPES_SPELL = new Collection([
 	['Normal', 0x10],
+	['Ritual', 0x80],
 	['Quickplay', 0x10000],
 	['Continuous', 0x20000],
+	['Equip', 0x40000],
 	['Field', 0x80000],
 	['Counter', 0x100000],
+	['Link', 0x4000000],
 ]);
 
 //
-const TYPES_TRAP = new Collection();
+const TYPES_TRAP = new Collection([
+	['Normal', 0x10],
+	['Continuous', 0x20000],
+	['Counter', 0x100000],
+]);
 
 const Attributes = new Collection([
 	['EARTH ', 0x01],
@@ -693,6 +705,8 @@ const PNG_Attributes = new Collection([
 module.exports = {
 	Races,
 	Types,
+	TYPES_SPELL,
+	TYPES_TRAP,
 	Attributes,
 	Archetypes,
 	LinkMarkers,
@@ -709,6 +723,10 @@ module.exports = {
 	UID_CARD_TYPE,
 	UID_CARD_RACE,
 	UID_CARD_ATT,
+	UID_SPELL_FIRE,
+	UID_TRAP_ACTIVATE,
+	UID_MONSTER_SUMMON,
+	UID_CARD_TOKENIZE,
 	UID_EDIT_STEP2,
 	UID_NEXT_STEP3,
 	UID_EDIT_STEP3,

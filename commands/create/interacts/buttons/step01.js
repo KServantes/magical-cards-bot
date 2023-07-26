@@ -11,8 +11,9 @@ const {
 } = require('discord.js');
 const Form = require('../../forms');
 const Utils = require('../../utils');
-const { Races, Types, Attributes,
+const { Races, Types, TYPES_SPELL, Attributes,
 	BOT_IMG_URL, UID_CARD_ATT, UID_CARD_RACE, UID_CARD_TYPE,
+	UID_SPELL_FIRE, UID_TRAP_ACTIVATE, UID_MONSTER_SUMMON, UID_CARD_TOKENIZE,
 } = require('../../utils/constants');
 
 
@@ -101,19 +102,19 @@ const bcNext = async interaction => {
 	const buttonRow = new MessageActionRow()
 		.addComponents(
 			new MessageButton()
-				.setCustomId('Spell Fire')
+				.setCustomId(UID_SPELL_FIRE)
 				.setLabel('Spell')
 				.setStyle('SECONDARY'),
 			new MessageButton()
-				.setCustomId('Trap Activate')
+				.setCustomId(UID_TRAP_ACTIVATE)
 				.setLabel('Trap')
 				.setStyle('SECONDARY'),
 			new MessageButton()
-				.setCustomId('Monster Summon')
+				.setCustomId(UID_MONSTER_SUMMON)
 				.setLabel('Monsters')
 				.setStyle('SUCCESS'),
 			new MessageButton()
-				.setCustomId('Tokenize')
+				.setCustomId(UID_CARD_TOKENIZE)
 				.setLabel('Token')
 				.setStyle('SECONDARY'),
 		);
@@ -159,11 +160,12 @@ const bcEdit = async interaction => {
  * @param {ButtonInteraction} interaction button interaction
  * @returns {Promise<void>} the updated message
  */
-const bcSpellTrap = async interaction => {
+const bcSpell = async interaction => {
 	const { message } = interaction;
 	const { embeds, components } = message;
-
 	const msgEmbed = embeds[0];
+
+	// if embed msg populated with other fields
 	const { fields } = msgEmbed;
 	if (fields.length > 0) msgEmbed.setFields([]);
 
@@ -202,15 +204,9 @@ const bcSpellTrap = async interaction => {
 	 */
 	const filterFun = spellTypes => val => (val & spellTypes) != 0;
 
-	const TYPES_SPELL = new Collection([
-		['Normal', 0x10],
-		['Quickplay', 0x10000],
-		['Continuous', 0x20000],
-		['Field', 0x80000],
-		['Counter', 0x100000],
-	]).reduce((acc, num) => acc + num, 0);
+	const spellTypes = TYPES_SPELL.reduce((acc, num) => acc + num, 0);
 
-	const spellOptions = getOptions(Types, filterFun(TYPES_SPELL));
+	const spellOptions = getOptions(Types, filterFun(spellTypes));
 
 	typeMenu.setPlaceholder('Quick-Play');
 	typeMenu.setMinValues(1);
@@ -223,7 +219,7 @@ const bcSpellTrap = async interaction => {
 	const preFill = [
 		{
 			name: 'Type',
-			value: 'Spell',
+			value: 'Spell\nNormal\n',
 			inline: true,
 		},
 	];
@@ -235,5 +231,5 @@ const bcSpellTrap = async interaction => {
 module.exports = {
 	bcEdit,
 	bcNext,
-	bcSpellTrap,
+	bcSpell,
 };

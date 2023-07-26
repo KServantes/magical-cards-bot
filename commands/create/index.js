@@ -5,7 +5,7 @@ const { cardInfoSubmit, cardStatsSubmit } = require('./interacts/modal');
 const { selectionType, selectionRace, selectionAtt, selectionArch } = require('./interacts/selections');
 
 const { bcStart, bcHalt, bcEdit, bcNext, bcEdit2,
-	bcNext3, bcEdit3, bcNext4, LinkButtons, bcNext5, bcSpellTrap,
+	bcNext3, bcEdit3, bcNext4, LinkButtons, bcNext5, bcSpell,
 	nextPage, prevPage, bcNext6, Strings, bcFinish, clearFields, bcPreview,
 } = ModularWrapper(require('./interacts/buttons'));
 
@@ -15,7 +15,8 @@ const { UID_START, UID_HALT, UID_CARD_INFO, UID_EDIT_STEP1,
 	UID_NEXT_STEP4, UID_NEXT_STEP5, UID_ANIME, UID_ARCH_ROW1,
 	UID_ARCH_ROW2, UID_ARCH_ROW3, UID_ARCH_ROW4, UID_NEW_SET,
 	UID_NEXT_PAGE, UID_NEXT_STEP6, UID_PREV_PAGE, UID_SKIP, UID_FINISH_LINE,
-	UID_CLEAR, UID_VISTA,
+	UID_CLEAR, UID_VISTA, UID_CARD_TOKENIZE, UID_MONSTER_SUMMON, UID_SPELL_FIRE,
+	UID_TRAP_ACTIVATE,
 } = require('./utils/constants');
 
 const interactButton = new Collection([
@@ -27,7 +28,7 @@ const interactButton = new Collection([
 	// step 1
 	[UID_EDIT_STEP1, bcEdit],
 	[UID_NEXT_STEP2, bcNext],
-	['Spell|Trap', bcSpellTrap],
+	[UID_SPELL_FIRE, bcSpell],
 
 	// step 2
 	[UID_EDIT_STEP2, bcEdit2],
