@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton, MessageEmbed, CommandInteraction } = require('discord.js');
-const { UID_START, UID_HALT, UID_VISTA } = require('./create/utils/constants');
+const { UID_START, UID_HALT, UID_VISTA, EMOTE_HATS } = require('./create/utils/constants');
 const Helper = require('./create/utils/cache');
 
 module.exports = {
@@ -34,7 +34,8 @@ module.exports = {
 			.setStyle('DANGER');
 		const preview = new MessageButton()
 			.setCustomId(UID_VISTA)
-			.setLabel('Preview: ON')
+			.setLabel('Viewing')
+			.setEmoji(EMOTE_HATS)
 			.setStyle('SECONDARY');
 
 		const greeting = '>>> Hello! I\'m Magical Card\'s Bot!\nI\'ll take you through the steps to make a card.\n\nAre you ready?';
@@ -47,7 +48,7 @@ module.exports = {
 			// .setFooter({ text: '‌‌  \n\n' + member.id })
 			.setThumbnail('https://i.imgur.com/ebtLbkK.png');
 
-		const row = new MessageActionRow().addComponents(preview, abort, start);
+		const row = new MessageActionRow().addComponents(abort, start, preview);
 
 		return interaction.reply({ content: null, components: [row], embeds: [embed] });
 	},

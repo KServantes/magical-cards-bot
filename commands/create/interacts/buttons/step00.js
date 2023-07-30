@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 const { MessageEmbed, ButtonInteraction, Message, MessageButton } = require('discord.js');
-const { BOT_IMG_URL } = require('../../utils/constants');
+const { BOT_IMG_URL, EMOTE_FACEDOWN, EMOTE_HATS } = require('../../utils/constants');
 const Form = require('../../forms');
 const Cache = require('../../utils/cache');
 const wait = require('node:timers/promises').setTimeout;
@@ -63,15 +63,17 @@ const bcPreview = async interaction => {
 	 * First button in action row "Preview"
 	 * @type {MessageButton}
 	 */
-	const prevBtn = actionRow.components[0];
+	const prevBtn = actionRow.components[2];
 
 	const { cache } = client;
 	const memberInfo = Cache.getMemberInfo(cache, member);
 
 	const { preview: prev } = memberInfo;
-	const label = prev ? 'OFF' : 'ON';
+	const emoji = prev ? EMOTE_FACEDOWN : EMOTE_HATS;
+	const label = prev ? 'Hiding' : 'Viewing';
 
-	prevBtn.setLabel('Preview: ' + label);
+	prevBtn.setEmoji(emoji);
+	prevBtn.setLabel(label);
 	memberInfo.showPreview = !prev;
 
 	return await interaction.update({ embeds, components });

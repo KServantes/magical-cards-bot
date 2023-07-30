@@ -1,7 +1,7 @@
 // step00 start form.info
 const { bcStart, bcHalt, bcPreview } = require('./buttons/step00');
 // step 01 types (type, race, att)
-const { bcNext, bcEdit, bcSpellTrap } = require('./buttons/step01');
+const { bcNext, bcEdit, bcSpell } = require('./buttons/step01');
 // step 2 edit
 const bcEdit2 = bcNext;
 // step 02 stats form.stats
@@ -21,7 +21,7 @@ module.exports = {
 	bcEdit,
 	bcNext,
 	bcPreview,
-	bcSpellTrap,
+	bcSpell,
 	bcEdit2,
 	bcNext3,
 	bcEdit3,

@@ -5,6 +5,10 @@
 
 const { Collection } = require('discord.js');
 
+// Discord Emoji IDs
+const EMOTE_HATS = '1133616860294823946';
+const EMOTE_FACEDOWN = '1133624918488133773';
+
 // bot thumbnail url
 const BOT_IMG_URL = 'https://i.imgur.com/ebtLbkK.png';
 
@@ -707,6 +711,8 @@ module.exports = {
 	Types,
 	TYPES_SPELL,
 	TYPES_TRAP,
+	EMOTE_FACEDOWN,
+	EMOTE_HATS,
 	Attributes,
 	Archetypes,
 	LinkMarkers,
