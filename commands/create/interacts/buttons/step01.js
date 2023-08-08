@@ -111,7 +111,7 @@ const bcNext = async interaction => {
 				.setStyle('SECONDARY'),
 			new MessageButton()
 				.setCustomId(UID_MONSTER_SUMMON)
-				.setLabel('Monsters')
+				.setLabel('Monster')
 				.setStyle('SUCCESS'),
 			new MessageButton()
 				.setCustomId(UID_CARD_TOKENIZE)
@@ -165,38 +165,45 @@ const bcSpell = async interaction => {
 	const { embeds, components } = message;
 	const msgEmbed = embeds[0];
 
-	// if embed msg populated with other fields
-	const { fields } = msgEmbed;
-	if (fields.length > 0) msgEmbed.setFields([]);
-
-	/**
-	 * @type {MessageActionRow[]}
-	 */
+	/** @type {MessageActionRow[]} */
 	const [actionRow, ...selectRows] = components;
-	/**
-	 * First button in action row "Preview"
-	 * @type {MessageButton[]}
-	 */
+
+	/** * @type {MessageButton[]} */
 	const buttons = actionRow.components;
-	// [spellBtn, monBtn, tokenBtn]
+	// [spellBtn, trapBtn, monBtn, tokenBtn]
 
-	// select spell/trap btn
-	buttons.forEach(button => {
-		if (button.customId != 'Spell|Trap') {
-			button.setStyle('SECONDARY');
-			return ;
-		}
-		button.setStyle('SUCCESS');
-	});
+	// select spell/trap btn */
+	const spellBtn = buttons[0];
+	const { style } = spellBtn;
+	spellBtn.setStyle(style == 'SECONDARY' ? 'PRIMARY' : 'SECONDARY');
 
-	/**
-	 * @type {MessageActionRow[]}
-	 */
+	/** * @type {MessageActionRow[]} */
 	const [typeRow] = selectRows.filter(row => row.components[0]?.customId === UID_CARD_TYPE);
-	/**
-	 * @type {MessageSelectMenu[]}
-	 */
+
+	/** * @type {MessageSelectMenu[]} */
 	const [typeMenu] = typeRow.components;
+
+	// Unselect button
+	if (spellBtn.style === 'SECONDARY') {
+		// Remove "Trap" or old "Spell" fields
+		const { fields } = msgEmbed;
+		const res = [
+			fields.length > 0,
+			fields.some(f => RegExp(f.value).test('Spell Trap')),
+		];
+		if (res.every(Boolean)) msgEmbed.setFields([]);
+
+		// Reset type select menu
+		if (typeMenu.options.length < 10) {
+			const options = getOptions(Types);
+			typeMenu.setOptions(options);
+			typeMenu.setPlaceholder('Monster');
+			typeMenu.setMinValues(2);
+			typeMenu.setMaxValues(5);
+		}
+
+		return await interaction.update({ embeds, components });
+	}
 
 	/**
 	 * @param {number} spellTypes combined spell types
@@ -219,7 +226,7 @@ const bcSpell = async interaction => {
 	const preFill = [
 		{
 			name: 'Type',
-			value: 'Spell\nNormal\n',
+			value: 'Spell',
 			inline: true,
 		},
 	];
