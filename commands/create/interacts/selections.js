@@ -64,10 +64,10 @@ const checkTypes = (fields, memberInfo) => {
 };
 
 /**
- * @param {SelectMenuInteraction} interaction
- * @param {string} type
- * @param {string} value
- * @param {string} uid
+ * @param {SelectMenuInteraction} interaction Card Type Select Menu
+ * @param {string} type (race, att, type)
+ * @param {string} value value of type
+ * @param {string} uid 
  * @returns {Promise<void>}
  */
 const selection = async (interaction, type, value, uid) => {
@@ -88,15 +88,13 @@ const selection = async (interaction, type, value, uid) => {
 	/**
 	 * @type {MessageActionRow[]}
 	 */
-	const rest = components.filter(actionRow => {
-		// ass of v13 actionRow can only have 1 SelectMenuBuilder
-		const selectMenu = actionRow.components[0];
-		return selectMenu.customId != uid;
-	});
+	const rest = components.filter(actionRow => actionRow.components[0].customId != uid);
 
 	// add buttons for next step
 	const isLastRow = rest.length === 1;
 	if (isLastRow) {
+		// Remove filter buttons
+		rest.length = 0;
 
 		const editBtn = new MessageButton()
 			.setCustomId(UID_EDIT_STEP2)
@@ -115,28 +113,47 @@ const selection = async (interaction, type, value, uid) => {
 	const { cache } = client;
 	Helper.setDataCache({ member, cache, args: newField, step: 2 });
 
+	// Merge fields
+	const mergedFields = [];
+
+	const { name: newName, value: newValue } = newField;
+	if (msgEmbFields.some(f => f.name === newName)) {
+		for (const field of msgEmbFields) {
+			const { name: n } = field;
+			if (n === newName) {
+				field.value += `\n${newValue}`;
+			}
+			mergedFields.push(field);
+		}
+	}
+
+	const embedFields = mergedFields.length ? mergedFields : [...msgEmbFields, newField];
+
 	// message embed
 	const currentEmbed = new MessageEmbed()
 		.setColor('#0099ff')
 		.setTitle('Selections')
 		.setDescription('Current Selection')
 		.setThumbnail(BOT_IMG_URL)
-		.addFields([...msgEmbFields, newField]);
+		.addFields(embedFields);
 
 	const memberInfo = Helper.getMemberInfo(cache, member);
-	const embeds = isLastRow ?
-		[checkTypes([...msgEmbFields, newField], memberInfo)]
-		: [currentEmbed];
+	// might not need checkTypes anymore?
+	// returns final embed after
+	// checks fields before review embed
+	const embeds = isLastRow ? [checkTypes(embedFields, memberInfo)] : [currentEmbed];
 
 	// final msg object
 	const msg = { embeds, components: rest };
 
 	// draw results
 	const button_row = rest[0];
-	const { components: buttons } = button_row;
+
+	/** @type {MessageButton[]} */
+	const buttons = button_row.components;
 	const [first_button] = buttons;
 	const dataSet = memberInfo.appInfo.data.at(2);
-	if (first_button.label === 'Spell|Trap' && dataSet.step === 2 && memberInfo.preview) {
+	if (first_button.customId === UID_EDIT_STEP2 && dataSet.step === 2 && memberInfo.preview) {
 		const cardImage = await Canvas.createCard({ member, cache, step: 2 });
 		msg.files = [cardImage];
 	}
@@ -144,11 +161,21 @@ const selection = async (interaction, type, value, uid) => {
 	return await interaction.update(msg);
 };
 
+/**
+ * @async
+ * @param {SelectMenuInteraction} interaction race interact sm
+ * @returns {Promise<void>}
+ */
 const selectionRace = async interaction => {
 	const [race] = interaction.values;
 	return await selection(interaction, 'Race', race, UID_CARD_RACE);
 };
 
+/**
+ * @async
+ * @param {SelectMenuInteraction} interaction type interact sm
+ * @returns {Promise<void>}
+ */
 const selectionType = async interaction => {
 	const types = interaction.values;
 
@@ -159,6 +186,10 @@ const selectionType = async interaction => {
 	return await selection(interaction, 'Type', str, UID_CARD_TYPE);
 };
 
+/**
+ * @param {SelectMenuInteraction} interaction att interact sm
+ * @returns {Promise<void>}
+ */
 const selectionAtt = async interaction => {
 	const [att] = interaction.values;
 	return await selection(interaction, 'Attribute', att, UID_CARD_ATT);
