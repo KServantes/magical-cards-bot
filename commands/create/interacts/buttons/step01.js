@@ -112,7 +112,7 @@ const bcNext = async interaction => {
 			new MessageButton()
 				.setCustomId(UID_MONSTER_SUMMON)
 				.setLabel('Monster')
-				.setStyle('SUCCESS'),
+				.setStyle('SECONDARY'),
 			new MessageButton()
 				.setCustomId(UID_CARD_TOKENIZE)
 				.setLabel('Token')
@@ -186,12 +186,16 @@ const bcSpell = async interaction => {
 	// Unselect button
 	if (spellBtn.style === 'SECONDARY') {
 		// Remove "Trap" or old "Spell" fields
+		/** @todo remove either or fields from embed */
 		const { fields } = msgEmbed;
 		const res = [
 			fields.length > 0,
-			fields.some(f => RegExp(f.value).test('Spell Trap')),
+			fields.some(f => f.name == 'Spell'),
 		];
-		if (res.every(Boolean)) msgEmbed.setFields([]);
+		if (res.every(Boolean)) {
+			const filterFields = fields.filter(f => !f.value.includes('Spell'));
+			msgEmbed.setFields(filterFields);
+		}
 
 		// Reset type select menu
 		if (typeMenu.options.length < 10) {

@@ -67,7 +67,7 @@ const checkTypes = (fields, memberInfo) => {
  * @param {SelectMenuInteraction} interaction Card Type Select Menu
  * @param {string} type (race, att, type)
  * @param {string} value value of type
- * @param {string} uid 
+ * @param {string} uid row's unique id
  * @returns {Promise<void>}
  */
 const selection = async (interaction, type, value, uid) => {
@@ -141,10 +141,9 @@ const selection = async (interaction, type, value, uid) => {
 	// might not need checkTypes anymore?
 	// returns final embed after
 	// checks fields before review embed
+	// I remember now it's for when card has invalid or wonky type info
+	// Monster/Quickplay
 	const embeds = isLastRow ? [checkTypes(embedFields, memberInfo)] : [currentEmbed];
-
-	// final msg object
-	const msg = { embeds, components: rest };
 
 	// draw results
 	const button_row = rest[0];
@@ -153,10 +152,41 @@ const selection = async (interaction, type, value, uid) => {
 	const buttons = button_row.components;
 	const [first_button] = buttons;
 	const dataSet = memberInfo.appInfo.data.at(2);
-	if (first_button.customId === UID_EDIT_STEP2 && dataSet.step === 2 && memberInfo.preview) {
+	if (first_button.customId === UID_EDIT_STEP2 && dataSet && dataSet.step === 2 && memberInfo.preview) {
 		const cardImage = await Canvas.createCard({ member, cache, step: 2 });
 		msg.files = [cardImage];
 	}
+
+	// Disable buttons if select menus interacted with first
+	const setComponents = (_ => {
+		const disButtons = buttons.reduce((acc, b) => {
+			const { customId: id } = b;
+			if (id === UID_EDIT_STEP2 || id === UID_NEXT_STEP3) {
+				return acc.concat(b);
+			}
+			b.setDisabled(true);
+			return acc.concat(b);
+		}, []);
+		button_row.setComponents(disButtons);
+
+		return true;
+	})();
+
+	const res = [
+		// not last row/selections complete
+		first_button.customId !== UID_EDIT_STEP2,
+		// no active buttons
+		buttons.every(b => b.disabled === false),
+	];
+
+	// return either regular rest row array (buttons enabled) or
+	// disabled buttons with rest row array (buttons disabled)
+	const [_, ...selects] = rest;
+	const restComponents = !res.every(Boolean) ? rest :
+		setComponents && [button_row, ...selects];
+
+	// final msg object
+	const msg = { embeds, components: restComponents };
 
 	return await interaction.update(msg);
 };
