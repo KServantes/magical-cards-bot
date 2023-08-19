@@ -24,10 +24,9 @@ const { MemberInfo } = require('../utils/types');
 
 /**
  * Checks for legal values
- *
- * @param {EmbedField[]} fields
- * @param {MemberInfo} memberInfo
- * @returns {MessageEmbed}
+ * @param {EmbedField[]} fields final embeds
+ * @param {MemberInfo} memberInfo members name and icon
+ * @returns {MessageEmbed} final embed after validating
  */
 const checkTypes = (fields, memberInfo) => {
 	const { name, iconURL } = memberInfo;

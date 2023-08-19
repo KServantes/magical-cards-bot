@@ -18,6 +18,14 @@ const { Races, Types, TYPES_SPELL, Attributes,
 
 
 /**
+ * @typedef {object} OptionsObject
+ * @property {[Collection, MessageSelectMenu]} Races races array
+ * @property {[Collection, MessageSelectMenu]} Types types array
+ * @property {[Collection, MessageSelectMenu]} Attributes att array
+ */
+
+
+/**
  * Gets options array
  * Filter to be added
  * @param {Collection.<string, number>} coll option collection
@@ -47,21 +55,7 @@ const getOptions = (coll, sf) => {
 	return options;
 };
 
-/**
- * Registers Card Data
- * Then brings up the Select Menus
- * (Race, Type, Attribute)
- * @param {ButtonInteraction} interaction Button Interaction
- * @returns {Promise<void>} the interaction message updated
- */
-const bcNext = async interaction => {
-
-	const { message, client, member } = interaction;
-	const { footer } = message.embeds[0];
-	const { cache } = client;
-
-	Utils.RegisterCacheCard(cache, member);
-
+const createSelectMenus = () => {
 	const selectRace =
 		new MessageSelectMenu()
 			.setCustomId(UID_CARD_RACE)
@@ -84,13 +78,6 @@ const bcNext = async interaction => {
 		// .addOptions(attOptions);
 
 	/**
-	 * @typedef {object} OptionsObject
-	 * @property {[Collection, MessageSelectMenu]} Races races array
-	 * @property {[Collection, MessageSelectMenu]} Types types array
-	 * @property {[Collection, MessageSelectMenu]} Attributes att array
-	 */
-
-	/**
 	 * @type {OptionsObject}
 	 */
 	const optionObject = {
@@ -98,6 +85,24 @@ const bcNext = async interaction => {
 		Types: [Types, selectType],
 		Attributes: [Attributes, selectAtt],
 	};
+
+	return optionObject;
+};
+
+/**
+ * Registers Card Data
+ * Then brings up the Select Menus
+ * (Race, Type, Attribute)
+ * @param {ButtonInteraction} interaction Button Interaction
+ * @returns {Promise<void>} the interaction message updated
+ */
+const bcNext = async interaction => {
+
+	const { message, client, member } = interaction;
+	const { footer } = message.embeds[0];
+	const { cache } = client;
+
+	Utils.RegisterCacheCard(cache, member);
 
 	const buttonRow = new MessageActionRow()
 		.addComponents(
@@ -120,6 +125,8 @@ const bcNext = async interaction => {
 		);
 
 	const optionRows = [buttonRow];
+
+	const optionObject = createSelectMenus();
 
 	Object.values(optionObject).forEach(optionArray => {
 		const [rowtype, selectmenu] = optionArray;
@@ -190,7 +197,7 @@ const bcSpell = async interaction => {
 		const { fields } = msgEmbed;
 		const res = [
 			fields.length > 0,
-			fields.some(f => f.name == 'Spell'),
+			fields.some(f => f.value.includes('Spell')),
 		];
 		if (res.every(Boolean)) {
 			const filterFields = fields.filter(f => !f.value.includes('Spell'));
@@ -204,6 +211,27 @@ const bcSpell = async interaction => {
 			typeMenu.setPlaceholder('Monster');
 			typeMenu.setMinValues(2);
 			typeMenu.setMaxValues(5);
+		}
+
+		// readd rows if removed
+		/** @type {MessageActionRow[]} */
+		const menuRow = components[1];
+
+		/** @type {MessageSelectMenu[]} */
+		const [selectMenu] = menuRow.components;
+
+		if (components.length === 2 && selectMenu.customId !== UID_CARD_RACE) {
+			// eslint-disable-next-line no-unused-vars
+			const { ['Types']: _, ...RestRows } = createSelectMenus();
+			Object.values(RestRows).forEach(optionArray => {
+				const [rowtype, selectmenu] = optionArray;
+				const options = getOptions(rowtype);
+				selectmenu.addOptions(options);
+				const newRow = new MessageActionRow().addComponents(selectmenu);
+				if (selectMenu.customId === UID_CARD_RACE) components.splice(1, 0, newRow);
+				else components.push(newRow);
+			});
+
 		}
 
 		return await interaction.update({ embeds, components });
@@ -223,6 +251,11 @@ const bcSpell = async interaction => {
 	typeMenu.setMinValues(1);
 	typeMenu.setMaxValues(1);
 	typeMenu.spliceOptions(0, 24, spellOptions);
+
+	// remove other menus
+	const [ar] = components;
+	components.length = 0;
+	components.push(ar, typeRow);
 
 	/**
 	 * @type {EmbedFieldData[]}
