@@ -142,19 +142,14 @@ const selection = async (interaction, type, value, uid) => {
 	// checks fields before review embed
 	// I remember now it's for when card has invalid or wonky type info
 	// Monster/Quickplay
-	const embeds = isLastRow ? [checkTypes(embedFields, memberInfo)] : [currentEmbed];
+	const embeds = !isLastRow ? [currentEmbed]
+		: [checkTypes(embedFields, memberInfo)];
 
-	// draw results
-	const button_row = rest[0];
+	const [button_row, ...selects] = rest;
 
 	/** @type {MessageButton[]} */
 	const buttons = button_row.components;
 	const [first_button] = buttons;
-	const dataSet = memberInfo.appInfo.data.at(2);
-	if (first_button.customId === UID_EDIT_STEP2 && dataSet && dataSet.step === 2 && memberInfo.preview) {
-		const cardImage = await Canvas.createCard({ member, cache, step: 2 });
-		msg.files = [cardImage];
-	}
 
 	// Disable buttons if select menus interacted with first
 	const setComponents = (_ => {
@@ -180,12 +175,18 @@ const selection = async (interaction, type, value, uid) => {
 
 	// return either regular rest row array (buttons enabled) or
 	// disabled buttons with rest row array (buttons disabled)
-	const [_, ...selects] = rest;
 	const restComponents = !res.every(Boolean) ? rest :
 		setComponents && [button_row, ...selects];
 
 	// final msg object
 	const msg = { embeds, components: restComponents };
+
+	// draw results
+	const dataSet = memberInfo.appInfo.data.at(2);
+	if (first_button.customId === UID_EDIT_STEP2 && dataSet && dataSet.step === 2 && memberInfo.preview) {
+		const cardImage = await Canvas.createCard({ member, cache, step: 2 });
+		msg.files = [cardImage];
+	}
 
 	return await interaction.update(msg);
 };
