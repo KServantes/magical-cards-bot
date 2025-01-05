@@ -29,14 +29,21 @@ const { Races, Types, TYPES_SPELL, Attributes,
  * Gets options array
  * Filter to be added
  * @param {Collection.<string, number>} coll option collection
- * @param {Function} sf filter function
+ * @param {number} fillTypes filter value function
  * @returns {MessageSelectOptionData[]} options to be added
  */
-const getOptions = (coll, sf) => {
+const getOptions = (coll, fillTypes) => {
 	let startColl = coll;
 
+	/**
+	 * @param {number} ftypes combined spell types
+	 * @returns {Function} a filter function
+	 */
+	const filterFun = ftypes => val => (val & ftypes) != 0;
+
 	// spell function filter
-	if (sf && typeof sf === 'function') {
+	if (fillTypes && typeof fillTypes === 'number') {
+		const sf = filterFun(fillTypes);
 		startColl = coll.filter(sf);
 	}
 
@@ -162,6 +169,66 @@ const bcEdit = async interaction => {
 	return await interaction.message.edit({ embeds: [embed], components: [], files: [] });
 };
 
+// helper functions
+/**
+ * @param {MessageActionRow<MessageButton>} actionRow button action row
+ * @returns {string} the button's style toggled
+ */
+const bhToggleActive = actionRow => {
+	const buttons = actionRow.components;
+	// [spellBtn, trapBtn, monBtn, tokenBtn]
+
+	// select spell/trap btn */
+	const spellBtn = buttons[0];
+	const { style } = spellBtn;
+	spellBtn.setStyle(style == 'SECONDARY' ? 'PRIMARY' : 'SECONDARY');
+
+	return spellBtn.style;
+};
+
+/**
+ * Run after the button is toggled
+ * Resets to original state/wipes state
+ * @param {MessageActionRow[]} components message components to edit
+ */
+const bhResetSelectMenu = components => {
+	// readd rows if removed
+	const [actBtnRow] = components;
+
+	/** @type {MessageButton[]} */
+	const buttons = actBtnRow.components;
+	if (buttons.every(b => b.style === 'SECONDARY')) {
+		// reset
+		components.length = 0;
+		components.push(actBtnRow);
+
+		// eslint-disable-next-line no-unused-vars
+		const OptionsObject = createSelectMenus();
+		Object.values(OptionsObject).forEach(optionArray => {
+			const [rowtype, selectmenu] = optionArray;
+			const options = getOptions(rowtype);
+			selectmenu.addOptions(options);
+			const newRow = new MessageActionRow().addComponents(selectmenu);
+			components.push(newRow);
+		});
+	}
+};
+
+/**
+ * Sets the options for the select menu row
+ * filtered down to spell/trap
+ * @param {MessageActionRow<MessageSelectMenu>} typeRow types select menu row
+ * @param {MessageSelectOptionData[]} options type data options
+ */
+const filterTypesRow = (typeRow, options) => {
+	const [typeMenu] = typeRow.components;
+
+	typeMenu.setPlaceholder('Normal');
+	typeMenu.setMinValues(1);
+	typeMenu.setMaxValues(1);
+	typeMenu.spliceOptions(0, 24, options);
+};
+
 /**
  * Filters the types down to only
  * @param {ButtonInteraction} interaction button interaction
@@ -173,25 +240,12 @@ const bcSpell = async interaction => {
 	const msgEmbed = embeds[0];
 
 	/** @type {MessageActionRow[]} */
-	const [actionRow, ...selectRows] = components;
+	const [actionRow] = components;
 
-	/** * @type {MessageButton[]} */
-	const buttons = actionRow.components;
-	// [spellBtn, trapBtn, monBtn, tokenBtn]
-
-	// select spell/trap btn */
-	const spellBtn = buttons[0];
-	const { style } = spellBtn;
-	spellBtn.setStyle(style == 'SECONDARY' ? 'PRIMARY' : 'SECONDARY');
-
-	/** * @type {MessageActionRow[]} */
-	const [typeRow] = selectRows.filter(row => row.components[0]?.customId === UID_CARD_TYPE);
-
-	/** * @type {MessageSelectMenu[]} */
-	const [typeMenu] = typeRow.components;
+	const spellBtnStyle = bhToggleActive(actionRow);
 
 	// Unselect button
-	if (spellBtn.style === 'SECONDARY') {
+	if (spellBtnStyle === 'SECONDARY') {
 		// Remove "Trap" or old "Spell" fields
 		/** @todo remove either or fields from embed */
 		const { fields } = msgEmbed;
@@ -204,72 +258,62 @@ const bcSpell = async interaction => {
 			msgEmbed.setFields(filterFields);
 		}
 
-		// Reset type select menu
-		if (typeMenu.options.length < 10) {
-			const options = getOptions(Types);
-			typeMenu.setOptions(options);
-			typeMenu.setPlaceholder('Monster');
-			typeMenu.setMinValues(2);
-			typeMenu.setMaxValues(5);
-		}
-
-		// readd rows if removed
-		/** @type {MessageActionRow[]} */
-		const menuRow = components[1];
-
-		/** @type {MessageSelectMenu[]} */
-		const [selectMenu] = menuRow.components;
-
-		if (components.length === 2 && selectMenu.customId !== UID_CARD_RACE) {
-			// eslint-disable-next-line no-unused-vars
-			const { ['Types']: _, ...RestRows } = createSelectMenus();
-			Object.values(RestRows).forEach(optionArray => {
-				const [rowtype, selectmenu] = optionArray;
-				const options = getOptions(rowtype);
-				selectmenu.addOptions(options);
-				const newRow = new MessageActionRow().addComponents(selectmenu);
-				if (selectMenu.customId === UID_CARD_RACE) components.splice(1, 0, newRow);
-				else components.push(newRow);
-			});
-
-		}
+		// bhResetSelectMenu(components);
+		bhResetSelectMenu(components);
 
 		return await interaction.update({ embeds, components });
 	}
 
-	/**
-	 * @param {number} spellTypes combined spell types
-	 * @returns {Function} a filter function
-	 */
-	const filterFun = spellTypes => val => (val & spellTypes) != 0;
+	// Select button
+	/** @type {MessageButton[]} */
+	const [{ style: monStyle }] = actionRow.components.filter(btn => btn.customId === UID_MONSTER_SUMMON);
 
-	const spellTypes = TYPES_SPELL.reduce((acc, num) => acc + num, 0);
+	/** * @type {MessageActionRow[]} */
+	const [typeRow] = components.filter(row => row.components[0]?.customId === UID_CARD_TYPE);
 
-	const spellOptions = getOptions(Types, filterFun(spellTypes));
+	// monster button inactive
+	monStyle !== 'PRIMARY' ?
+		(() => {
+			const spellTypes = TYPES_SPELL.reduce((acc, num) => acc + num, 0);
+			const spellOptions = getOptions(Types, spellTypes);
+			filterTypesRow(typeRow, spellOptions);
 
-	typeMenu.setPlaceholder('Quick-Play');
-	typeMenu.setMinValues(1);
-	typeMenu.setMaxValues(1);
-	typeMenu.spliceOptions(0, 24, spellOptions);
+			// remove other menus
+			const [ar] = components;
+			components.length = 0;
+			components.push(ar, typeRow);
 
-	// remove other menus
-	const [ar] = components;
-	components.length = 0;
-	components.push(ar, typeRow);
+			/** @type {EmbedFieldData[]} */
+			const preFill = [
+				{
+					name: 'Type',
+					value: 'Spell',
+					inline: true,
+				},
+			];
+			msgEmbed.setFields(preFill);
+		})() :
+		(() => {
+			const cont_count = 'Continuous Counter';
+			const smTypes = Types.filter((_, key) => !RegExp(key).test(cont_count));
+			const mOptions = getOptions(smTypes);
+			filterTypesRow(typeRow, mOptions);
+		})();
 
-	/**
-	 * @type {EmbedFieldData[]}
-	 */
-	const preFill = [
-		{
-			name: 'Type',
-			value: 'Spell',
-			inline: true,
-		},
-	];
-	msgEmbed.setFields(preFill);
 
 	return await interaction.update({ embeds, components });
+};
+
+const bcMonster = async interaction => {
+	const { message } = interaction;
+	const { embeds, components } = message;
+	const msgEmbed = embeds[0];
+
+	/** @type {MessageActionRow[]} */
+	const [actionRow, ...selectRows] = components;
+
+	// toggle active button
+	const spellBtnStyle = bhToggleActive(actionRow);
 };
 
 module.exports = {
