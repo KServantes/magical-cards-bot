@@ -1,12 +1,18 @@
-const { Events, ActivityType } = require('discord.js')
-const { Watching } = ActivityType;
-const { ClientReady } = Events;
+const fs = require('node:fs');
+const path = require('node:path');
 
-module.exports = {
-    name: ClientReady,
-    once: true,
+const eventFiles = fs.readdirSync(__dirname).filter(file => file.endsWith('.js') && !file.startsWith('index'))
+
+module.exports = { 
     execute(client) {
-        client.user.setActivity('out for floodgates', {type: Watching});
-        console.log('Magical Cards');
+        for (const file of eventFiles) {
+            const filePath = path.join(__dirname, file);
+            const event = require(filePath);
+            if (event.once) {
+                client.once(event.name, (...args) => event.execute(...args));
+            } else {
+                client.on(event.name, (...args) => event.execute(...args));
+            }
+        }
     }
-}
+};
