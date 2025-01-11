@@ -10,8 +10,12 @@ const client = new Client({
     partials: [Message]
 });
 
-const { execute: events } = require('./events');
+const loadCollections = require('./utility');
+const loadEvents = require('./events');
 
-events(client);
+// register commands and interactions collections
+loadCollections(client);
+// load events
+loadEvents(client);
 
-client.login(process.env.TOKEN)
+client.login(process.env.TOKEN);
