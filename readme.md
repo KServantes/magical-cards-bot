@@ -58,8 +58,8 @@ Not complete but mostly carried over from v13 of the bot.
 
 The ambitious features I want to add to the bot soon are...
 
-- Create "Image" - Creates placeholder images to accompany your cards. This is implemented in v13. The ability to import a full card image or just an image for the placeholder. May include some tools to crop, resize, etc. the image better for the card image. 
-<br>
+- Create "Image" - Creates placeholder images to accompany your cards. This is implemented in v13. The ability to import a full card image or just an image for the placeholder. May include some tools to crop, resize, etc. the image better for the card image.
+
 - Create "Script" - This is the most abmitious but very possible with the advent of "A.I." At the moment it is enough to make an api call to ChatGPT for example to create a simple script. However, I'm currently looking into training a model on custom scripts and run that off of a spare RTX card that should allow for more complex scripting.
 
 
