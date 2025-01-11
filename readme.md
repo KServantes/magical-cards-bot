@@ -13,12 +13,12 @@ Magical Cards Bot is a Discord.js v14 bot to help **mobile** users create, edit,
 
 For those times you're on the go and had an idea for a custom card come to mind.
 
-##### 🧰 Prerequisites
+#### 🧰 Prerequisites
 
 - [Node.js](https://nodejs.org/en/) v18 or higher
 - [Git](https://git-scm.com/downloads)
 
-##### ⛐ Getting Started
+#### ⛐ Getting Started
 
 Running the bot yourself is easy!
 
@@ -43,7 +43,7 @@ Running the bot yourself is easy!
 
 If you need any extra help, you're outta luck until I finish the bot and make an actual guide lol
 
-##### 📟 Commands
+#### 📟 Commands
 
 Not complete but mostly carried over from v13 of the bot.
 
@@ -54,7 +54,7 @@ Not complete but mostly carried over from v13 of the bot.
 * [ ] Admin - Only viewable by the server admin and constituents. In case they need to clean up or remove cards from the server card pool.
     
 
-##### 🚧 Roadmap
+#### 🚧 Roadmap
 
 The ambitious features I want to add to the bot soon are...
 
