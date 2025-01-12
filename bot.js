@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('module-alias/register');
 
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const { Guilds, GuildMessages, GuildMessageReactions } = GatewayIntentBits;
