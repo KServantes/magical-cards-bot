@@ -12,6 +12,11 @@
   "keywords": [],
   "author": "Keddy",
   "license": "ISC",
+  "_moduleAliases": {
+    "commands": "./commands",
+    "events": "./events",
+    "utils": "./utility"
+  },
   "dependencies": {
     "@napi-rs/canvas": "^0.1.65",
     "better-sqlite3": "^11.7.2",
