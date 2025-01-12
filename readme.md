@@ -48,7 +48,7 @@ If you need any extra help, you're outta luck until I finish the bot and make an
 Not complete but mostly carried over from v13 of the bot.
 
 * [x] Ping - Responds with "pong", the websocket ping, or Discord API's latency.
-* [ ] Avatar - Displays the avatar of yourself or another member.
+* [x] Avatar - Displays the avatar of yourself or another member.
 * [ ] Library - Allows you to *view*, *edit*, and **export** any previously recorded cards made with MCB. This can be global, server-wide, or a person's card database.
 * [ ] Create - Takes you through the phases necessary to make your card. This is a multi-phase process. You can save, edit, and delete your card application anytime throughout. The bot will usually DM you to create your cards but you can opt to allow for social card making.
 * [ ] Admin - Only viewable by the server admin and constituents. In case they need to clean up or remove cards from the server card pool.
