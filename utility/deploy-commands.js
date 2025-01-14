@@ -1,4 +1,5 @@
 require('dotenv').config();
+require("module-alias/register");
 
 const { REST, Routes } = require('discord.js')
 const { CLIENT_ID, GUILD_ID, TOKEN } = process.env

@@ -5,7 +5,7 @@
   "description": "A Discord bot that helps make YGOPro Databases on Discord.",
   "scripts": {
     "start": "node bot.js",
-    "dev": "node --watch-path=./ --watch-path=./tests bot.js",
+    "dev": "node --watch-path=./ bot.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "node ./utility/deploy-commands.js"
   },
@@ -13,9 +13,8 @@
   "author": "Keddy",
   "license": "ISC",
   "_moduleAliases": {
-    "commands": "./commands",
-    "events": "./events",
-    "utils": "./utility"
+    "@commands": "./commands/",
+    "@constants": "./utility/constants"
   },
   "dependencies": {
     "@napi-rs/canvas": "^0.1.65",

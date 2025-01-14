@@ -1,5 +1,6 @@
-const { SlashCommandBuilder, CommandInteraction, InteractionResponse } = require('discord.js');
-const DEFAULT_SIZE = 128
+const { SlashCommandBuilder, CommandInteraction, InteractionResponse, EmbedBuilder, Colors } = require('discord.js');
+const { BOT_IMG_URL, DEFAULT_AVATAR_SIZE } = require('@constants')
+const { Green } = Colors;
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -12,7 +13,7 @@ module.exports = {
         .addIntegerOption(option => 
             option
             .setName('size')
-            .setDescription('Choose the output size')
+            .setDescription('Choose an output size')
             .addChoices([
                 { 'name': 'small', 'value': 128 },
                 { 'name': 'medium', 'value': 256 },
@@ -25,9 +26,15 @@ module.exports = {
      * @returns {Promise<InteractionResponse>}
      */
         async execute(interaction) {
-		const user = interaction.options.getUser('member');
-        const size = interaction.options.getInteger('size') ?? DEFAULT_SIZE;
-		if (user) return interaction.reply(`${user.username}'s avatar: ${user.displayAvatarURL({ extension: 'png', size })}`);
-		return interaction.reply(`Your avatar: ${interaction.user.displayAvatarURL({ extension: 'png', size })}`);
+        const user = interaction.options.getUser('member') ?? interaction.member;
+        const size = interaction.options.getInteger('size') ?? DEFAULT_AVATAR_SIZE;
+
+        const embed = new EmbedBuilder()
+			.setColor(Green)
+			.setTitle(`${user.displayName}'s avatar:`)
+            .setImage(`${user.displayAvatarURL({ extension: 'png', size })}`)
+            .setFooter({ text: 'Magical Cards Bot', iconURL: BOT_IMG_URL });
+
+        return interaction.reply({ content: null, embeds: [embed] });
 	},
 };

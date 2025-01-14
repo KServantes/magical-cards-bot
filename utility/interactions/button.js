@@ -1,4 +1,4 @@
-const Create = require('commands/create');
+const Create = require('@commands/create');
 
 const isButton = interaction => {
 	return interaction.isButton();
