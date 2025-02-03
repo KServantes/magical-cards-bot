@@ -38,7 +38,8 @@ module.exports = {
 			.setTitle('Welcome')
 			.setDescription(greeting)
 			.setFooter({ text: name, iconURL: user.displayAvatarURL() })
-			.setThumbnail(BOT_IMG_URL);
+			.setThumbnail(BOT_IMG_URL)
+			.setTimestamp();
 
 		const components = interaction.channel.isDMBased() ? [abort,start] : [abort,startThread];
 		const row = new ActionRowBuilder().addComponents(components);
