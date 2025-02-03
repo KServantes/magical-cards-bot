@@ -3,6 +3,7 @@ node_modules
 data/magicbot.cdb
 cards/
 assets/
+docs/
 
 !extraModels/
 !migrations/

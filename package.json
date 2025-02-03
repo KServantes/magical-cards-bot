@@ -7,7 +7,8 @@
     "start": "node bot.js",
     "dev": "node --watch-path=./ bot.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "node ./utility/deploy-commands.js"
+    "deploy": "node ./utility/deploy-commands.js",
+    "gdocs": "jsdoc -c jsdoc.json --verbose"
   },
   "keywords": [],
   "author": "Keddy",
@@ -25,6 +26,7 @@
     "module-alias": "^2.2.3"
   },
   "devDependencies": {
+    "docdash": "^2.0.2",
     "eslint": "^9.17.0",
     "eslint-plugin-jsdoc": "^50.6.1"
   }

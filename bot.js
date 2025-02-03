@@ -3,12 +3,12 @@ require("module-alias/register");
 
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const { Guilds, GuildMessages, GuildMessageReactions } = GatewayIntentBits;
-const { Message } = Partials;
+const { Message, ThreadMember } = Partials;
 
 
 const client = new Client({
     intents: [Guilds, GuildMessages, GuildMessageReactions],
-    partials: [Message]
+    partials: [Message, ThreadMember]
 });
 
 const loadCollections = require('./utility');

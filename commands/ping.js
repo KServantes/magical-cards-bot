@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, CommandInteraction } = require('discord.js');
+const { SlashCommandBuilder, ChatInputCommandInteraction, InteractionResponse } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -18,8 +18,8 @@ module.exports = {
 				.setDescription('Test the latency of a full API roundtrip.')),
 	/**
 	 * 
-	 * @param {CommandInteraction} interaction 
-	 * @returns 
+	 * @param {ChatInputCommandInteraction} interaction 
+	 * @returns {Promise<InteractionResponse>}
 	 */
 	async execute(interaction) {
 		if (interaction.options.getSubcommand('heartbeat') === 'heartbeat') {
