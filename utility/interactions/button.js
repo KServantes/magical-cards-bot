@@ -8,6 +8,8 @@
  * */
 
 const Create = require('@commands/create/index.js');
+const Admin = require('@commands/admin/buttons.js');
+
 const { ButtonInteraction } = require('discord.js');
 
 /**
@@ -23,7 +25,8 @@ const isButton = interaction => {
 const interactionButton = async (interaction) => {
 
 	const { customId } = interaction;
-	const buttonInteract = Create.button.get(customId)
+	const buttonCombos = Create.button.concat(Admin.button)
+	const buttonInteract = buttonCombos.get(customId)
 
 	if(!buttonInteract) return;
 

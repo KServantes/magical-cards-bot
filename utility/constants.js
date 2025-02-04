@@ -69,6 +69,21 @@ const UID_START_THREAD = 'start_thread';
  */
 const UID_HALT = 'halt';
 
+/**
+ * @namespace Admin_Button_Constants
+ */
+
+/**
+ * @memberof Admin_Button_Constants
+ * @constant {string} UID_DELETE_ALL deletes all threads
+ */
+const UID_DELETE_ALL = 'delete all'
+
+/**
+ * @memberof Admin_Button_Constants
+ * @constant {string} UID_HALT_DELETE halts delete
+ */
+const UID_HALT_DELETE = 'halt delete'
 
 module.exports = {
     EMOTE_HATS,
@@ -76,6 +91,8 @@ module.exports = {
     BOT_IMG_URL,
     UID_START,
     UID_HALT,
+    UID_DELETE_ALL,
+    UID_HALT_DELETE,
     UID_START_THREAD,
     DEFAULT_AVATAR_SIZE,
     BOT_FORUM_CHANNEL

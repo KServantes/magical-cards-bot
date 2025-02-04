@@ -13,7 +13,7 @@ const interactionCommand = async (interaction) => {
 	}
 	catch (error) {
 		console.log('command error', error);
-		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+		await interaction.reply({ content: 'There was an error while executing this command!', flags: "Ephemeral" });
 	}
 };
 

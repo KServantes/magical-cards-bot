@@ -74,21 +74,23 @@ const buttonStartThread = async interaction => {
 	/** @type {{ threads: GuildTextThreadManager }} */
 	const { threads } = channel;
 
-	const getThreadCount = (() => {
-		const memColl = new Collection();
+	const getThreadCount = await (async () => {
 
-		if (threads.cache && threads.cache.size > 1) {
-			const memberCount = threads.cache.reduce((acc, thread) => {
-				const { ownerId, name } = thread;
-				if (ownerId == process.env.CLIENT_ID && name.startsWith(member.displayName)) {
-					acc.set(acc.size,thread)
-				}
-				return acc;
-			}, memColl)
+		const { threads: fetchedThreads } = await threads.fetch()
+		const threadColl = new Collection([
+			[threads.cache, threads.cache.size > 0],
+			[fetchedThreads, fetchedThreads.size > 0]
+		])
 
-			return memberCount.size + 1
-		}
-		else return 1;
+		const memberCount = threadColl.keyAt(true).reduce((acc, thread) => {
+			const { ownerId, name } = thread;
+			if (ownerId == process.env.CLIENT_ID && name.startsWith(member.displayName)) {
+				acc.set(acc.size,thread)
+			}
+			return acc;
+		}, new Collection())
+
+		return memberCount.size > 0 ? memberCount.size + 1 : 1
 	})();
 
 	const newChannel = await threads.create({

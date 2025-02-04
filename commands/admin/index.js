@@ -1,10 +1,10 @@
 const { Colors, channelMention, ButtonStyle, Collection, GuildMember, 
-    ButtonBuilder, EmbedBuilder, PrivateThreadChannel,
+    ButtonBuilder, EmbedBuilder, PrivateThreadChannel, Guild, GuildBasedChannel,
     ActionRowBuilder, ChatInputCommandInteraction, APIInteractionGuildMember } = require("discord.js");
 const { Danger, Secondary } = ButtonStyle;
 const { Blue  } = Colors;
 
-const { BOT_IMG_URL } = require('@constants')
+const { BOT_IMG_URL, UID_HALT_DELETE, UID_DELETE_ALL } = require('@constants')
 
 /**
  * Builds the embed to pass through. If coll is passed, it is because there's
@@ -45,6 +45,17 @@ const buildEmbed = (member, description, coll) => {
 };
 
 /**
+ * Gets the thread channels in a guild.
+ * @param {Guild} guild server to search
+ * @returns {Collection<string,GuildBasedChannel>}
+ */
+const getBotThreadChannels = guild => {
+    const threadChannels = guild.channels.cache.filter(channel => channel.isThread() && channel.ownerId === process.env.CLIENT_ID);
+    
+    return threadChannels;
+};
+
+/**
  * Admin command to present the buttons to delete all thread made by the bot. Will tell you how many threads total and the parent channel(s) of those threads.
  * @private
  * @param {ChatInputCommandInteraction} interaction
@@ -53,25 +64,34 @@ const buildEmbed = (member, description, coll) => {
 const deleteAll = interaction => {
 
     const { member, guild } = interaction;
-    const threadChannels = guild.channels.cache.filter(channel => channel.isThread() && channel.ownerId === process.env.CLIENT_ID);
+
+    const threadChannels = getBotThreadChannels(guild);
+
+    // If no channels to scrub
+    if (threadChannels.size === 0 ) {
+        const desc = 'It\'s squeaky clean in here! There are no threads to delete.'
+        const embed = buildEmbed(member,desc)
+
+        return { embeds: [embed], components: [] };
+    }
+
     const parentChannels = threadChannels.reduce((acc, tc) => {
         const { parentId } = tc;
-        if (!acc.keyAt(parentId)) {
-            acc.set(parentId,tc)
-        }
+        acc.set(parentId,tc)
+        
         return acc;
     }, new Collection());
    
     const parentString = parentChannels.size === 1 ? channelMention(parentChannels.firstKey()) : parentChannels.size === 0 ? 'channel' : `${parentChannels.size} channels`;
 
-    const description = `You are about to delete ${threadChannels.size} threads in ${parentString} `;
+    const description = `You are about to delete ${threadChannels.size} **threads** in ${parentString} \n\n **Continue?**`;
     const halt = new ButtonBuilder()
-        .setCustomId('halt delete all')
-        .setLabel('Nevermind')
+        .setCustomId(UID_HALT_DELETE)
+        .setLabel('No - Keep')
         .setStyle(Secondary);
     const fire = new ButtonBuilder()
-        .setCustomId('delete all')
-        .setLabel('Delete')
+        .setCustomId(UID_DELETE_ALL)
+        .setLabel('Yes - Delete')
         .setStyle(Danger);
 
     const embed = parentChannels.size < 2 ? buildEmbed(member, description) : buildEmbed(member,description,parentChannels)
@@ -89,4 +109,7 @@ const DEFAULT_ADMIN_COMMANDS = new Collection([
     // [{ name: 'Delete threads by Duelist', value: 'delete duelist'}, ]
 ]); 
 
-module.exports = { default_commands: DEFAULT_ADMIN_COMMANDS };
+module.exports = {
+    default_commands: DEFAULT_ADMIN_COMMANDS,
+    getBotThreadChannels
+};
