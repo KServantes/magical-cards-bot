@@ -61,6 +61,8 @@ const commandDeleteAll = interaction => {
 
 
 /**
+ * Admin Command Collection
+ * Stores the {SlashCommandStringOptions} Object as a key and the handler callback as the value.
  * @constant {Collection<object,callback>} DEFAULT_ADMIN_COMMANDS
  */
 const DEFAULT_ADMIN_COMMANDS = new Collection([
@@ -69,5 +71,4 @@ const DEFAULT_ADMIN_COMMANDS = new Collection([
     // [{ name: 'Delete threads by Duelist', value: 'delete duelist'}, ]
 ]);
 
-
-module.exports = { default_commands: DEFAULT_ADMIN_COMMANDS };
+module.exports = { DEFAULT_ADMIN_COMMANDS };
