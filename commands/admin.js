@@ -7,7 +7,7 @@ const {
 
 const { Ephemeral } = MessageFlags;
 
-const { default_commands } = require('./admin/index.js');
+const { default_commands } = require('./admin/interacts/chatInput');
 
 module.exports = {
 	data: new SlashCommandBuilder()

@@ -1,12 +1,12 @@
 const { Colors, ButtonInteraction, EmbedBuilder, Collection, channelMention, bold } = require("discord.js");
 const { Gold } = Colors;
 
-const { getBotThreadChannels } = require('./index');
+const { getBotThreadChannels } = require('../util');
 
-const { UID_DELETE_ALL, BOT_IMG_URL } = require('@constants');
+const { BOT_IMG_URL } = require('@constants');
 
 /**
- * 
+ * Deletes the threads and returns a success or strange message.
  * @param {ButtonInteraction} interaction 
  */
 const buttonDeleteAll = async interaction => {
@@ -64,11 +64,7 @@ const buttonDeleteAll = async interaction => {
 		.setThumbnail(BOT_IMG_URL)
         .setTimestamp();
 
-    interaction.update({ content: '', embeds: [embed], components: [] });
+    return await interaction.update({ content: '', embeds: [embed], components: [] });
 };
 
-const interactButton = new Collection([
-    [UID_DELETE_ALL, buttonDeleteAll]
-]);
-
-module.exports = { button: interactButton }
+module.exports = { buttonDeleteAll }

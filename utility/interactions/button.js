@@ -8,9 +8,10 @@
  * */
 
 const Create = require('@commands/create/index.js');
-const Admin = require('@commands/admin/buttons.js');
+const Admin = require('@commands/admin/index');
 
-const { ButtonInteraction } = require('discord.js');
+const { ButtonInteraction, MessageFlags } = require('discord.js');
+const { SuppressNotifications, Ephemeral } = MessageFlags;
 
 /**
  * @param {ButtonInteraction} interaction 
@@ -35,9 +36,10 @@ const interactionButton = async (interaction) => {
 	}
 	catch (error) {
 		console.log('button error', error);
-		// await interaction.channel.send({ content: 'There was an error while executing this command!', flags:'SuppressNotifications' });
+		if (interaction.replied || interaction.deferred) {
+			await interaction.followUp({ content: 'There was an error while executing this command!', flags: SuppressNotifications|Ephemeral })
+		}
 	}
-
 };
 
 module.exports = {
