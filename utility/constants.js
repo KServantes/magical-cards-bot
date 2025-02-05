@@ -9,14 +9,58 @@
  * 
  * */
 
+const path = require('node:path');
+
 
 /**
- * @memberof ChannelID
  * @constant {string} BOT_FORUM_CHANNEL (Only use in Testing) the channel id of the forum channel to populate card apps
  * If set by the server owner, it will ask to populate an existing forum channel.
  * If not made, then the bot will make it with default permissions. (e.g. members cannot create )
  */
 const BOT_FORUM_CHANNEL = process.env.FORUM_CHANNEL_ID || '';
+
+
+
+/**
+ * @namespace BOT_PATHS
+ */
+
+/**
+ * @memberof BOT_PATHS
+ * @constant {string} BOT_EVENTS_PATH
+ */
+const BOT_EVENTS_PATH = path.join(__dirname,'../events');
+
+/**
+ * @memberof BOT_PATHS
+ * @constant {string} BOT_COMMANDS_PATH
+ */
+const BOT_COMMANDS_PATH = path.join(__dirname,'../commands');
+
+/**
+ * @memberof BOT_PATHS
+ * @constant {string} BOT_INTERACTIONS_PATH
+ */
+const BOT_INTERACTIONS_PATH = path.join(__dirname,'./interactions');
+
+
+
+/**
+ * @namespace Collection_String_IDs
+ */
+
+/**
+ * @memberof Collection_String_IDs
+ * @constant {string} GLOBAL_CACHE
+ */
+const GLOBAL_CACHE = 'global cache';
+
+/**
+ * @memberof Collection_String_IDs
+ * @constant {string} GUILD_CACHE
+ */
+const GUILD_CACHE = 'guild cache';
+
 
 
 // -------------
@@ -30,6 +74,7 @@ const EMOTE_HATS = '1133616860294823946';
 const EMOTE_FACEDOWN = '1133624918488133773';
 
 
+
 // -------------
 // BOT IMG URLS
 // -------------
@@ -38,12 +83,14 @@ const EMOTE_FACEDOWN = '1133624918488133773';
 const BOT_IMG_URL = 'https://i.imgur.com/ebtLbkK.png';
 
 
+
 // -------------
 // NUMBER CONSTANTS
 // -------------
 
 /** @constant {number} DEFAULT_AVATAR_SIZE default avatar size by pixel*/
 const DEFAULT_AVATAR_SIZE = 128
+
 
 
 /**
@@ -69,6 +116,8 @@ const UID_START_THREAD = 'start_thread';
  */
 const UID_HALT = 'halt';
 
+
+
 /**
  * @namespace Admin_Button_Constants
  */
@@ -85,7 +134,14 @@ const UID_DELETE_ALL = 'delete all'
  */
 const UID_HALT_DELETE = 'halt delete'
 
+
+
 module.exports = {
+    GLOBAL_CACHE,
+    GUILD_CACHE,
+    BOT_COMMANDS_PATH,
+    BOT_EVENTS_PATH,
+    BOT_INTERACTIONS_PATH,
     EMOTE_HATS,
     EMOTE_FACEDOWN,
     BOT_IMG_URL,

@@ -15,7 +15,9 @@
   "license": "ISC",
   "_moduleAliases": {
     "@commands": "./commands/",
-    "@constants": "./utility/constants"
+    "@constants": "./utility/constants",
+    "@structures": "./structures",
+    "@types": "./utility/types"
   },
   "dependencies": {
     "@napi-rs/canvas": "^0.1.65",

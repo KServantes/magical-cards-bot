@@ -5,7 +5,9 @@
         "baseUrl": "./", // root
         "paths": {
             "@commands/*": ["./commands/*"], // Map "@commands" to "/commands"
-            "@constants": ["./utility/constants"] // Map "@constants" to "utility/constants.js"
+            "@constants": ["./utility/constants"], // Map "@constants" to "utility/constants.js"
+            "@structures": ["./structures"], // Map "@structures" to "/structures"
+            "@types": ["./utility/types"] // Map "@types" to "utility/types.js"
         }
     },
     "exclude": ["node_modules", "**/node_modules/*"]

@@ -1,22 +1,15 @@
 require('dotenv').config();
 require("module-alias/register");
 
-const { Client, GatewayIntentBits, Partials } = require('discord.js');
-const { Guilds, GuildMessages, GuildMessageReactions } = GatewayIntentBits;
-const { Message, ThreadMember } = Partials;
+const { BotClient } = require('@structures');
 
+const client = new BotClient();
 
-const client = new Client({
-    intents: [Guilds, GuildMessages, GuildMessageReactions],
-    partials: [Message, ThreadMember]
-});
-
-const loadCollections = require('./utility');
-const loadEvents = require('./events');
-
-// register commands and interactions collections
-loadCollections(client);
 // load events
-loadEvents(client);
+client.loadEvents();
+// register commands and interactions collections
+client.loadCollections();
+
+process.on("unhandledRejection", (error) => console.log(`Unhandled exception`, error));
 
 client.login(process.env.TOKEN);
