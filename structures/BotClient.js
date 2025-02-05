@@ -44,6 +44,7 @@ module.exports = class BotClient extends Client {
     
         for (const file of commandFiles) {
             const filePath = path.join(commandsPath, file);
+            /** @type {import('@types').Command} */
             const command = require(filePath);
             this.commands.set(command.data.name, command);
         }
@@ -53,6 +54,7 @@ module.exports = class BotClient extends Client {
     
         for (const file of interactFiles) {
             const filePath = path.join(interactPath, file);
+            /** @type {import('@types').Interaction} */
             const interaction = require(filePath);
             this.interactions.set(interaction.name, interaction);
         }
