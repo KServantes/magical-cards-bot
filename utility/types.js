@@ -1,5 +1,8 @@
 const { Collection, SlashCommandBuilder } = require('discord.js');
 
+const Constants = require('./constants')
+Constants.GUILD_CACHE
+
 /**
  * @namespace BotCollections
  */
@@ -19,8 +22,9 @@ const { Collection, SlashCommandBuilder } = require('discord.js');
 
 /**
  * ### Guild Cache
+ * Holds the server settings per id.
  * @memberof BotCollections
- * @typedef {Collection<string,ControlCache>} GuildCache
+ * @typedef {Collection<string,ServerSets>} GuildCache
  * @example <caption>Example usage and what to expect</caption>
  * // get guild cache by it's string id
  * const guildCache = client.cache.get('guild cache')
@@ -41,20 +45,11 @@ const { Collection, SlashCommandBuilder } = require('discord.js');
  * @typedef {Collection<string,Command>} CommandCollection
  */
 
-
-
 /**
- * #### Guild Cache [[Control Cache]]
- * Inside the Guild Cache collection. Holds the server settings per id.
- * @typedef {Collection<string,ServerSets>} ControlCache
- */
-
-/**
- * 
  * @typedef {Object} ServerSets Server's settings object
  * @prop {string} [forum_channel] designated forum channel for the bot to use
+ * @prop {Collection} blacklist list of banned guild users
  */
-
 
 /**
  * @typedef {Object} Command Command data

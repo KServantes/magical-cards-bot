@@ -1,6 +1,6 @@
 const { Collection } = require("discord.js");
 
-const { UID_DELETE_ALL } = require('@constants');
+const { UID_DELETE_ALL, UID_HALT_ADMIN } = require('@constants');
 
 const { buttonDeleteAll } = require('@commands/admin/interacts/buttons');
 

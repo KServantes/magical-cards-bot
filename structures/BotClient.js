@@ -5,6 +5,8 @@ const { Message, ThreadMember } = Partials;
 const { BOT_EVENTS_PATH, BOT_COMMANDS_PATH, BOT_INTERACTIONS_PATH } = require('@constants');
 const { CommandCollection, InteractionCollection, GlobalCache } = require('@types')
 
+const BotCacheManager = require('./BotCacheManager');
+
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -18,8 +20,8 @@ module.exports = class BotClient extends Client {
         this.commands = new Collection();
         /** @type {InteractionCollection} */
         this.interactions = new Collection();
-        /** @type {GlobalCache} */
-        this.cache = new Collection();
+        /** @type {BotCacheManager} */
+        this.bot = new BotCacheManager();
     }
     
     loadEvents() {

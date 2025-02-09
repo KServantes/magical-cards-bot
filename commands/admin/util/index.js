@@ -4,21 +4,28 @@ const { Blue } = Colors;
 const { BOT_IMG_URL } = require('@constants');
 
 /**
+ * @typedef {Object} infoObject
+ * @prop {GuildMember|APIInteractionGuildMember} member guild member
+ * @prop {string} desc embed description
+ * @prop {string} title title to add to the embed "admin panel +"
+ * @prop {Collection<string,PrivateThreadChannel>} coll channel collection <parentID,threadChannel>
+ */
+
+/**
  * Builds the embed to pass through. If coll is passed, it is because there's
  * more than 1 channel with threads that are deletable. Only thread channels made with the bot will be deleted.
- * @param {GuildMember|APIInteractionGuildMember} member guild member
- * @param {string} description embed description
- * @param {Collection<string,PrivateThreadChannel>} coll channel collection <parentID,threadChannel>
+ * @param {infoObject} info
  * @returns { EmbedBuilder }
  */
-const buildEmbed = (member, description, coll) => {
+const buildEmbed = info => {
 
+    const { member, desc, title , coll } = info;
     const { displayName: name } = member;
 
     let embed = new EmbedBuilder()
         .setColor(Blue)
-        .setTitle('Admin Panel')
-        .setDescription(description)
+        .setTitle('Admin Panel ' + title)
+        .setDescription(desc)
         .setFooter({ text: name, iconURL: member.displayAvatarURL() })
         .setThumbnail(BOT_IMG_URL)
         .setTimestamp();
